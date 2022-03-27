@@ -1,0 +1,125 @@
+These are Particle.io webhooks needed by the client firmware.
+Each webhook is a JSON package. To use this, create a webhook then in the webhook editor
+click Custom Template and post one of these packages in the text box. 
+
+Note that private keys, accounts, and passwords have been removed from this
+file.
+
+2021 09 30   Updated ezfClientByClientID to use Mustache code to reduce the amount of data returned.
+
+{
+    "event": "RFIDLogging",
+    "url": "http://rfidsandbox.makernexuswiki.com/rfidcheckin.php",
+    "requestType": "POST",
+    "noDefaults": false,
+    "rejectUnauthorized": false
+}
+
+{
+    "event": "RFIDLogCheckInOut",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}mnlogdbCheckInOut",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}mnlogdbCheckInOutError",
+    "url": "http://rfidsandbox.makernexuswiki.com/rfidcheckinout.php",
+    "requestType": "POST",
+    "noDefaults": false,
+    "rejectUnauthorized": false
+}
+
+{
+    "event": "ezfClientByMemberNumber",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
+    "url": "https://api.sandbox.ezfacility.com/v2/clients/membershipNumber={{{memberNumber}}}",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "",
+    "headers": {
+        "Authorization": "Bearer {{{access_token}}}",
+        "Accept": "application/json",
+        "ez-page-number": "1"
+    }
+}
+
+{
+    "event": "ezfClientByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
+    "url": "https://api.sandbox.ezfacility.com/v2/clients/{{{clientID}}}",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values \n\tMake JSON that is just what we need in the client from what\n\tis returned from the EZF CRM system.\n\t}}\n\t{\n\t\"AmountDue\":{{AmountDue}},\n\t\"ClientID\":{{ClientID}},\n\n\t\"CustomFields\": [\n\n\t\t{{#CustomFields}} \n\t\t\t{\"Name\":\"{{Name}}\", \"Value\":\"{{Value}}\" },\n \t\t{{/CustomFields}} \n \t\t\n \t\t{\"Name\":\"Junk\",\"Value\":\"JunkValue\"}\n\t],\n\t   \n\t\"FirstName\":\"{{FirstName}}\",\n\t\"LastName\":\"{{LastName}}\",\n\t\"MembershipContractStatus\":\"{{MembershipContractStatus}}\",\n\t\"MembershipNumber\":\"{{MembershipNumber}}\"\n\t}",
+    "headers": {
+        "ez-page-number": "1",
+        "Accept": "application/json",
+        "Authorization": "Bearer {{{access_token}}}"
+    }
+}
+
+{
+    "event": "ezfCheckInToken",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
+    "url": "https://api.sandbox.ezfacility.com/token",
+    "requestType": "POST",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "",
+    "headers": {
+        "Authorization": "Basic ...",
+        "Accept": "application/json",
+        "Content-type": "application/x-www-form-urlencoded"
+    },
+    "form": {
+        "password": "...",
+        "username": "...",
+        "grant_type": "password",
+        "scope": "realm:tms"
+    }
+}
+
+
+{
+    "event": "ezfGetPackagesByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfGetPackagesByClientID",
+    "url": "https://api.sandbox.ezfacility.com/v2/packages/{{{clientID}}}/active",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "{{#0}} {{ReservationType}}| {{/0}}\n{{#1}} {{ReservationType}}| {{/1}}\n{{#2}} {{ReservationType}}| {{/2}}\n{{#3}} {{ReservationType}}| {{/3}}\n{{#4}} {{ReservationType}}| {{/4}}\n{{#5}} {{ReservationType}}| {{/5}}\n{{#6}} {{ReservationType}}| {{/6}}\n{{#7}} {{ReservationType}}| {{/7}}\n{{#8}} {{ReservationType}}| {{/8}}\n{{#9}} {{ReservationType}}| {{/9}}\n{{#10}} {{ReservationType}}| {{/10}}\n{{#11}} {{ReservationType}}| {{/11}}\n{{#12}} {{ReservationType}}| {{/12}}\n{{#13}} {{ReservationType}}| {{/13}}\n{{#14}} {{ReservationType}}| {{/14}}\nEndOfPackages\n",
+    "headers": {
+        "Authorization": "Bearer {{{access_token}}}",
+        "Accept": "application/json",
+        "ez-page-number": "1"
+    }
+}
+
+
+{
+    "event": "ezfCheckInClient",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInClient",
+    "url": "https://api.sandbox.ezfacility.com/v2/checkins/clientID/{{{clientID}}}",
+    "requestType": "POST",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "headers": {
+        "Authorization": "Bearer {{{access_token}}}",
+        "Accept": "application/json"
+    },
+    "form": {
+        "CheckInLocationID": "14170",
+        "CheckInStationID": "5487",
+        "BookedSessionsMessage": "junk for now"
+    }
+}
+
+{
+    "event": "fdbGetStationConfig",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}fdbGetStationConfig",
+    "url": "http://rfidsandbox.makernexuswiki.com/fdbGetStationConfig.php",
+    "requestType": "GET",
+    "noDefaults": false,
+    "rejectUnauthorized": true,
+    "query": {
+        "cmd": "{{{PARTICLE_EVENT_VALUE}}}"
+    }
+}
