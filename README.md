@@ -1,8 +1,10 @@
-# MN_ACL
+# RFID_System  
 ## RFID based access control and monitoring system for Maker Nexus.
 This repository contains hardware, software and test information 
 related to the development of an access control system for
 Maker Nexus.
+
+This is the production version for Maker Nexus. It was copied from https://github.com/TeamPracticalProjects/MN_ACL
 
 Each member is issued an RFID card that has been prepared to identify the member
 and to ensure that cards can be revoked and/or replaced.  Membership information relevant
