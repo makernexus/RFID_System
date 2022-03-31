@@ -5,7 +5,9 @@
 // Call with POST and data of:
 // {
 //  "event": "RFIDLogging",
-//  "data": "{"dateEventLocal":"2019-09-22 16:29:13","deviceFunction":"Check In","clientID":21524942,"logEvent":"checkin","logData":"Sunnyvale"}",
+//  "data": "{"dateEventLocal":"2019-09-22 16:29:13","deviceFunction":"Check In","clientID":21524942,
+//            "firstName":"Tester","lastName":"Testy","logEvent":"checkin allowed","logData":"Sunnyvale",
+//            ”MODAction”:”No”}",
 //  "published_at": "2019-09-22T23:29:18.543Z",
 //  "coreid": "e00fce683ce9c5a9e5a4f43d"
 // }
@@ -17,13 +19,52 @@
 //
 // RETURN <ActionTaken> tags containing "Checked In" or "Checked Out"
 //
-// Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
+// Mar 2022 updated to take MODRequested JSON field and act on it if value is "Yes".
+//
+// Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
+
+
+function debugThis($data) {
+    // set to 1 if you want to see a bunch of debug steps
+    if (0) {
+        echo '<b>' . $data;
+    }
+}
+
+include 'commonfunctions.php';
+
+// -----------------------------------------
+// STEP - Checks for IP locking, etc
+// -----------------------------------------
+
+allowWebAccess();  // if IP not allowed, then die
+
+// -----------------------------------------
+// STEP - Get database credentials and establish connection
+// -----------------------------------------
 
 $ini_array = parse_ini_file("rfidconfig.ini", true);
 $dbUser = $ini_array["SQL_DB"]["writeUser"];
 $dbPassword = $ini_array["SQL_DB"]["writePassword"];
 $dbName = $ini_array["SQL_DB"]["dataBaseName"];
+
+// set up SQL connection
+$con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
+
+// Check connection
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+
+// used in SQL commands needing 00:00 today
+$today = new DateTime(); 
+$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+$sqlDateToday = date_format($today, "Y-m-d");
+
+// -----------------------------------------
+// STEP - Get parameters that were sent in
+// -----------------------------------------
 
 // standard data from webhook
 $datePublishedAt =  cleanInput($_POST["published_at"]);
@@ -32,7 +73,6 @@ $eventName = cleanInput($_POST["event"]);
 
 // data from the device in JSON format
 $postedData =  $_POST["data"];
-//echo "posted data:" . $postedData;
 $myJSON = json_decode($postedData,true);
 echo "<p>" . printJSONError(json_last_error());
 //var_dump($myJSON); // xxx
@@ -46,37 +86,52 @@ $clientID =  cleanInput($myJSON["clientID"] );
 $logEvent =  cleanInput($myJSON["logEvent"]);
 $logData =  cleanInput($myJSON["logData"] );
 
+$MODActionRequested = false;
+if (strpos(" " . $myJSON["MODAction"] ,"Yes") == 1) {
+    $MODActionRequested = true;
+} 
+
+// -----------------------------------------
+// STEP - If this was called incorrectly, then fail
+// -----------------------------------------
+
 if (strpos(" " . $logEvent,"checkin allowed") != 1) {
 
-    die ("This url is only for checkin allowed events.");
+    die ("This url is only for checkin allowed events.");  // NOTE EARLY EXIT
 
 }
 
+// -----------------------------------------
+// STEP - Log this call to the php script
+// -----------------------------------------
 
-// set up SQL connection
-$con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
+$insertEventLogSQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+    $clientID, $firstName, $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+    $deviceFunction, $logEvent, $logData );
 
-// SQL to determine if this person is checked in or out
+if (mysqli_query($con, $insertEventLogSQL)) {
+    debugThis("New event log record created successfully");
+} else {
+    echo "<p>Error: " . $insertEventLogSQL . "<br>" . mysqli_error($con);
+}
+
+// -----------------------------------------
+// STEP - Determine current status of the clientID
+//   a1. are they checked in now?
+//   a2. if so, are they MOD now?
+//   b. if MODActions, are they MOD eligible?
+// -----------------------------------------
+
+// a1. Determine if this person is checked in or out
 // by getting most recent status for this clientID 
-$today = new DateTime(); 
-$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
-
-$currentStatusSQL = 
-"SELECT * FROM rawdata 
-WHERE clientID = <<clientID>> 
-  AND logEvent in ('Checked In','Checked Out')
-  AND CONVERT( dateEventLocal, DATE) = CONVERT('" . date_format($today, "Y-m-d") . "', DATE) 
-ORDER BY dateEventLocal DESC 
-LIMIT 1";
-
-$currentStatusSQL = str_replace("<<clientID>>",$clientID,$currentStatusSQL);
-
-$resultCheckin = mysqli_query($con, $currentStatusSQL);
-
-// determine if the client is currently checked in or checked out
 $isClientCheckedIn = false; 
 $lastCheckedInTime = "";
-if (mysqli_num_rows($resultCheckin)) {
+$currentStatusSQL = createCheckInOutStatusSQL($clientID, $sqlDateToday);
+
+$resultCheckin = mysqli_query($con, $currentStatusSQL);
+echo mysqli_error($con);
+
+if (mysqli_num_rows($resultCheckin) == 1) {
 
     $returnedRow = mysqli_fetch_assoc($resultCheckin);
     
@@ -84,88 +139,208 @@ if (mysqli_num_rows($resultCheckin)) {
         // they were found checked in
         $lastCheckedInTime = $returnedRow["dateEventLocal"];
         $isClientCheckedIn = true;
+        debugThis("client is checked in");
     }
 }
 
-// Log insert record sql
-$insertSQL = 
-"INSERT INTO `rawdata`
-       (`dateEventLocal`, `coreID`, `deviceFunction`, `clientID`, firstName, `eventName`, `logEvent`, `logData`, `datePublishedAt`,ipAddress) 
-VALUES ('<<dateEventLocal>>', '<<coreID>>', '<<deviceFunction>>', '<<clientID>>', '<<firstName>>', '<<eventName>>', '<<logEvent>>', '<<logData>>','<<datePublishedAt>>','<<ipAddress>>')";
+// a2. if they are checked in, are they currently MOD?
+$isClientMOD = false;
+if ($isClientCheckedIn) {
+    // is this person currently MOD?
+    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday);
 
-// put common values into sql
-$insertSQL = str_replace("<<dateEventLocal>>", $dateEventLocal, $insertSQL);
-$insertSQL = str_replace("<<coreID>>", $coreID, $insertSQL);
-$insertSQL = str_replace("<<clientID>>", $clientID, $insertSQL);
-$insertSQL = str_replace("<<firstName>>", $firstName, $insertSQL);
-$insertSQL = str_replace("<<datePublishedAt>>", $datePublishedAt, $insertSQL);
-$insertSQL = str_replace("<<eventName>>", $eventName, $insertSQL);
-$insertSQL = str_replace("<<ipAddress>>", $_SERVER['REMOTE_ADDR'], $insertSQL);
+    $result = mysqli_query($con, $selectMODSQL);
+    echo mysqli_error($con);
 
-// keep it as this point for the checkin/out function
-$checkInOutSQL = $insertSQL;
+    if (mysqli_num_rows($result) > 0) {
 
-// continue with device log specific data
-$insertSQL = str_replace("<<deviceFunction>>", $deviceFunction, $insertSQL);
-$insertSQL = str_replace("<<logEvent>>", $logEvent, $insertSQL);
-$insertSQL = str_replace("<<logData>>", $logData, $insertSQL);
+        $row = mysqli_fetch_assoc($result);
+        // is our clientID the current MOD?
+        if (strcmp($clientID, $row['clientID']) == 0 ) {
+            $isClientMOD = true;
+            debugThis("client is MOD");
+        }
 
-$returnMessage = "default return message";
+    } 
+}
 
-// log device event
-if (mysqli_query($con, $insertSQL)) {
-    $returnMessage = "New log record created successfully";
+// b. if MODAction is asked for, then is person MOD eligible?
+$MODEligible = false;
+if ($MODActionRequested) {
+
+    $selectMODEligibleSQL = createMODEligibleSQL ($clientID);
+
+    $resultMODEligible = mysqli_query($con, $selectMODEligibleSQL);
+
+    if (mysqli_num_rows($resultMODEligible) == 1) {
+        $returnedRow = mysqli_fetch_assoc($resultMODEligible);
+        if (strpos(" " . $returnedRow['MOD_Eligible'],"1") == 1) {
+            $MODEligible = true;
+            debugThis("client is MOD Eligible");
+        } 
+    }
+
+   
+}
+
+// -----------------------------------------
+// STEP - Determine what actions we should take
+//   a. should they be checked in or out?
+//   b. should we try to make them MOD?
+// -----------------------------------------
+
+if ($isClientMOD && !$isClientCheckedIn) {
+    // this is an internal inconsistency in the database. Anyone who is
+    // MOD should also be checked in. We should log this.
+    // XXX
+    echo "database inconsistency: client is MOD but checked out";
+}
+
+// For the todo... variables the values are:
+//    -1   check out / go off duty
+//     0   no action
+//     1   check in / go on duty
+$todoCheckInOutAction = 0;
+$todoMODAction = 0;
+
+if (!$MODActionRequested) {
+    // no MOD action requested, so normal check in/out
+    debugThis("No Mod Action requested");
+    if($isClientCheckedIn) {
+        // check them out
+        $todoCheckInOutAction = -1;
+        if ($isClientMOD) {
+            debugThis ("MOD will be forced Off Duty");
+            // if they are MOD then also go off duty
+            $todoMODAction = -1;
+        }
+    } else {
+        // check them in
+        $todoCheckInOutAction = 1;
+    }
 } else {
-    echo "<p>Error: " . $insertSQL . "<br>" . mysqli_error($con);
+    // MOD Action Requested
+    if ($isClientMOD) {
+        // to be MOD they should be checked in so this invokation is 
+        // for a check OUT and they go off duty as MOD (in this case
+        // the shop should be closing)
+        $todoCheckInOutAction = -1;
+        $todoMODAction = -1;
+    } else {
+        // they want to go on duty as MOD
+        $todoMODAction = 1;
+        if (!$isClientCheckedIn) {
+            // they are not checked in, so we need to do that too
+            $todoCheckInOutAction = 1;
+        }
+    }
 }
 
-// if the device has said we can check this person in, then toggle their status
-// prepend a space to make this damn strpos work like any reasonable language would!
-if (strpos(" " . $logEvent,"checkin allowed") == 1) {
+// -----------------------------------------
+// STEP - Do the needed check in/out work
+// -----------------------------------------
 
-    // check the person in or out
-    $checkInOutSQL = str_replace("<<deviceFunction>>", "rfidcheckin.php", $checkInOutSQL);
-    
+$returnMessageCheckInOutValue = "no change"; 
 
-    if ($isClientCheckedIn) {
-        // They are checked in, so check them out
-        $checkInOutSQL = str_replace("<<logEvent>>","Checked Out" , $checkInOutSQL);
+if ($todoCheckInOutAction == -1) {
+    // Check them OUT
+    debugThis("checking out");
+    // How long have they been in the makerspace?
+    $minutesInSpace = round((strtotime($dateEventLocal) - strtotime($lastCheckedInTime) )/60);
 
-        $minutesInSpace = round((strtotime($dateEventLocal) - strtotime($lastCheckedInTime) )/60);
+    // construct the SQL
+    $checkInOutSQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+        $clientID, $firstName, $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+        "rfidcheckin.php", "Checked Out", $minutesInSpace );
 
-        $checkInOutSQL = str_replace("<<logData>>", $minutesInSpace , $checkInOutSQL);
-        $returnMessage = "Checked Out";
-    } else {
-        // They are checked out, so check them in
-        $checkInOutSQL = str_replace("<<logEvent>>","Checked In" , $checkInOutSQL);
-        $checkInOutSQL = str_replace("<<logData>>", "", $checkInOutSQL);
-        $returnMessage = "Checked In";
+    $returnMessageCheckInOutValue = "Checked Out";
+
+} else {
+
+    if ($todoCheckInOutAction == 1) {
+        // Check them IN
+        debugThis("checking in");
+        // construct the SQL
+        $checkInOutSQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+            $clientID, $firstName, $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+            "rfidcheckin.php", "Checked In", "" );
+
+        $returnMessageCheckInOutValue = "Checked In";
     }
 
-    // check the member in or out
-    if (mysqli_query($con, $checkInOutSQL)) {
-        //echo "<p>New record created successfully";
+}
+
+// execute the check in/out SQL
+if (mysqli_query($con, $checkInOutSQL)) {
+    //echo "<p>New record created successfully";
+} else {
+    echo "<p>Error: " . $checkInOutSQL . "<br>" . mysqli_error($con);
+}
+
+// -----------------------------------------
+// STEP - Do the needed MOD on / off duty work
+// -----------------------------------------
+
+$returnMessageMODValue = "No Change";
+
+if ($todoMODAction == -1) {
+    // Going OFF duty
+    debugThis("MOD going Off Duty");
+    // use clientID 0 and firstName null
+    $insertMODOffDutySQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+        "0", "", $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+        $deviceFunction, "MOD", $logData );
+
+    // log device event
+    if (mysqli_query($con, $insertMODOffDutySQL)) {
+        $returnMessageMODValue = "Off Duty";
     } else {
-        echo "<p>Error: " . $checkInOutSQL . "<br>" . mysqli_error($con);
+        echo "<p>Error: " . $insertMODOffDutySQL . "<br>" . mysqli_error($con);
     }
 
-    // The Particle device will parse the return and show this to the user.
-    $returnMessage = "<ActionTaken>" . $returnMessage . "</ActionTaken>"; 
+} else {
 
-} 
-// ------------------ respond to client
+    if ($todoMODAction == 1) {
+        // Going ON duty
+        debugThis("MOD going On Duty");
+        if ($MODEligible) {
+
+            // They will become MOD
+            $insertMODOnDutySQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+                $clientID, $firstName, $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+                $deviceFunction, "MOD", $logData );
+
+            // log device event
+            if (mysqli_query($con, $insertMODOnDutySQL)) {
+                $returnMessageMODValue = "On Duty";
+            } else {
+                echo "<p>Error: " . $insertMODOnDutySQL . "<br>" . mysqli_error($con);
+            }
+
+        } else {
+
+            $returnMessageMODValue = "No Change";
+
+        }
+    }
+}
+
+// -----------------------------------------
+// STEP - Respond to the client
+// -----------------------------------------
+// The RFID device will parse the return and show this to the user.
+$returnMessageCheckInOut = "<ActionTaken>" . $returnMessageCheckInOutValue . "</ActionTaken>"; 
+$returnMessageMOD = "<MODAction>" . $returnMessageMODValue . "</MODAction>";
+$returnMessage = $returnMessageCheckInOut . $returnMessageMOD;
 echo $returnMessage;  
 
-// ------------------  Now update the clientInfo table
-$clientInfoSQL = "CALL sp_insert_update_clientInfo(<<CLIENTID>>,'<<FIRSTNAME>>','<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>);";
+// -----------------------------------------
+// STEP - Update the client info table
+//   a. might be new entry we haven't seen before
+//   b. might be a name change that we need to update
+// -----------------------------------------
 
-$clientInfoSQL = str_replace("<<CLIENTID>>",$clientID,$clientInfoSQL);
-$clientInfoSQL = str_replace("<<LASTNAME>>",$lastName,$clientInfoSQL);
-$clientInfoSQL = str_replace("<<FIRSTNAME>>",$firstName,$clientInfoSQL);
-$clientInfoSQL = str_replace("<<DATELASTSEEN>>",$dateEventLocal,$clientInfoSQL);
-$clientInfoSQL = str_replace("<<ISCHECKEDIN>>","0",$clientInfoSQL);
-
-//echo "clientSQL:" . $clientInfoSQL;
+$clientInfoSQL = createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal);
 
 if (mysqli_query($con, $clientInfoSQL)) {
     //echo "<p>update/insert ran successfully";
@@ -173,12 +348,87 @@ if (mysqli_query($con, $clientInfoSQL)) {
     echo "<p>Error: " . "<br>" . mysqli_error($con);
 }
 
-
+// -----------------------------------------
+// STEP - And now we are done
+// -----------------------------------------
 mysqli_close($con);
 
 return;
 
 //------------------------------------------------------------------------
+//   FUNCTIONS BELOW
+//------------------------------------------------------------------------
+
+// Logging SQL
+function createRawDataInsertSQL ($dateEventLocal, $coreID, $clientID, $firstName, $datePublishedAt, $eventName, $ipAddress, $deviceFunction, $logEvent, $logData ) {
+    $insertEventLogSQL = 
+        "INSERT INTO `rawdata`
+            (`dateEventLocal`, `coreID`, `deviceFunction`, `clientID`, firstName, `eventName`, `logEvent`, `logData`, `datePublishedAt`,ipAddress) 
+        VALUES ('<<dateEventLocal>>', '<<coreID>>', '<<deviceFunction>>', '<<clientID>>', '<<firstName>>', '<<eventName>>', '<<logEvent>>', '<<logData>>','<<datePublishedAt>>','<<ipAddress>>')";
+
+        // put common values into sql
+        $insertEventLogSQL = str_replace("<<dateEventLocal>>", $dateEventLocal, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<coreID>>", $coreID, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<clientID>>", $clientID, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<firstName>>", $firstName, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<datePublishedAt>>", $datePublishedAt, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<eventName>>", $eventName, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<ipAddress>>", $_SERVER['REMOTE_ADDR'], $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<deviceFunction>>", $deviceFunction, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<logEvent>>", $logEvent, $insertEventLogSQL);
+        $insertEventLogSQL = str_replace("<<logData>>", $logData, $insertEventLogSQL);
+
+    return $insertEventLogSQL;
+}
+
+// Checkinout status SQL
+function createCheckInOutStatusSQL ($clientID, $sqlDateToday) {
+    $currentStatusSQL = 
+    "SELECT * FROM rawdata 
+     WHERE clientID = <<clientID>> 
+       AND logEvent in ('Checked In','Checked Out')
+       AND CONVERT( dateEventLocal, DATE) = CONVERT('<<todaydate>>', DATE) 
+    ORDER BY recNum DESC 
+    LIMIT 1";
+    $currentStatusSQL = str_replace("<<clientID>>", $clientID, $currentStatusSQL);
+    $currentStatusSQL = str_replace("<<todaydate>>", $sqlDateToday, $currentStatusSQL);
+    return $currentStatusSQL;
+} 
+
+// IsClientMOD status SQL
+function createIsMODSQL ($clientID,$sqlDateToday) {
+    $selectMODSQL = "SELECT dateEventLocal, clientID, firstName
+    FROM rawdata
+    WHERE logEvent = 'MOD'
+    AND eventName = 'RFIDLogCheckInOut'
+    AND CONVERT( dateEventLocal, DATE) = CONVERT('<<todaydate>>', DATE) 
+    ORDER BY recNum DESC
+    LIMIT 1";
+    $selectMODSQL = str_replace("<<todaydate>>", $sqlDateToday, $selectMODSQL);
+    return $selectMODSQL;
+}
+
+// IsClient MOD Eligible SQL
+function createMODEligibleSQL ($clientID) {
+    $selectMODEligibleSQL = 
+        "SELECT * FROM clientInfo
+         WHERE clientID = <<clientID>>";
+    $selectMODEligibleSQL = str_replace("<<clientID>>", $clientID, $selectMODEligibleSQL);
+    return $selectMODEligibleSQL;
+}
+
+// update Client Info SQL
+function createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal) {
+    $clientInfoSQL = "CALL sp_insert_update_clientInfo(<<CLIENTID>>,'<<FIRSTNAME>>',
+        '<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>);";
+    $clientInfoSQL = str_replace("<<CLIENTID>>", $clientID, $clientInfoSQL);
+    $clientInfoSQL = str_replace("<<LASTNAME>>", $lastName, $clientInfoSQL);
+    $clientInfoSQL = str_replace("<<FIRSTNAME>>", $firstName, $clientInfoSQL);
+    $clientInfoSQL = str_replace("<<DATELASTSEEN>>", $dateEventLocal, $clientInfoSQL);
+    $clientInfoSQL = str_replace("<<ISCHECKEDIN>>", "0", $clientInfoSQL);
+    return $clientInfoSQL;
+}
+
 
 // Pass in a string headed for the db and clean it. This isn't
 // perfect, just meant to hold off some badness
