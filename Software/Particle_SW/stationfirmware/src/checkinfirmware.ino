@@ -149,8 +149,10 @@
  *       sets the Error-Response-Topic. After an error will try to get new token only when 
  *       an RFID card is presented.
  *  2.4  Corrected reporting to FDB on JSON parsing error
+ *  2.5  Changed type of "data" parameter in firmwareupdatehandler() from "int" to "unsigned int".  The
+ *          code now compiles under OS 3.1 and OS 3.2
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.4
+#define MN_FIRMWARE_VERSION 2.5
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -246,7 +248,7 @@ char * strcat_safe( const char *str1, const char *str2 )
 // Called by Particle OS when a firmware update is about to begin
 //
 // Will put a message on the LCD screen and turn on the red LED
-void firmwareupdatehandler(system_event_t event, int data) {
+void firmwareupdatehandler(system_event_t event, unsigned int data) {
     switch (data) {
     case firmware_update_begin:
         writeToLCD("Firmware update","in progress");
