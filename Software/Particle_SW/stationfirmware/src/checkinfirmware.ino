@@ -153,7 +153,7 @@
  *          code now compiles under OS 3.1 and OS 3.2
  *  2.6  Added Manager on Duty functionality. See design docs.
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.6
+#define MN_FIRMWARE_VERSION 2.5
 
 // Our UTILITIES
 #include "mnutils.h"
