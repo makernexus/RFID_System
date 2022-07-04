@@ -163,8 +163,9 @@ void debugEvent (String message) {
 //    logEvent - a short reason for logging ("checkin","reboot","error", etc)
 //    logData - optional freeform text up to 250 characters
 //    clientID - optional if this event was for a particular client 
-void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
 
+
+void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
     const size_t capacity = JSON_OBJECT_SIZE(10);
     DynamicJsonDocument doc(capacity);
     //XXX doc.clear();   // json library says we don't have to do this, but github bug:???
@@ -177,6 +178,11 @@ void publishToLogDB (String webhook, String logEvent, String logData, int client
     doc["lastName"] = clientLastName.c_str();
     doc["logEvent"] = logEvent.c_str();
     doc["logData"] = logData.c_str();
+    String temp = "No";
+    if (MgrOnDuty) {
+        temp = "Yes";
+    }
+    doc["MODRequested"] = temp.c_str();
 
     char JSON[2000];
     serializeJson(doc,JSON );
@@ -188,15 +194,21 @@ void publishToLogDB (String webhook, String logEvent, String logData, int client
 
 }
 
+void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
+    // call WithMgrOnDuty with the MgrOnDuty parameter as false
+    bool MgrOnDuty = false;
+    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
+}
+
 void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName){
     
     publishToLogDB("RFIDLogging", logEvent, logData, clientID, clientFirstName, clientLastName);
 
 }
 
-void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
+void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
 
-    publishToLogDB("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName);
+    publishToLogDBWithMgrOnDuty("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
 
 }
 

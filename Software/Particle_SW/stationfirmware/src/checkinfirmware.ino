@@ -165,7 +165,7 @@
 // Define the pins we're going to call pinMode on
 
 int led = D0;  // You'll need to wire an LED to this one to see it blink.
-int led2 = D7; // This one is the built-in tiny one to the right of the USB jack
+int led2 = ONBOARD_LED_PIN; // This one is the built-in tiny one to the right of the USB jack
 
 //----------- Global Variables
 
@@ -189,6 +189,8 @@ int debug4 = 0;
 int debug5 = 0;
 
 String g_packages = ""; // Not implemented yet xxx
+
+bool g_MgrOnDutySwitch = false;   //when true the MOD switch is active and we're going to change who is MOD
 
 
 
@@ -616,7 +618,7 @@ void ezfReceiveCheckInToken (const char *event, const char *data)  {
             realError = false;
         }
 
-        if (g_tokenResponseBuffer.indexOf("}") == g_tokenResponseBuffer.length() - 1 ) {
+        if ( g_tokenResponseBuffer.indexOf("}") == int(g_tokenResponseBuffer.length()) - 1 ) {
             debugEvent("found trailing close brace");
             // last character is a close brace so we'll call this not a real error
             // expected in the second message of a token response
@@ -1076,11 +1078,11 @@ void ezfReceivePackagesByClientID (const char *event, const char *data)  {
 //
 // Wait for response to particleCallbackMNLOGDB()
 //
-void mnlogdbCheckInOut(int clientID, String firstName, String lastName) {
+void mnlogdbCheckInOut(int clientID, String firstName, String lastName, bool MOD) {
 
     g_checkInOutResponseValid = false;
     g_checkInOutResponseBuffer = "";
-    logCheckInOut("checkin allowed","",clientID,firstName,lastName);
+    logCheckInOut("checkin allowed","",clientID,firstName,lastName, MOD);
 
 }
 
@@ -1099,8 +1101,8 @@ void mnlogdbCheckInOutResponse (const char *event, const char *data)  {
 
     // get content of <ActionTaken> tags
     int tagStartPos = g_checkInOutResponseBuffer.indexOf("<ActionTaken>");
-    int valueEndPos = g_checkInOutResponseBuffer.indexOf("</ActionTaken>");
-    if ( (tagStartPos < 0) || (valueEndPos <0) ){
+    int valueEndPos = g_checkInOutResponseBuffer.indexOf("</MODAction>");
+    if ( (tagStartPos < 0) || (valueEndPos < 0) ){
         // Didn't find the tags from the php script, must not have it all yet
 
     } else {
@@ -2000,7 +2002,7 @@ void loopCheckIn() {
                 // log this to our DB 
                 processStartMilliseconds = millis();
                 // call our DB and find out if this is checkin or checkout 
-                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName );
+                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,g_MgrOnDutySwitch);
                 
                 cilloopState = cilSHOWINOROUT;
 
@@ -2023,24 +2025,32 @@ void loopCheckIn() {
 
         } else if (g_checkInOutResponseValid) {
             // we have a response from our logging database
-            //when we hear back from the logging database we know what to display
-            if (g_checkInOutActionTaken.indexOf("Checked In") == 0){ 
+            //when we hear back from the logging database we know what to display          
+            if (g_checkInOutActionTaken.indexOf("On Duty") > 0) { 
                 String fullName = g_clientInfo.firstName + " " + g_clientInfo.lastName;
-                writeToLCD("Welcome",fullName.substring(0,15));
+                writeToLCD("MOD on Duty:",fullName.substring(0,15));
                 digitalWrite(ADMIT_LED,HIGH);
+                buzzerGoodBeepTwice();
+                delay(500);
                 buzzerGoodBeepTwice();
                 delay(1000);
                 digitalWrite(ADMIT_LED,LOW);
+            } else if (g_checkInOutActionTaken.indexOf("Checked In") == 0) { 
+                    String fullName = g_clientInfo.firstName + " " + g_clientInfo.lastName;
+                    writeToLCD("Welcome",fullName.substring(0,15));
+                    digitalWrite(ADMIT_LED,HIGH);
+                    buzzerGoodBeepTwice();
+                    delay(1000);
+                    digitalWrite(ADMIT_LED,LOW);
             } else {
-                String fullName = g_clientInfo.firstName + " " + g_clientInfo.lastName;
-                writeToLCD("Goodbye",fullName.substring(0,15));
-                digitalWrite(ADMIT_LED,HIGH);
-                buzzerGoodBeeps3UpDownUp();
-                delay(1000);
-                digitalWrite(ADMIT_LED,LOW);
-            }
-            
-            cilloopState = cilWAITFORCARD;
+                    String fullName = g_clientInfo.firstName + " " + g_clientInfo.lastName;
+                    writeToLCD("Goodbye",fullName.substring(0,15));
+                    digitalWrite(ADMIT_LED,HIGH);
+                    buzzerGoodBeeps3UpDownUp();
+                    delay(1000);
+                    digitalWrite(ADMIT_LED,LOW);
+                }
+            cilloopState = cilWAITFORCARD; // we are done processing this card
         } else {
             // just stay in this state
         }
@@ -2503,6 +2513,7 @@ void setup() {
     pinMode(REJECT_LED, OUTPUT);
     pinMode(BUZZER_PIN, OUTPUT);
     pinMode(ONBOARD_LED_PIN, OUTPUT);   // the D7 LED
+    pinMode(MGRONDUTY_PIN, INPUT_PULLDOWN);     // Red button, toggle
     
     digitalWrite(READY_LED, LOW);
     digitalWrite(ADMIT_LED, LOW);
@@ -2578,6 +2589,14 @@ void loop() {
     
     static mlsState mainloopState = mlsASKFORSTATIONCONFIG;
     static unsigned long processStart = 0;
+
+    if (digitalRead(MGRONDUTY_PIN) == HIGH) {
+        digitalWrite(REJECT_LED, HIGH);
+        g_MgrOnDutySwitch =  true;
+    } else {
+        digitalWrite(REJECT_LED, LOW);
+        g_MgrOnDutySwitch = false;
+    }
     
     switch (mainloopState) {
     case mlsASKFORSTATIONCONFIG:
