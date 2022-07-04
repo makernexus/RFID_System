@@ -36,6 +36,7 @@ extern LiquidCrystal lcd;
 #define READY_LED D4   // xxx second definition of this pin...
 #define ADMIT_LED A4
 #define REJECT_LED A5
+#define MGRONDUTY_PIN D8      
 #define BUZZER_PIN D2
 #define MN_EPROM_ID 453214  //This value is written to the EEPROM to show that the
                             //data is ours. Change this and every device will have to
@@ -135,7 +136,8 @@ void debugEvent (String message);
 void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName);
 
 // similar to logToDB, but calls the webhook RFIDLogCheckInOut
-void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName);
+void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty);
+
 
 // This is the return called by Particle cloud when the RFIDLogging webhook completes
 //

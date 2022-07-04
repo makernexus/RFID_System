@@ -87,7 +87,7 @@ $logEvent =  cleanInput($myJSON["logEvent"]);
 $logData =  cleanInput($myJSON["logData"] );
 
 $MODActionRequested = false;
-if (strpos(" " . $myJSON["MODAction"] ,"Yes") == 1) {
+if (strpos(" " . $myJSON["MODRequested"] ,"Yes") == 1) {
     $MODActionRequested = true;
 } 
 
