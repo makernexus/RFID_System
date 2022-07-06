@@ -147,7 +147,7 @@ if (mysqli_num_rows($resultCheckin) == 1) {
 $isClientMOD = false;
 if ($isClientCheckedIn) {
     // is this person currently MOD?
-    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday);
+    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday); //XXX
 
     $result = mysqli_query($con, $selectMODSQL);
     echo mysqli_error($con);
@@ -196,7 +196,7 @@ if ($isClientMOD && !$isClientCheckedIn) {
     echo "database inconsistency: client is MOD but checked out";
 }
 
-// For the todo... variables the values are:
+// For the todo... variables the values are: //xxx mod action
 //    -1   check out / go off duty
 //     0   no action
 //     1   check in / go on duty

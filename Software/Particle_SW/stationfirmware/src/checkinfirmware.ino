@@ -1860,6 +1860,7 @@ void loopCheckIn() {
         enumRetStatus retStatus = readTheCard();
         if (retStatus == COMPLETE_OK) {
             // card was read and data obtained, move to the next step
+            //XXX grab the state of the MOD button
             writeToLCD("checking...", " ");
             cilloopState = cilREQUESTTOKEN;
             digitalWrite(READY_LED,LOW);
@@ -2051,6 +2052,8 @@ void loopCheckIn() {
                     delay(1000);
                     digitalWrite(ADMIT_LED,LOW);
                 }
+            // XXX Turn off the MOD LED
+            // XXX set MOD global to false
             cilloopState = cilWAITFORCARD; // we are done processing this card
         } else {
             // just stay in this state
