@@ -260,10 +260,10 @@ void firmwareupdatehandler(system_event_t event, int data) {
         digitalWrite(REJECT_LED,HIGH);
         break;
     case firmware_update_complete:
-        //writeToLCD("Firmeware update","complete");  // xxx this didn't get called
+        //writeToLCD("Firmeware update","complete");  // note this didn't get called
         break;
     case firmware_update_failed:
-        //writeToLCD("Firmware update","failed");  // xxx this is called even on successful update??
+        //writeToLCD("Firmware update","failed");  // note this is called even on successful update??
         break;
     }
 }
@@ -581,9 +581,9 @@ int ezfGetCheckInToken (bool cardIsPresented) {
 void ezfReceiveCheckInToken (const char *event, const char *data)  {
     
     // accumulate response data  
-    // XXX note that this routine assumes multiple messages in the response come in order!
+    // note that this routine assumes that if the response is in multiple messages,
+    // that they arreive in correct order.
     g_tokenResponseBuffer = g_tokenResponseBuffer + data;
-
     static int partsCnt = 0; //xxx
     partsCnt++;
     debugEvent ("Received CI token part "+ String(partsCnt) + String(data).substring(0,15) );
@@ -602,7 +602,7 @@ void ezfReceiveCheckInToken (const char *event, const char *data)  {
         g_authTokenCheckIn.token = String(docJSON["access_token"].as<const char*>());
         g_authTokenCheckIn.waitForCardTapBeforeTrying = 0; // good resonse so reset error time
 
-        //XXX 5 seconds seems too close. Maybe 10 minutes?
+        //set our good until to be 60 seconds before the real token expiration
         g_authTokenCheckIn.goodUntil = millis() + docJSON["expires_in"].as<int>()*1000 - 60000;   // set expiry 60 seconds early
         
         debugEvent ("have token now " + String(millis()) + "  Good Until  " + String(g_authTokenCheckIn.goodUntil) );
@@ -697,8 +697,8 @@ String clientInfoToJSON(int errCode, String errMsg, bool includeCardData){
 int clientInfoFromJSON(String data){
 
 const size_t capacity = 3*JSON_ARRAY_SIZE(2) + 2*JSON_ARRAY_SIZE(3) + 10*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(20) + 1050;
-    DynamicJsonDocument docJSON(capacity); // XXX DOES THIS ACTUALLY CLEAR THE JSON OBJECT?
-    // XXX docJSON.clear();   // json library says this is unncessary, but see GitHub bug: ???
+    DynamicJsonDocument docJSON(capacity); // DOES THIS ACTUALLY CLEAR THE JSON OBJECT?
+    // docJSON.clear();   // json library says this is unncessary, but see GitHub bug: ???
 
     char temp[3000]; //This has to be long enough for an entire JSON response
     strcpy_safe(temp, g_cibcidResponseBuffer.c_str());
@@ -995,7 +995,7 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
             g_cibcidResponseBuffer = g_cibcidResponseBuffer + pieces[i];
         }
     }
-    // XXX WHY CALL THIS IF WE DON'T HAVE PART 0 YET?
+    // WHY CALL THIS IF WE DON'T HAVE PART 0 YET?
     clientInfoFromJSON(g_cibcidResponseBuffer);
 }
 
@@ -1109,7 +1109,7 @@ void mnlogdbCheckInOutResponse (const char *event, const char *data)  {
     } else {
 
         String actionTaken = g_checkInOutResponseBuffer.substring(tagStartPos + 13, valueEndPos );
-        //xxx debugEvent("action tag value:" + actionTaken);
+        // debugEvent("action tag value:" + actionTaken);
 
         // store results and return
         g_checkInOutActionTaken = actionTaken;
@@ -1364,7 +1364,7 @@ String isClientOkForEquip (){
             } 
             //another keyword
             keywords[numKeywords] = g_stationConfig.OKKeywords.substring(currentComma+1,nextComma).trim();
-            debugEvent("found keyword:" + keywords[numKeywords]); //xxx
+            // debugEvent("found keyword:" + keywords[numKeywords]); 
             numKeywords++;
             currentComma = nextComma;
         } while ( nextComma < (int) g_stationConfig.OKKeywords.length() );
@@ -1995,12 +1995,11 @@ void loopCheckIn() {
                 // all looks good, checkin to ezfacility
                 debugEvent ("SM: now checkin client");
                 // tell EZF to check someone in 
-                // xxx should we only do this on a checkin, not a checkout?
+                // should we only do this on a checkin, not a checkout?
 
                 // GitHub bug #79: tried commenting out this call to ezf
                 // since we don't use that state in EZF for anything
-                // and we don't wait for the webhook to respond; could that be
-                // causing the bug???
+                // and we don't wait for the webhook to respond
                 // ezfCheckInClient(String(g_clientInfo.clientID));
                 
                 // log this to our DB 
@@ -2054,8 +2053,7 @@ void loopCheckIn() {
                     delay(1000);
                     digitalWrite(ADMIT_LED,LOW);
                 }
-            // XXX Turn off the MOD LED
-            // XXX set MOD global to false
+
             cilloopState = cilWAITFORCARD; // we are done processing this card
         } else {
             // just stay in this state
@@ -2147,7 +2145,7 @@ enum idcState {
                 // report card error
                 reportCardError(cardType);
                 g_identifyCardResult = clientInfoToJSON(1,"Card read failed",true);
-                g_identifyCardResultIsValid = true;  //xxx how do we get the right answer into the JSON?
+                g_identifyCardResultIsValid = true;  
                 idcState = idcCLEANUP;
             }
         }
@@ -2345,7 +2343,7 @@ void adminGetUserInfo(int clientID, String memberNumber) {
         writeToLCD(" ", " ");
         g_adminCommandData = "";
         g_adminCommand = acIDLE;
-        guiState = guiIDLE; // xxx
+        guiState = guiIDLE; 
         break;
 
     default:
@@ -2377,7 +2375,7 @@ void loopAdmin() {
     // the loop state is in g_adminCommand and not here
     // because the state is set by calls from the admin app on Android device
 
-    static bool init = true; // xxx make an init state
+    static bool init = true; 
     static bool LCDSaysIdle = false;
 
     if (init) {  // xxx change to an init state
@@ -2446,7 +2444,7 @@ void setup() {
     //Particle.variable ("RFIDCardKey", g_clientInfo.RFIDCardKey);
     //Particle.variable ("g_Packages",g_packages);
     //success = Particle.function("GetCheckInToken", ezfGetCheckInTokenCloud);
-    // xxx
+
     //Particle.variable ("debug2", debug2);
     //Particle.variable ("debug3", debug3);
     //Particle.variable ("debug4", debug4);
@@ -2457,7 +2455,6 @@ void setup() {
  
     // Used by all device types
     success = Particle.function("SetDeviceType", cloudSetDeviceType);
-    // xxx limit of 4 handlers??? Particle.subscribe(System.deviceID() + "RFIDLoggingReturn", RFIDLoggingReturn, MY_DEVICES);
 
     // Used to test CheckIn
     success = Particle.function("RFIDCardRead", cloudRFIDCardRead);
@@ -2467,10 +2464,6 @@ void setup() {
     Particle.subscribe(System.deviceID() + "mnlogdb",particleCallbackMNLOGDB, MY_DEVICES); // older
     Particle.subscribe(System.deviceID() + "fdb",particleCallbackMNLOGDB, MY_DEVICES); // newer
 
-    // Used by device types for machine usage permission validation
-    //success = Particle.function("PackagesByClientID",ezfGetPackagesByClientID);
-    //Particle.subscribe(System.deviceID() + "ezfGetPackagesByClientID",ezfReceivePackagesByClientID, MY_DEVICES);
-
     // Used by Admin Device
     Particle.function("queryMember",cloudQueryMember);
     Particle.variable("queryMemberResult",g_queryMemberResult);
@@ -2478,7 +2471,6 @@ void setup() {
     Particle.function("resetCard",cloudResetCardToFresh);
     Particle.function("identifyCard",cloudIdentifyCard);
     Particle.variable("identifyCardResult",g_identifyCardResult); // xxx should be queryCardInfoResult
-
 
     System.on(firmware_update, firmwareupdatehandler);
 
@@ -2502,7 +2494,7 @@ void setup() {
     }
     if (yesDST) {
         Time.beginDST();
-        debugEvent("DST is set"); // xxx
+        debugEvent("DST is set"); 
     } 
 
     // read EEPROM data for device type 
@@ -2563,7 +2555,7 @@ void setup() {
     g_secretKeysValid = false;
 
     //RFIDKeysJSON from include file
-    responseRFIDKeys("junk", RFIDKeysJSON); //xxx remove parameter
+    responseRFIDKeys(RFIDKeysJSON); 
 
     // Signal ready to go
     writeToLCD(g_stationConfig.LCDName,"ver. " + String(MN_FIRMWARE_VERSION));
