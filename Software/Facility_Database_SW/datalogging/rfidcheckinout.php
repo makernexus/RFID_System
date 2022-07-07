@@ -75,7 +75,7 @@ $eventName = cleanInput($_POST["event"]);
 $postedData =  $_POST["data"];
 $myJSON = json_decode($postedData,true);
 echo "<p>" . printJSONError(json_last_error());
-//var_dump($myJSON); // xxx
+//var_dump($myJSON); 
 
 // data from the device's JSON
 $dateEventLocal = cleanInput($myJSON["dateEventLocal"] );
@@ -147,7 +147,7 @@ if (mysqli_num_rows($resultCheckin) == 1) {
 $isClientMOD = false;
 if ($isClientCheckedIn) {
     // is this person currently MOD?
-    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday);
+    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday); 
 
     $result = mysqli_query($con, $selectMODSQL);
     echo mysqli_error($con);
@@ -191,15 +191,26 @@ if ($MODActionRequested) {
 
 if ($isClientMOD && !$isClientCheckedIn) {
     // this is an internal inconsistency in the database. Anyone who is
-    // MOD should also be checked in. We should log this.
-    // XXX
+    // MOD should also be checked in. We log this inconsistency, in case it happens.
     echo "database inconsistency: client is MOD but checked out";
+    $insertEventLogSQL = createRawDataInsertSQL ($dateEventLocal, $coreID, 
+    $clientID, $firstName, $datePublishedAt, $eventName, $_SERVER['REMOTE_ADDR'],
+    "rfidcheckinout.php", "Database Inconsistency", "client is MOD but not checked in" );
+
+    if (mysqli_query($con, $insertEventLogSQL)) {
+        debugThis("New event log record created successfully");
+    } else {
+        echo "<p>Error: " . $insertEventLogSQL . "<br>" . mysqli_error($con);
+    }
 }
 
-// For the todo... variables the values are:
-//    -1   check out / go off duty
-//     0   no action
-//     1   check in / go on duty
+// We have to decide what to do for a/ check in or out; b/ MOD action
+// The two variables have these values 
+//
+//   value  checkinout Action  /     MOD action
+//    -1      check out        /      go off duty
+//     0      no action        /      no action
+//     1      check in         /      go on duty
 $todoCheckInOutAction = 0;
 $todoMODAction = 0;
 

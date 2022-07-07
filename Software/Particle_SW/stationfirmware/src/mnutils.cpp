@@ -168,7 +168,7 @@ void debugEvent (String message) {
 void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
     const size_t capacity = JSON_OBJECT_SIZE(10);
     DynamicJsonDocument doc(capacity);
-    //XXX doc.clear();   // json library says we don't have to do this, but github bug:???
+    // doc.clear();   // json library says we don't have to do this, but github bug:???
 
     String idea2 = Time.format(Time.now(), "%F %T");
     doc["dateEventLocal"] = idea2.c_str();
