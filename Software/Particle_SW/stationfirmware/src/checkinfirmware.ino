@@ -1848,6 +1848,8 @@ void loopCheckIn() {
     
     static cilState cilloopState = cilINIT;
     static unsigned long processStartMilliseconds = 0; 
+    static bool mgrOnDutyForThisCardRead = false;   // when a card is read, this value is set 
+                                                    // based on the global variable 
     
     switch (cilloopState) {
     case cilINIT:
@@ -1860,7 +1862,7 @@ void loopCheckIn() {
         enumRetStatus retStatus = readTheCard();
         if (retStatus == COMPLETE_OK) {
             // card was read and data obtained, move to the next step
-            //XXX grab the state of the MOD button
+            mgrOnDutyForThisCardRead = g_MgrOnDutySwitch;
             writeToLCD("checking...", " ");
             cilloopState = cilREQUESTTOKEN;
             digitalWrite(READY_LED,LOW);
@@ -2004,7 +2006,7 @@ void loopCheckIn() {
                 // log this to our DB 
                 processStartMilliseconds = millis();
                 // call our DB and find out if this is checkin or checkout 
-                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,g_MgrOnDutySwitch);
+                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,mgrOnDutyForThisCardRead);
                 
                 cilloopState = cilSHOWINOROUT;
 
@@ -2595,10 +2597,10 @@ void loop() {
     static unsigned long processStart = 0;
 
     if (digitalRead(MGRONDUTY_PIN) == HIGH) {
-        digitalWrite(REJECT_LED, HIGH);
+        digitalWrite(ADMIT_LED, HIGH);
         g_MgrOnDutySwitch =  true;
     } else {
-        digitalWrite(REJECT_LED, LOW);
+        digitalWrite(ADMIT_LED, LOW);
         g_MgrOnDutySwitch = false;
     }
     
