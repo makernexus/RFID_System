@@ -37,6 +37,12 @@ table.rawlogtable {
 	border-width: 5px;
 }
 
+.MOD {
+    background-color:rgba(68, 212, 25, 0.992);
+    border-width: 5px;
+    width: 220px;   /* note this is a larger size div */
+}
+
 .IDPhoto {
 	width: 200px;
 }
@@ -45,6 +51,11 @@ p.photoname {
 	margin: 0px 0px 0px 0px;
 	padding: 0px 0px 0px 0px;
 	font-size: 200%;
+}
+p.MODtitleTD {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	font-size: 300%;
 }
 
 p.lastrefreshtime {

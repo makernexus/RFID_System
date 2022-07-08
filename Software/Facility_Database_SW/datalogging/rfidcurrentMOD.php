@@ -56,15 +56,18 @@ if (mysqli_num_rows($result) > 0) {
         // we have an MOD on duty
         $returnMessage['firstName'] = $row["firstName"];
         $returnMessage['photoURL'] = makeImageLink($row['clientID'], $photoServer);
+        $returnMessage['clientID'] = $row["clientID"];
     } else {
         // there is no MOD on duty
         $returnMessage['firstName'] = "CLOSED";
         $returnMessage['photoURL'] = 'http://rfid.makernexuswiki.com/weareclosed.jpg';
+        $returnMessage['clientID'] = "0";
     }
 } else {
      // there is no MOD on duty
      $returnMessage['firstName'] = "CLOSED";
      $returnMessage['photoURL'] = 'http://rfid.makernexuswiki.com/weareclosed.jpg';
+     $returnMessage['clientID'] = "0";
 }
 
 // -----------------------------------------

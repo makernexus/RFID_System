@@ -34,7 +34,7 @@ void clearCardData();
 
 // ------------- GET RFID KEYS -----------------
 // Get RFID Keys
-void responseRFIDKeys(const char *event, const char *data);
+void responseRFIDKeys(const char *data);
 
 
 /**************************************************************************************

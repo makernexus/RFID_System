@@ -8,7 +8,7 @@
 // if the client ip address is not on the allowed list, the web page will die
 function allowWebAccess() {
 
-	// xxx for now return true until we get the public ip of MN
+	// for now return true until we get the public ip of MN
 	return;
 
 	$allowedIPs = array (
