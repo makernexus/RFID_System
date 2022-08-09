@@ -152,8 +152,9 @@
  *  2.5  Changed type of "data" parameter in firmwareupdatehandler() from "int" to "unsigned int".  The
  *          code now compiles under OS 3.1 and OS 3.2
  *  2.6  Added Manager on Duty functionality. See design docs.
+ *  2.7  Changed state of green button to correspond to the production PCB
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.6
+#define MN_FIRMWARE_VERSION 2.7
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -251,7 +252,7 @@ char * strcat_safe( const char *str1, const char *str2 )
 // Called by Particle OS when a firmware update is about to begin
 //
 // Will put a message on the LCD screen and turn on the red LED
-void firmwareupdatehandler(system_event_t event, int data) {
+void firmwareupdatehandler(system_event_t event, unsigned int data) {
     switch (data) {
     case firmware_update_begin:
         writeToLCD("Firmware update","in progress");
@@ -2511,7 +2512,7 @@ void setup() {
     pinMode(REJECT_LED, OUTPUT);
     pinMode(BUZZER_PIN, OUTPUT);
     pinMode(ONBOARD_LED_PIN, OUTPUT);   // the D7 LED
-    pinMode(MGRONDUTY_PIN, INPUT_PULLDOWN);     // Red button, toggle
+    pinMode(MGRONDUTY_PIN, INPUT_PULLUP);     // green button
     
     digitalWrite(READY_LED, LOW);
     digitalWrite(ADMIT_LED, LOW);
@@ -2588,7 +2589,7 @@ void loop() {
     static mlsState mainloopState = mlsASKFORSTATIONCONFIG;
     static unsigned long processStart = 0;
 
-    if (digitalRead(MGRONDUTY_PIN) == HIGH) {
+    if (digitalRead(MGRONDUTY_PIN) == LOW) {    // XXX changed sense state for pullup
         digitalWrite(ADMIT_LED, HIGH);
         g_MgrOnDutySwitch =  true;
     } else {

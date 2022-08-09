@@ -6,6 +6,11 @@ Maker Nexus.
 
 This is the production version for Maker Nexus. It was copied from https://github.com/TeamPracticalProjects/MN_ACL
 
+This repository has been updated to support MOD check-in, status display, and management.  The overview
+document is supplemented with an addendum that describes the new MOD support functionality that
+has been added to this repository.  See the document "RFID_MOD_Addendum_to_Overview_Document" in the 
+Documents folder.
+
 Each member is issued an RFID card that has been prepared to identify the member
 and to ensure that cards can be revoked and/or replaced.  Membership information relevant
 to card issuance and to member check-in and permission to access certain equipment
