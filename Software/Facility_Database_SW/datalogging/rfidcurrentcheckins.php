@@ -29,10 +29,32 @@ $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 // Check connection
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    exit();
+}
+
+// Get current MgrOnDuty status
+$url = 'http://' . $_SERVER['HTTP_HOST'] . '/rfidcurrentMOD.php';
+//open connection
+$ch = curl_init();
+
+//set the url, number of POST vars, POST data
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+//execute post
+$result = curl_exec($ch);
+
+//close connection
+curl_close($ch);
+
+$MODResult = json_decode($result, true);
+if ($MODResult == null) {
+    echo("could not parse MOD result JSON");
+    exit();
 }
 
 $selectSQL = 
-"CALL sp_checkedInDisplay('" . date_format($today, "Ymd") . "');" ;
+    "CALL sp_checkedInDisplay('" . date_format($today, "Ymd") . "');" ;
 
 $result = mysqli_query($con, $selectSQL);
 echo mysqli_error($con);
@@ -40,6 +62,10 @@ echo mysqli_error($con);
 // Construct the page
 
 $html =  str_replace("<<REFRESHTIME>>","Updated: " . date_format($today, "Y-m-d H:i:s"),$html);
+
+// Put out MOD panel first
+$photodivs = makeMODDiv($MODResult["firstName"], $MODResult["photoURL"])  . "\r\n";
+
 
 if (mysqli_num_rows($result) > 0) {
 	
@@ -57,7 +83,7 @@ if (mysqli_num_rows($result) > 0) {
             if ($firstIteration) {
                 //
                 $firstIteration = false;
-            } else {
+            } else if ($currentClientID != $MODResult["clientID"]) {
                 // create div for previous clientID
                 $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName, $currentClientID, $currentEquipment, $photoServer  ) . "\r\n";
             
@@ -79,17 +105,13 @@ if (mysqli_num_rows($result) > 0) {
 
     }
     // last element from loop
-    $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName , $currentClientID, $currentEquipment, $photoServer ) . "\r\n";
-    $photodivs = $photodivs . $thisDiv;
-
-    $html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
-    
-} else {
-
-    $html = str_replace("<<PHOTODIVS>>","No Records Found",$html);
-
+    if ($currentClientID != $MODResult["clientID"]) {
+        $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName , $currentClientID, $currentEquipment, $photoServer ) . "\r\n";
+        $photodivs = $photodivs . $thisDiv;
+    }
 }
 
+$html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
 echo $html;
 
 mysqli_close($con);
@@ -102,7 +124,7 @@ function makeImageURL($data, $photoServer) {
 	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 function makeDiv($classes, $name, $clientID, $equip, $photoServer) {
-  return "<div class='photodiv " . $classes . "' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
+    return "<div class='photodiv " . $classes . "' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
 }
 function makeTable($name, $clientID, $equip, $photoServer){
   return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) . 
@@ -115,5 +137,20 @@ function makeNameCheckoutAction($clientID, $name) {
 function makeEquipList($equip){
   return "<p class='equiplist'>" . $equip . "</p>";
 }
+
+function makeMODDiv($name, $photoURL) {
+    return "<div class='photodiv MOD' >" . makeMODTable($name, $photoURL) . "</div>";
+}
+function makeMODTable($name, $photoURL){
+    return "<table class='clientTable'>" . 
+    //"<tr><td><p class='MODtitle'>Manager On Duty</p></td></tr>" . 
+    "<tr><td class='clientImageTD'><img class='IDPhoto' alt='no photo' src='" . $photoURL . "' onerror=\"this.src='WeNeedAPhoto.png'\"></td>" . 
+    "</tr>" . 
+    "<tr><td class='clientNameTD'><p class='photoname'>" . $name . "</p></td></tr>" . 
+    "<tr><td class='clientEquipTD'>Manager On Duty</td></tr>" . 
+    "</table>";
+  }	
+
+
 
 ?>

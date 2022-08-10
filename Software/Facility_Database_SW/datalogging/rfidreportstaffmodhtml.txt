@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>List of Staff or MOD Eligible</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="style.css" rel="stylesheet">
+  <script src="commonfunctions.js"></script>
+  
+</head>
+
+<body>
+	<h1>Staff or MOD Eligible</h1>
+	<div style="clear:both">
+  	    <<RESULTTABLE>>
+    </div>
+</body>
+
+</html>

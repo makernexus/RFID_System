@@ -107,7 +107,7 @@ void clearCardData() {
 // xxx and should be "setRFIDKeys"
 // ------------- GET RFID KEYS -----------------
 // Get RFID Keys
-void responseRFIDKeys(const char *event, const char *data) {
+void responseRFIDKeys(const char *data) {
 
     g_secretKeysValid = false;
     //const int capacity = JSON_ARRAY_SIZE(8) + JSON_OBJECT_SIZE(1) + 10;
