@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Log of Client Visits</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+	<h1>Report on Staff Activity</h1>
+    <H2>Check In/Out for date range: <<STARTDATE>> to <<ENDDATE>> </H2>
+    <p>Note: Alter the URL to set dates
+    <p>Total rows: <<TOTALROWS>>
+
+	<table class="rawlogtable">
+	<<TABLEHEADER>>
+	<<TABLEROWS>>
+	</table>
+
+</body>
+
+</html>
