@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Member Visits by Hour</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div>
+        <h1>Member visits by hour</h1>
+        <ul>
+            <li>Check In/Out for date range: <<STARTDATE>> to <<ENDDATE>> 
+            <li>Note: Alter the URL to set dates
+            <li>Data does not include anyone marked as Staff
+            <li>Total checkins used: <<TOTALROWS>> 
+        </ul>
+
+        <h2>Number of Members in the shop at any given hour</h2>
+        <p><<NOCHECKOUT>>% did not check out; we assume <<ASSUMEDUSE>> hours in the shop for them.
+       
+        <div style='float:left'>
+            <p>Heat Map (Normalized to range 0-10) 
+            <table class="rawlogtable">
+            <<TABLEHEADER1>>
+            <<TABLEROWS1>>
+            </table>
+        </div>
+        <div style='float:left; margin-left:50px;'>
+            <p>Raw data
+            <table class="rawlogtable">
+            <<TABLEHEADER0>>
+            <<TABLEROWS0>>
+            </table>
+        </div>
+    </div>
+
+    <div style='padding-top:20px; clear:both'>
+        <h2>Average visit hours</h2>
+        <p>(does not consider people who did not check out)
+        <table class="rawlogtable">
+        <<AVERAGETABLEHEADER>>
+        <<AVERAGETABLEROWS>>
+        </table>
+
+        <h2>Length of visit distribution</h2>
+        <p>(does not consider people who did not check out)
+        <table class="rawlogtable">
+        <<VISITHOURSTABLEHEADER>>
+        <<VISITHOURSTABLEROWS>>
+        </table>    
+    </div>
+
+    <div style='margin-top:20px'>
+        <h2>Debug data</h2>
+        <table class="rawlogtable">
+        <<TABLEHEADER2>>
+        <<TABLEROWS2>>
+        </table>
+    </div>
+    
+    
+
+
+</body>
+
+</html>
