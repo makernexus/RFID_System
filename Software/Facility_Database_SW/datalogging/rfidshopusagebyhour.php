@@ -154,7 +154,7 @@ if (mysqli_num_rows($resultC) > 0) {
                 $thisHourRaw[$j] = $membersInShop[$j-1][$i];
             }
         }
-        $thisTableRow1 = makeTR($thisHour);
+        $thisTableRow1 = makeHeatMapTR($thisHour, 10, TRUE);
         $tableRows1 = $tableRows1 . $thisTableRow1;
 
         $thisTableRow0 = makeTR($thisHourRaw);
