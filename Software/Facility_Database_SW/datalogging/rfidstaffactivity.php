@@ -38,6 +38,7 @@ $selectSQL = "SELECT dateEventLocal, a.firstName, b.lastName, logEvent
     FROM `rawdata` a join clientInfo b
       ON a.clientID = b.clientID 
     WHERE displayClasses like '%staff%' 
+      AND displayClasses <> 'exStaff'
       AND logEvent IN ('Checked In','Checked Out') 
       AND dateEventLocal between '<<STARTDATE>>' and '<<ENDDATE>>' 
     ORDER BY a.firstName, b.lastName, dateEventLocal LIMIT <<MAXROWS>>;";
