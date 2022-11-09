@@ -36,7 +36,8 @@ if (mysqli_connect_errno()) {
 $selectSQL = 
     "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible
      FROM clientInfo
-     WHERE displayClasses like '%staff%' OR MOD_Eligible = 1
+     WHERE (displayClasses like '%staff%' AND displayClasses not like '%exStaff%')
+        OR MOD_Eligible = 1
      ORDER BY lastName ASC";
     
 $result = mysqli_query($con, $selectSQL);
