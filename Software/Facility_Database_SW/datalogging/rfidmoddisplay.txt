@@ -24,7 +24,7 @@
         }
         .MODImageDiv {
             margin: auto;
-            width: 70%;
+            width: 100%;
         }
         .MODTitle {
             text-align: center;
