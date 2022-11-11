@@ -13,8 +13,8 @@ $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles")); 
 
 // get the HTML skeleton
-$myfile = fopen("rfidcurrentcheckinshtml.txt", "r") or die("Unable to open file!");
-$html = fread($myfile,filesize("rfidcurrentcheckinshtml.txt"));
+$myfile = fopen("rfidcurrentcheckinshtmlWithMOD.txt", "r") or die("Unable to open file!");
+$html = fread($myfile,filesize("rfidcurrentcheckinshtmlWithMOD.txt"));
 fclose($myfile);
 
 // Get the config info
@@ -63,8 +63,10 @@ echo mysqli_error($con);
 
 $html =  str_replace("<<REFRESHTIME>>","Updated: " . date_format($today, "Y-m-d H:i:s"),$html);
 
-// Put out MOD panel first
-$photodivs = makeMODDiv($MODResult["firstName"], $MODResult["photoURL"])  . "\r\n";
+// Put out MOD panel 
+$html = str_replace("<<MODFIRSTNAME>>",$MODResult["firstName"], $html);
+$html = str_replace("<<MODPHOTO>>",$MODResult["photoURL"], $html);
+
 
 
 if (mysqli_num_rows($result) > 0) {
