@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Member Visits to Studios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        .graphDiv {
+            margin: 0px 0px 10px 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>Member visits to studios</h1>
+        <ul>
+            <li>For date range: <<STARTDATE>> to <<ENDDATE>> 
+            <li>Note: Alter the URL to set dates
+            <li>Data does not include anyone marked as Staff
+            <li>One member visits each weekday = 5; Five members all visit one day = 5;
+        </ul>
+    </div>
+
+	<div style="clear:both;">
+		<div id='graphelectronics' class='graphDiv'></div>
+	</div>
+
+	<div style="clear:both;">
+		<div id='graphtextile' class='graphDiv'></div>
+	</div>
+
+	<div style="clear:both;">
+		<div id='graphwoodshop' class='graphDiv'></div>
+	</div>
+
+
+	<!-- hidden div for passing data from PHP to the JS graphing functions -->
+	<div id="graph1data" style="display:none">
+		<div id="graphelectronicsdataX"><<GRAPHELECTRONICSDATAX>></div><div id="graphelectronicsdataY"><<GRAPHELECTRONICSDATAY>></div>
+	</div>
+	<div id="graph2data" style="display:none">
+		<div id="graphtextiledataX"><<GRAPHTEXTILE ALLOWEDDATAX>></div><div id="graphtextiledataY"><<GRAPHTEXTILE ALLOWEDDATAY>></div>
+	</div>
+    <div id="graph2data" style="display:none">
+		<div id="graphwoodshopdataX"><<GRAPHWOODSHOP ALLOWEDDATAX>></div><div id="graphwoodshopdataY"><<GRAPHWOODSHOP ALLOWEDDATAY>></div>
+	</div>
+
+
+    <div style='clear:both'>
+        <h2>Member Days in Each Studio (per week)</h2>
+           
+        <div style='float:left'>
+            <h3>Electronics</h3>
+            <<TABLEELECTRONICS>>
+        </div>
+
+        <div style='float:left; padding-left:50px;'>
+            <h3>Textiles</h3>
+            <<TABLETEXTILE ALLOWED>>
+        </div>
+        
+        <div style='float:left; padding-left:50px;'>
+            <h3>Wood Shop</h3>
+            <<TABLEWOODSHOP ALLOWED>>
+        </div>
+
+    </div>
+
+	<script>
+
+        // start and end of the x-axis
+        var rangeStart = '<<RANGE START>>';
+        var rangeEnd = '<<RANGE END>>';
+
+        // make graph 1, electronics
+		graphdata1 = makeGraphData('graphelectronicsdataX','graphelectronicsdataY');
+        graphlayout1 = makeGraphLayout( 'Electronics, visits per week',rangeStart, rangeEnd);
+		gdiv1 = document.getElementById('graphelectronics');
+		Plotly.newPlot(gdiv1,graphdata1,graphlayout1,{responsive: true});
+		
+        // make graph 2, textiles
+		graphdata2 = makeGraphData('graphtextiledataX','graphtextiledataY');
+		graphlayout2 = makeGraphLayout( 'Textiles, visits per week',rangeStart, rangeEnd);
+		gdiv2 = document.getElementById('graphtextile');
+		Plotly.newPlot(gdiv2,graphdata2,graphlayout2,{responsive: true});
+
+        // make graph 3, woodshop
+		graphdata3 = makeGraphData('graphwoodshopdataX','graphwoodshopdataY');
+		graphlayout3 = makeGraphLayout( 'Woodshop, visits per week',rangeStart, rangeEnd);
+		gdiv3 = document.getElementById('graphwoodshop');
+		Plotly.newPlot(gdiv3,graphdata3,graphlayout3,{responsive: true});
+
+        // ------------
+        // customize the graph layout 
+        //   pass in title and x-axis range
+        function makeGraphLayout(title, rangeStart, rangeEnd) {
+            var graphLayout = {
+                autosize: false,
+                width: 800,
+                height: 350,
+                title: {
+                    text:title,
+                    font: {
+                        // family: 'Courier New, monospace',
+                        size: 16
+                        },
+				    xref: 'paper',
+				    x: 0.05,
+                    },
+                xaxis: {
+                    autorange: false,
+                    tickangle: '-90',
+                    range: [ rangeStart, rangeEnd ]
+                }
+		    };
+            return graphLayout;
+        }
+
+        // --------------
+        // create the data object for a graph
+        //   pass in the document elements that hold the values, | delimited
+        //
+        function makeGraphData(elementIDX, elementIDY){
+
+            dataX = document.getElementById(elementIDX).textContent;
+            dataY = document.getElementById(elementIDY).textContent;
+            var x = dataX.split("|");
+            var y = dataY.split("|").map(Number);
+            var graphData = [
+                {
+                    x:x, 
+                    y:y, 
+                    type:"bar"
+                }
+            ];
+            return graphData;
+
+        }
+	</script>
+
+</body>
+
+</html>
+
