@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Members Checked In Now</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="style.css" rel="stylesheet">
+    <script src="commonfunctions.js"></script>
+    
+    <meta http-equiv="refresh" content="15">
+ 
+    <style>
+            .MODDiv {
+                border: 1px solid green;
+                margin: 2px 2px 2px 2px;
+                padding: 5px 5px 5px 5px;
+                border-width: 5px;
+            }
+            .MODImage {
+                width: 100%;
+            }
+            .MODImageDiv {
+                margin: auto;
+                width: 100%;
+            }
+            .MODTitle {
+                text-align: center;
+                font-size: 30pt;
+                background-color: #528370;  
+                color: white;
+            }
+            .MODName {
+                text-align: center;
+                font-size: 50pt;
+            }
+        </style>
+</head>
+
+<body>
+    <div class='MODDiv' style='float:left; width: 20%;'>
+        <div>
+            <p class='MODTitle'>Manager On Duty</p>
+        </div>
+        <div class='MODImageDiv'>
+            <img class='MODImage' alt='no photo' src='<<MODPHOTO>>' onerror="this.src='WeNeedAPhoto.png'">
+        </div>
+        <div>
+            <p class='MODName'><<MODFIRSTNAME>></p> 
+        </div>
+    </div>
+
+    <div style='float:left; width:75%; padding-left:10px; border: 1px solid green;'>
+        <div>
+            <h3>These Members Are Checked In</h3>
+            <div class="legenddiv staff" style="float:left">Staff Members have magenta border</div>
+            <div style="float:left; padding-left:20px;">
+                <p class="lastrefreshtime"><<REFRESHTIME>></p>  
+            </div>
+            
+        </div>
+        <div style="clear:both">
+            <<PHOTODIVS>>
+        </div>
+    </div>
+</body>
+
+</html>

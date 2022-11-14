@@ -25,17 +25,43 @@ function allowWebAccess() {
 
 // Make a table row of $data
 function makeTR($data) {
-	$rtn = "";
-	foreach ($data as $item) {
-		$rtn = $rtn . makeTD($item);
-	}  
-
-	return "<tr>" . $rtn . "</tr>";
+    return makeHeatMapTR($data, 0, TRUE);
 }
 
 // make a table data cell of $data
 function makeTD($data) {
 	return "<td>" . $data . "</td>";
+}
+
+// Make a heatmap table row of $data
+function makeHeatMapTR($data, $maxvalue, $isFirstColHeader) {
+	$rtn = "";
+    $isFirstCol = TRUE;
+	foreach ($data as $item) {
+        $thisMaxValue = $maxvalue;
+        if (($isFirstColHeader)&&($isFirstCol)) {
+            $thisMaxValue = 0; // supress heatmap color for first column
+        }
+        $isFirstCol = FALSE;
+        $rtn = $rtn . makeHeatMapTD($item, $thisMaxValue);
+    }  
+
+	return "<tr>" . $rtn . "</tr> \r\n";
+}
+
+// make a table data cell of $data
+function makeHeatMapTD($data, $maxvalue) {
+    if ($maxvalue == 0) {
+    	return "<td>" . $data . "</td>";
+    } else {
+        return "<td style='background-color:" . heatMapColorforValue($data, $maxvalue) . "'>" . $data . "</td>";
+    }
+}
+
+function heatMapColorforValue($value, $maxvalue){
+    $value = $value/$maxvalue;
+    $h = (1.0 - $value) * 240;
+    return "hsl(" . $h . ", 100%, 50%)";
 }
 
 // take $length of the end of a string and put elipsis as a prefix in front of it
@@ -46,5 +72,7 @@ function rightWEllipsis($data, $length) {
 		return "... " . substr($data, strlen($data) - $length, $length);
 	}
 }
+
+
 
 ?>

@@ -1,12 +1,17 @@
 
 <?php
 
-// 2 reports from RFID LOGGING DATABASE
+// reports from RFID LOGGING DATABASE
 //
 // Member summary checkin reports
 //
-// Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
+// Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
+//
+//  Nov 2022: 
+//      Moved JS to its own file. 
+//      Daily graph now uses humanistic labels.
+//      Removed unneeded code
 
 include 'commonfunctions.php';
 
@@ -28,7 +33,7 @@ $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 // Check connection
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
-  }
+}
 
 
 // ------------ TABLE 1  
@@ -58,24 +63,19 @@ $dataY = "";
 // Construct the page
 if (mysqli_num_rows($result) > 0) {
 
-	// Get the data for each month into table rows
-	$previousClientID = "---";
     while($row = mysqli_fetch_assoc($result)) {
     	
+        // build detail table for month data
     	$thisTableRow = makeTR( array (
                  $row["yr"], 
                  $row["mnth"],
                  $row["cnt"]
                  )     
            );
-      
-      if ($dataX == "") {
-        $dataX =  $row["yr"] . "/" . $row["mnth"];
-        $dataY =  $row["cnt"];
-      } else {
-        $dataX = $dataX . " " . $row["yr"] . "/" . $row["mnth"];
-        $dataY = $dataY . " " . $row["cnt"];
-      }
+
+        // build graph data for month data
+        $dataX = $dataX . "|" . $row["yr"] . "/" . $row["mnth"];
+        $dataY = $dataY . "|" . $row["cnt"];
     	$tableRows = $tableRows . $thisTableRow;
     }
     
@@ -128,38 +128,25 @@ $dataY = "";
 
 if (mysqli_num_rows($result2) > 0) {
 
-	// Get the data for each day into table rows
-  $previousClientID = "---";
-  $previousDOY = 0;
-  while($row = mysqli_fetch_assoc($result2)) {
+    while($row = mysqli_fetch_assoc($result2)) {
     
-    $thisDOY = intval($row["DOY"]);
-    
-    $thisTableRow = makeTR( array (
-                $row["DOY"],
-                $row["yr"], 
-                $row["mnth"],
-                $row["dy"],
-                $row["cnt"]
-                )     
-        );
-    if ($dataX == "") {
-      // first row
-      $previousDOY = $row["yr"] . "/" . $thisDOY;
-      $dataX = $thisDOY;
-      $dataY =  $row["cnt"];
-    } else {
-      while ($thisDOY > ($previousDOY + 1)) {
-        // if we have a gap in day of year, add 0 data values
-        $previousDOY = $previousDOY + 1;
-        $dataX = $dataX . " " . $row["yr"] . "/" . $previousDOY;
-        $dataY = $dataY . " 0";
-      }
-      $previousDOY = $thisDOY;
-      $dataX = $dataX . " " . $row["yr"] . "/" . $thisDOY;
-      $dataY = $dataY . " " . $row["cnt"];
-    }
-    $tableRows = $tableRows . $thisTableRow;
+        // build detail table for days
+        $thisTableRow = makeTR( array (
+                    $row["yr"], 
+                    $row["mnth"],
+                    $row["dy"],
+                    $row["cnt"]
+                    )     
+            );
+
+        $tableRows = $tableRows . $thisTableRow;
+
+        // build graph data for days
+        $thisDOY = intval($row["DOY"]);
+        $dateValue = date_format(DateTime::createFromFormat("Y z", $row["yr"] . " " . $thisDOY ), "Y-m-d");
+        $dataX = $dataX . "|" . $dateValue;
+        $dataY = $dataY . "|" . $row["cnt"];
+
     }
     
     $html = str_replace("<<GRAPH2DATAX>>",$dataX,$html);
@@ -168,10 +155,9 @@ if (mysqli_num_rows($result2) > 0) {
     $html = str_replace("<<TABLEHEADER_MembersPerDay>>",
     	makeTR(
     		array( 
-          "DOY",
-    			"Year",
-          "Month",
-          "Day",
+                "Year",
+                "Month",
+                "Day",
     			"Unique Members"
     			)
     		),

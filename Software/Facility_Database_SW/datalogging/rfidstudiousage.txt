@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Member Visits to Studios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="commonfunctions.js"></script>
+    <script src="rfidstudiousage.js"></script>
+
+    <style>
+        .graphDiv {
+            margin: 0px 0px 10px 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        // start and end of the x-axis
+        setGraphRange('<<RANGE START>>','<<RANGE END>>' );
+    </script>
+    <div>
+        <h1>Member visits to studios</h1>
+        <ul>
+            <li>For date range: <<STARTDATE>> to <<ENDDATE>> 
+            <li>Note: Alter the URL to set dates
+            <li>Data does not include anyone marked as Staff
+            <li>One member visits each weekday = 5; Five members all visit one day = 5;
+        </ul>
+    </div>
+
+	<div style="clear:both;">
+		<div id='graphelectronics' class='graphDiv'></div>
+	</div>
+
+	<div style="clear:both;">
+		<div id='graphtextile' class='graphDiv'></div>
+	</div>
+
+	<div style="clear:both;">
+		<div id='graphwoodshop' class='graphDiv'></div>
+	</div>
+
+
+	<!-- hidden div for passing data from PHP to the JS graphing functions -->
+	<div id="graph1data" style="display:none">
+		<div id="graphelectronicsdataX"><<GRAPHELECTRONICSDATAX>></div><div id="graphelectronicsdataY"><<GRAPHELECTRONICSDATAY>></div>
+	</div>
+	<div id="graph2data" style="display:none">
+		<div id="graphtextiledataX"><<GRAPHTEXTILE ALLOWEDDATAX>></div><div id="graphtextiledataY"><<GRAPHTEXTILE ALLOWEDDATAY>></div>
+	</div>
+    <div id="graph2data" style="display:none">
+		<div id="graphwoodshopdataX"><<GRAPHWOODSHOP ALLOWEDDATAX>></div><div id="graphwoodshopdataY"><<GRAPHWOODSHOP ALLOWEDDATAY>></div>
+	</div>
+
+
+    <div style='clear:both'>
+        <div>
+		    <h2>Tabular Data</h2>
+            <button onclick="showHideDiv('divDetailData')">Show/hide detail</button>
+        </div>
+        <div id="divDetailData" style="display:none" >
+
+            <div style='float:left'>
+                <h3>Electronics</h3>
+                <<TABLEELECTRONICS>>
+            </div>
+
+            <div style='float:left; padding-left:50px;'>
+                <h3>Textiles</h3>
+                <<TABLETEXTILE ALLOWED>>
+            </div>
+            
+            <div style='float:left; padding-left:50px;'>
+                <h3>Wood Shop</h3>
+                <<TABLEWOODSHOP ALLOWED>>
+            </div>
+
+        </div>
+
+    </div>
+    <div>
+        .
+    </div>
+
+</body>
+
+</html>
+
