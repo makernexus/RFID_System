@@ -9,9 +9,11 @@
   <link href="style.css" rel="stylesheet">
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="checkinreport.js"></script>
 </head>
 
 <body>
+
 	<H2>Summary of Member Checkins</H2>
 	<p>Excludes staff members
 
@@ -23,25 +25,36 @@
 		<div id='graph2'></div>
 	</div>
 
-	<div style="float:left;">
+	<div style="clear:both;">
 		<H2>Unique members in last 60 days:</H2>
 		<<UNIQUE90>> members 
 	</div>
 
+    
 	<div style="float:left; clear:both">
-		<h1>Unique member checkins per month</h1>
-		<table class="rawlogtable">
-		<<TABLEHEADER_MembersPerMonth>>
-		<<TABLEROWS_MembersPerMonth>>
-		</table>
+        <div>
+		    <h2>Unique member checkins per month</h2>
+            <button onclick="myFunction('divDetailPerMonth')">Show/hide detail</button>
+        </div>
+        <div id="divDetailPerMonth" style="display:none" >
+            <table class="rawlogtable">
+                <<TABLEHEADER_MembersPerMonth>>
+                <<TABLEROWS_MembersPerMonth>>
+            </table>
+        </div>
 	</div>
 	
 	<div style="float:left; clear:both;">
-		<h1>Unique member checkins per day</h1>
-		<table class="rawlogtable">
-		<<TABLEHEADER_MembersPerDay>>
-		<<TABLEROWS_MembersPerDay>>
-		</table>
+        <div>
+		    <h2>Unique member checkins per day</h2>
+            <button onclick="myFunction('divDetailPerDay')">Show/hide detail</button>
+        </div>
+        <div id="divDetailPerDay" style="display:none" >
+            <table class="rawlogtable">
+                <<TABLEHEADER_MembersPerDay>>
+                <<TABLEROWS_MembersPerDay>>
+            </table>
+        </div>
 	</div>
 
 
@@ -54,66 +67,7 @@
 		<div id="graph2dataX"><<GRAPH2DATAX>></div><div id="graph2dataY"><<GRAPH2DATAY>></div>
 	</div>
 
-	<script>
-		dataX = document.getElementById('graph1dataX').textContent;
-		dataY = document.getElementById('graph1dataY').textContent;
-		var x = dataX.split(" ");
-		var y = dataY.split(" ").map(Number);
-		var graphdata1 = [
-			{
-				x:x, 
-				y:y, 
-				type:"bar"
-			}
-		];
-		var graphlayout1 = {
-			autosize: false,
-			width: 400,
-			height: 350,
-			title: {
-				text:'Unique Members Visiting',
-				font: {
-				family: 'Courier New, monospace',
-				size: 16
-				},
-				xref: 'paper',
-				x: 0.05,
-			}
-		};
-
-		gdiv1 = document.getElementById('graph1');
-		Plotly.newPlot(gdiv1,graphdata1,graphlayout1,{responsive: true});
-
-
-		dataX = document.getElementById('graph2dataX').textContent;
-		dataY = document.getElementById('graph2dataY').textContent;
-		var x = dataX.split(" ");
-		var y = dataY.split(" ").map(Number);
-		var graphdata2 = [
-			{
-				x:x, 
-				y:y, 
-				type:"bar"
-			}
-		];
-		var graphlayout2 = {
-			autosize: false,
-			width: 600,
-			height: 350,
-			title: {
-				text:'Unique Members Visiting per day',
-				font: {
-				family: 'Courier New, monospace',
-				size: 16
-				},
-				xref: 'paper',
-				x: 0.05,
-			}
-		};
-
-		gdiv2 = document.getElementById('graph2');
-		Plotly.newPlot(gdiv2,graphdata2,graphlayout2,{responsive: true});
-	</script>
+	
 </body>
 
 </html>
