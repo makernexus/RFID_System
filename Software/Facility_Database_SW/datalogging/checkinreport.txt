@@ -9,6 +9,8 @@
   <link href="style.css" rel="stylesheet">
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <script src="commonfunctions.js"></script>
   <script src="checkinreport.js"></script>
 </head>
 
@@ -34,7 +36,7 @@
 	<div style="float:left; clear:both">
         <div>
 		    <h2>Unique member checkins per month</h2>
-            <button onclick="myFunction('divDetailPerMonth')">Show/hide detail</button>
+            <button onclick="showHideDiv('divDetailPerMonth')">Show/hide detail</button>
         </div>
         <div id="divDetailPerMonth" style="display:none" >
             <table class="rawlogtable">
@@ -47,7 +49,7 @@
 	<div style="float:left; clear:both;">
         <div>
 		    <h2>Unique member checkins per day</h2>
-            <button onclick="myFunction('divDetailPerDay')">Show/hide detail</button>
+            <button onclick="showHideDiv('divDetailPerDay')">Show/hide detail</button>
         </div>
         <div id="divDetailPerDay" style="display:none" >
             <table class="rawlogtable">
