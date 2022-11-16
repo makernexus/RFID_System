@@ -115,8 +115,7 @@
  *      LCD shows checked in or out based on our database
  *      second callback routine for mnlogdb... webhooks
  * 
-
- * 
+ *
  *  1.20 supports device type 4 woodshop door 
  *       device type -1 will buzz once. use this to know you're talking to the right box
  *       Fixed issue #15 where bad cards got denied and ok messages
@@ -153,8 +152,9 @@
  *          code now compiles under OS 3.1 and OS 3.2
  *  2.6  Added Manager on Duty functionality. See design docs.
  *  2.7  Changed state of green button to correspond to the production PCB
+ *  2.8  package checking is now done in all upper case
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.7
+#define MN_FIRMWARE_VERSION 2.8
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -1060,12 +1060,13 @@ void ezfReceivePackagesByClientID (const char *event, const char *data)  {
     partCnt++;
 
     g_clientPackagesResponseBuffer = g_clientPackagesResponseBuffer + String(data);
-    debugEvent ("PackagesPart " + String(partCnt) + ": " + String(data));
+    //debugEvent ("PackagesPart " + String(partCnt) + ": " + String(data));
 
     if (g_clientPackagesResponseBuffer.indexOf("EndOfPackages") > 0 ) {
-        g_clientPackages.packagesString = g_clientPackagesResponseBuffer;
+        g_clientPackages.packagesString = g_clientPackagesResponseBuffer.toUpperCase();
         g_clientPackages.isValid = true;
         g_clientPackagesResponseBuffer = "";
+        debugEvent("Final packages string: " + g_clientPackages.packagesString);
     }
         
 }
@@ -1348,7 +1349,8 @@ String isClientOkToCheckIn (){
 //
 String isClientOkForEquip (){
 
-    String keywords[10];
+    int MAX_KEYWORDS = 10;
+    String keywords[MAX_KEYWORDS];
     int numKeywords = 0;
 
     if (g_stationConfig.OKKeywords.length() == 0) {
@@ -1364,9 +1366,13 @@ String isClientOkForEquip (){
                 nextComma =  g_stationConfig.OKKeywords.length();
             } 
             //another keyword
-            keywords[numKeywords] = g_stationConfig.OKKeywords.substring(currentComma+1,nextComma).trim();
+            keywords[numKeywords] = g_stationConfig.OKKeywords.substring(currentComma+1,nextComma).trim().toUpperCase(); // comparison done in uppercase
             // debugEvent("found keyword:" + keywords[numKeywords]); 
             numKeywords++;
+            if (numKeywords > MAX_KEYWORDS) {
+                debugEvent("Too many keywords in station config");
+                return "";  // bail out
+            }
             currentComma = nextComma;
         } while ( nextComma < (int) g_stationConfig.OKKeywords.length() );
     }
