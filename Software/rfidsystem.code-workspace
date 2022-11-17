@@ -16,9 +16,8 @@
             "path": "Facility_Database_SW"
         }
     ],
-	"settings": {
-		"cortex-debug.openocdPath": "${command:particle.getDebuggerOpenocdPath}",
-		"files.associations": {
+    "settings": {
+        "files.associations": {
 			"array": "cpp",
 			"deque": "cpp",
 			"string": "cpp",
