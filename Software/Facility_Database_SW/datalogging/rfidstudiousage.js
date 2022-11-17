@@ -41,49 +41,50 @@ window.onload = function() {
 		gdiv3 = document.getElementById('graphwoodshop');
 		Plotly.newPlot(gdiv3,graphdata3,graphlayout3,{responsive: true});
 }
-        // ------------
-        // customize the graph layout 
-        //   pass in title and x-axis range
-        function makeGraphLayout(title, rangeStart, rangeEnd) {
-            var graphLayout = {
-                autosize: false,
-                width: 800,
-                height: 350,
-                title: {
-                    text:title,
-                    font: {
-                        // family: 'Courier New, monospace',
-                        size: 16
-                        },
-				    xref: 'paper',
-				    x: 0.05,
-                    },
-                xaxis: {
-                    autorange: false,
-                    tickangle: '-90',
-                    range: [ rangeStart, rangeEnd ]
-                }
-		    };
-            return graphLayout;
+
+// ------------
+// customize the graph layout 
+//   pass in title and x-axis range
+function makeGraphLayout(title, rangeStart, rangeEnd) {
+    var graphLayout = {
+        autosize: false,
+        width: 800,
+        height: 350,
+        title: {
+            text:title,
+            font: {
+                // family: 'Courier New, monospace',
+                size: 16
+                },
+            xref: 'paper',
+            x: 0.05,
+            },
+        xaxis: {
+            autorange: false,
+            tickangle: '-90',
+            range: [ rangeStart, rangeEnd ]
         }
+    };
+    return graphLayout;
+}
 
-        // --------------
-        // create the data object for a graph
-        //   pass in the document elements that hold the values, | delimited
-        //
-        function makeGraphData(elementIDX, elementIDY){
+// --------------
+// create the data object for a graph
+//   pass in the document elements that hold the values, | delimited
+//
+function makeGraphData(elementIDX, elementIDY){
 
-            dataX = document.getElementById(elementIDX).textContent;
-            dataY = document.getElementById(elementIDY).textContent;
-            var x = dataX.split("|");
-            var y = dataY.split("|").map(Number);
-            var graphData = [
-                {
-                    x:x, 
-                    y:y, 
-                    type:"bar"
-                }
-            ];
-            return graphData;
-
+    dataX = document.getElementById(elementIDX).textContent;
+    dataY = document.getElementById(elementIDY).textContent;
+    var x = dataX.split("|");
+    var y = dataY.split("|").map(Number);
+    var graphData = [
+        {
+            x:x, 
+            y:y, 
+            type:"bar"
         }
+    ];
+    return graphData;
+
+}
