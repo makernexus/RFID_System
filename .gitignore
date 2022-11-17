@@ -5,4 +5,4 @@ checkinfirmware.cpp
 rfidkeysPRODUCTION.cpp
 */.vscode/settings.json
 Software/Particle_SW/stationfirmware/target/*
-
+Software/Particle_SW/stationfirmware/.vscode/*
