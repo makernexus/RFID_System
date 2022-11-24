@@ -63,6 +63,10 @@ function makeGraphLayout(title, rangeStart, rangeEnd) {
             autorange: false,
             tickangle: '-90',
             range: [ rangeStart, rangeEnd ]
+        },
+        yaxis: {
+            autorange: false,
+            range: [0, 20]
         }
     };
     return graphLayout;
