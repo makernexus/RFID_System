@@ -13,7 +13,7 @@
 
     <style>
         .graphDiv {
-            margin: 0px 0px 10px 0px;
+            margin: 0px 0px 0px 0px;
         }
     </style>
 </head>
@@ -30,6 +30,7 @@
             <li>Note: Alter the URL to set dates
             <li>Data does not include anyone marked as Staff
             <li>One member visits each weekday = 5; Five members all visit one day = 5;
+            <li>Weeks start on Monday
         </ul>
     </div>
 

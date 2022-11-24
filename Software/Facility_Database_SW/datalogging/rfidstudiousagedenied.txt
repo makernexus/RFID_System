@@ -28,7 +28,7 @@
         
         <div style='float:left; padding-left:50px;'>
             <h3>Wood Shop</h3>
-            <<TABLEWOODSHOP DENIED>>
+            <<TABLEWOOD DENIED>>
         </div>
 
     </div>

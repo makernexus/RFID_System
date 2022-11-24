@@ -23,7 +23,7 @@ if ($endDate == 0) {
 }
 
 // These are the eventData we will query for
-$studios = array("Textile denied", "Woodshop denied");
+$studios = array("Textile denied", "Wood denied");
 
 // get the HTML skeleton
 $myfile = fopen("rfidstudiousagedenied.txt", "r") or die("Unable to open file!");

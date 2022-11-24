@@ -48,8 +48,8 @@ window.onload = function() {
 function makeGraphLayout(title, rangeStart, rangeEnd) {
     var graphLayout = {
         autosize: false,
-        width: 800,
-        height: 350,
+        width: 600,
+        height: 300,
         title: {
             text:title,
             font: {
@@ -63,6 +63,10 @@ function makeGraphLayout(title, rangeStart, rangeEnd) {
             autorange: false,
             tickangle: '-90',
             range: [ rangeStart, rangeEnd ]
+        },
+        yaxis: {
+            autorange: false,
+            range: [0, 20]
         }
     };
     return graphLayout;
