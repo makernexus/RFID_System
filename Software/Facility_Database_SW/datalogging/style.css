@@ -16,6 +16,7 @@ table.rawlogtable {
 .photodiv {
 	float: left;
 	width: 220px;
+    height: 280px;
 	text-align: center;
 	border: 1px solid lightgray;
 	margin: 2px 2px 2px 2px;
@@ -24,12 +25,12 @@ table.rawlogtable {
 }
 
 .legenddiv {
-	float:left;	
+	float:left;
 	border: 1px solid lightgray;
 	margin: 2px 2px 2px 2px;
 	padding: 5px 5px 5px 5px;
 	border-width: 5px;
-	
+
 }
 
 .staff {
@@ -59,7 +60,7 @@ p.MODtitleTD {
 }
 
 p.lastrefreshtime {
-	
+
 }
 .clientTable {
 	border: 0px solid black;
@@ -67,7 +68,7 @@ p.lastrefreshtime {
 	padding: 0px 0px 0px 0px;
 	width:220px;
 }
-.clientImageTD {	
+.clientImageTD {
 	border: 0px solid black;
 	margin: 0px 0px 0px 0px;
 	padding: 10px 0px 0px 0px;

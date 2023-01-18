@@ -9,8 +9,8 @@ include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
 
-$today = new DateTime(); 
-$today->setTimeZone(new DateTimeZone("America/Los_Angeles")); 
+$today = new DateTime();
+$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 
 // get the HTML skeleton
 $myfile = fopen("rfidcurrentcheckinshtml.txt", "r") or die("Unable to open file!");
@@ -53,7 +53,7 @@ if ($MODResult == null) {
     exit();
 }
 
-$selectSQL = 
+$selectSQL =
     "CALL sp_checkedInDisplay('" . date_format($today, "Ymd") . "');" ;
 
 $result = mysqli_query($con, $selectSQL);
@@ -68,7 +68,7 @@ $photodivs = makeMODDiv($MODResult["firstName"], $MODResult["photoURL"])  . "\r\
 
 
 if (mysqli_num_rows($result) > 0) {
-	
+
     // output data of each row
     $currentClientID = "";
     $currentFirstName = "";
@@ -86,10 +86,10 @@ if (mysqli_num_rows($result) > 0) {
             } else if ($currentClientID != $MODResult["clientID"]) {
                 // create div for previous clientID
                 $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName, $currentClientID, $currentEquipment, $photoServer  ) . "\r\n";
-            
+
                 // add div to output accumulation
                 $photodivs = $photodivs . $thisDiv;
-            }    
+            }
 
             // set up for the next client
             $currentFirstName = $row["firstName"];
@@ -100,8 +100,8 @@ if (mysqli_num_rows($result) > 0) {
         } else {
 
             // same client, add the equipment name
-            $currentEquipment = $currentEquipment . " " . $row["photoDisplay"];    
-        } 
+            $currentEquipment = $currentEquipment . " " . $row["photoDisplay"];
+        }
 
     }
     // last element from loop
@@ -124,13 +124,13 @@ function makeImageURL($data, $photoServer) {
 	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 function makeDiv($classes, $name, $clientID, $equip, $photoServer) {
-    return "<div class='photodiv " . $classes . "' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
+    return "<div class='photodiv " . $classes . "' style='height:280px;' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
 }
 function makeTable($name, $clientID, $equip, $photoServer){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) . 
-  "</td></tr><tr><td class='clientNameTD'>" . makeNameCheckoutAction($clientID, $name) . 
+  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
+  "</td></tr><tr><td class='clientNameTD'>" . makeNameCheckoutAction($clientID, $name) .
   "</td></tr><tr><td class='clientEquipTD'>" . makeEquipList($equip) . "</td></tr></table>";
-}	
+}
 function makeNameCheckoutAction($clientID, $name) {
   return "<p class='photoname' onclick=\"checkout('" . $clientID . "','" . $name . "')\">" . $name . "</p>";
 }
@@ -142,14 +142,14 @@ function makeMODDiv($name, $photoURL) {
     return "<div class='photodiv MOD' >" . makeMODTable($name, $photoURL) . "</div>";
 }
 function makeMODTable($name, $photoURL){
-    return "<table class='clientTable'>" . 
-    //"<tr><td><p class='MODtitle'>Manager On Duty</p></td></tr>" . 
-    "<tr><td class='clientImageTD'><img class='IDPhoto' alt='no photo' src='" . $photoURL . "' onerror=\"this.src='WeNeedAPhoto.png'\"></td>" . 
-    "</tr>" . 
-    "<tr><td class='clientNameTD'><p class='photoname'>" . $name . "</p></td></tr>" . 
-    "<tr><td class='clientEquipTD'>Manager On Duty</td></tr>" . 
+    return "<table class='clientTable'>" .
+    //"<tr><td><p class='MODtitle'>Manager On Duty</p></td></tr>" .
+    "<tr><td class='clientImageTD'><img class='IDPhoto' alt='no photo' src='" . $photoURL . "' onerror=\"this.src='WeNeedAPhoto.png'\"></td>" .
+    "</tr>" .
+    "<tr><td class='clientNameTD'><p class='photoname'>" . $name . "</p></td></tr>" .
+    "<tr><td class='clientEquipTD'>Manager On Duty</td></tr>" .
     "</table>";
-  }	
+  }
 
 
 
