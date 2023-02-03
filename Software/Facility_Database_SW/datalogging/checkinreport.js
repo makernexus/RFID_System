@@ -3,6 +3,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
 //
+//  Jan 2023:
+//      Changed range on weekly graph to start at 20220101 and end 20231221
 //  Nov 2022: 
 //      Moved JS from the .txt to this file. 
 
@@ -29,8 +31,8 @@ window.onload = function() {
     gdiv1 = document.getElementById('graph1');
     Plotly.newPlot(gdiv1,graphdata1,graphlayout1,{responsive: true});
 
-    var rangeStart = '2020-01-01';
-    var rangeEnd = '2022-12-31';
+    var rangeStart = '2022-01-01';
+    var rangeEnd = '2023-12-31';
     graphdata2 = makeGraphData('graph2dataX', 'graph2dataY' );
     var graphlayout2 = {
         autosize: false,
