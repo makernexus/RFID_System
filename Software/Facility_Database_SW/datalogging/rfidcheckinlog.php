@@ -42,7 +42,7 @@ if (mysqli_num_rows($result) > 0) {
     	$thisTableRow = makeTR( array (
                  $row["dateEventLocal"],
                  $row["logEvent"],
-                 $row["clientID"],
+                 "<a href='/rfidonemember.php?clientID=" . $row["clientID"] . "'>" .  $row["clientID"],
                  $row["firstName"]
                  )     
        		);
