@@ -153,8 +153,9 @@
  *  2.6  Added Manager on Duty functionality. See design docs.
  *  2.7  Changed state of green button to correspond to the production PCB
  *  2.8  package checking is now done in all upper case
+ *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.8
+#define MN_FIRMWARE_VERSION 2.9
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -340,7 +341,7 @@ int cloudSetDeviceType(String data) {
         return EEPROMdata.deviceType;
     } else if ((deviceType) or (data == "0")) {
         int oldType = EEPROMdata.deviceType;
-        logToDB("DeviceTypeChange", String(deviceType),0,"","");
+        logToDB("DeviceTypeChange", String(deviceType),0,"","","");
         EEPROMdata.deviceType = deviceType;
         EEPROMWrite(); // push the new devtype into EEPROM 
         writeToLCD("Changed Type","rebooting");
@@ -372,7 +373,7 @@ void reportCardError(uint8_t cardType){
 
     case 0:
         Serial.println("\n\nCard is type factory fresh\n");
-        logToDB("CardTypeFactoryFresh","",0,"","");
+        logToDB("CardTypeFactoryFresh","",0,"","","");
         writeToLCD("Card is not MN","(fresh format)");
         buzzerBadBeep();
         delay(1000);
@@ -388,7 +389,7 @@ void reportCardError(uint8_t cardType){
     case 2:
         // Not an MN format
         Serial.println("\n\nCard is not a known format\n");
-        logToDB("CardTypeUnknown","",0,"","");
+        logToDB("CardTypeUnknown","",0,"","","");
         writeToLCD("Card type","Unknown");
         buzzerBadBeep();
         delay(1000);
@@ -397,7 +398,7 @@ void reportCardError(uint8_t cardType){
     case 3:
         // old format of MN card
         Serial.println("\n\nCard is type Maker Nexus old formatted\n");
-        logToDB("CardTypeOldMN","",0,"","");
+        logToDB("CardTypeOldMN","",0,"","","");
         writeToLCD("Card is old MN"," ");
         buzzerBadBeep();
         delay(1000);
@@ -405,7 +406,7 @@ void reportCardError(uint8_t cardType){
 
     default:
         Serial.println("\n\nCard is type is unexpected\n");
-        logToDB("CardTypeUnexpected","",0,"","");
+        logToDB("CardTypeUnexpected","",0,"","","");
         writeToLCD("Card type","unexpected");
         buzzerBadBeep();
         delay(1000);
@@ -730,6 +731,8 @@ const size_t capacity = 3*JSON_ARRAY_SIZE(2) + 2*JSON_ARRAY_SIZE(3) + 10*JSON_OB
 
         g_clientInfo.amountDue  = docJSON["AmountDue"]; 
 
+        g_clientInfo.pictureURL = String(docJSON["PictureUrl"].as<const char*>());
+
         g_clientInfo.isValid = true;
 
         return 0;
@@ -803,7 +806,9 @@ int clientInfoFromJSONArray (String data) {
                 g_clientInfo.memberNumber = String(root_0["MembershipNumber"].as<const char*>());
 
                 g_clientInfo.amountDue = root_0["AmountDue"]; 
-                
+
+                g_clientInfo.pictureURL = String(docJSON["PictureUrl"].as<const char*>());
+
                 g_clientInfo.isValid = true;
             }
 
@@ -1081,11 +1086,11 @@ void ezfReceivePackagesByClientID (const char *event, const char *data)  {
 //
 // Wait for response to particleCallbackMNLOGDB()
 //
-void mnlogdbCheckInOut(int clientID, String firstName, String lastName, bool MOD) {
+void mnlogdbCheckInOut(int clientID, String firstName, String lastName, String photoURL, bool MOD) {
 
     g_checkInOutResponseValid = false;
     g_checkInOutResponseBuffer = "";
-    logCheckInOut("checkin allowed","",clientID,firstName,lastName, MOD);
+    logCheckInOut("checkin allowed","",clientID,firstName,lastName, photoURL, MOD);
 
 }
 
@@ -1628,7 +1633,7 @@ void loopEquipStation() {
                 delay(2000);
 
                 // log this to DB 
-                logToDB("timeout waiting for token","",g_clientInfo.clientID,"","");
+                logToDB("timeout waiting for token","",g_clientInfo.clientID,"","","");
                 wsloopState = wslWAITFORCARD;
             }
         //Otherwise we stay in this state
@@ -1681,7 +1686,7 @@ void loopEquipStation() {
                 delay(2000);
 
                 //log this to DB
-                logToDB(logmsg,"",g_clientInfo.clientID,"","");
+                logToDB(logmsg,"",g_clientInfo.clientID,"","","");
                 wsloopState = wslWAITFORCARD; 
 
             } else {
@@ -1704,7 +1709,7 @@ void loopEquipStation() {
                 digitalWrite(REJECT_LED,LOW);
 
                 // log this to DB 
-                logToDB("timeout waiting for client info","",g_clientInfo.clientID,"","");
+                logToDB("timeout waiting for client info","",g_clientInfo.clientID,"","","");
 
                 wsloopState = wslWAITFORCARD;
             }
@@ -1729,7 +1734,7 @@ void loopEquipStation() {
                 digitalWrite(REJECT_LED,LOW);
 
                 // log this to DB 
-                logToDB("timeout waiting for client packages","",g_clientInfo.clientID,"","");
+                logToDB("timeout waiting for client packages","",g_clientInfo.clientID,"","","");
 
                 wsloopState = wslWAITFORCARD;
             }
@@ -1751,7 +1756,7 @@ void loopEquipStation() {
             digitalWrite(REJECT_LED,LOW);
             
             // log this to DB 
-            logToDB(g_stationConfig.LCDName + " denied", allowInMessage, g_clientInfo.clientID, "","");
+            logToDB(g_stationConfig.LCDName + " denied", allowInMessage, g_clientInfo.clientID,"", "","");
 
             wsloopState = wslWAITFORCARD;
             
@@ -1761,7 +1766,7 @@ void loopEquipStation() {
             
             // log this to our DB 
             processStartMilliseconds = millis();
-            logToDB(g_stationConfig.logEvent, "", g_clientInfo.clientID, g_clientInfo.firstName, g_clientInfo.lastName );
+            logToDB(g_stationConfig.logEvent, "", g_clientInfo.clientID, g_clientInfo.firstName, g_clientInfo.lastName, g_clientInfo.pictureURL );
             
             wsloopState = wslSHOWEQUIPRESULT;
 
@@ -1900,7 +1905,7 @@ void loopCheckIn() {
                 delay(2000);
 
                 // log this to DB 
-                logToDB("timeout waiting for token","",g_clientInfo.clientID,"","");
+                logToDB("timeout waiting for token","",g_clientInfo.clientID,"","","");
                 cilloopState = cilWAITFORCARD;
             }
         //Otherwise we stay in this state
@@ -1935,9 +1940,9 @@ void loopCheckIn() {
                 tempout += g_cibcidResponseBuffer;
                 tempout += "<";
                 String tempout1 = tempout.substring(0,250);
-                logToDB("client JSON error A", tempout1, g_clientInfo.clientID,"","" );
+                logToDB("client JSON error A", tempout1, g_clientInfo.clientID,"","","" );
                 tempout1 = tempout.substring(250,tempout.length());
-                logToDB("client JSON error B", tempout1, g_clientInfo.clientID,"","" );
+                logToDB("client JSON error B", tempout1, g_clientInfo.clientID,"","","" );
                 
                 cilloopState = cilWAITFORCARD;
             }
@@ -1953,7 +1958,7 @@ void loopCheckIn() {
                 digitalWrite(REJECT_LED,LOW);
 
                 // log this to DB 
-                logToDB("timeout waiting for client info","",g_clientInfo.clientID,"","");
+                logToDB("timeout waiting for client info","",g_clientInfo.clientID,"","","");
 
                 cilloopState = cilWAITFORCARD;
             }
@@ -1976,7 +1981,7 @@ void loopCheckIn() {
             digitalWrite(REJECT_LED,LOW);
 
             // log this to DB 
-            logToDB("checkin denied",cardValidMessage,g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName);
+            logToDB("checkin denied",cardValidMessage,g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName, g_clientInfo.pictureURL);
 
             cilloopState = cilWAITFORCARD;
 
@@ -1994,7 +1999,7 @@ void loopCheckIn() {
                 digitalWrite(REJECT_LED,LOW);
                 
                 // log this to DB 
-                logToDB("checkin denied",allowInMessage,g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName);
+                logToDB("checkin denied",allowInMessage,g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName, g_clientInfo.pictureURL);
 
                 cilloopState = cilWAITFORCARD;
                 
@@ -2012,7 +2017,7 @@ void loopCheckIn() {
                 // log this to our DB 
                 processStartMilliseconds = millis();
                 // call our DB and find out if this is checkin or checkout 
-                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,mgrOnDutyForThisCardRead);
+                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,g_clientInfo.pictureURL, mgrOnDutyForThisCardRead);
                 
                 cilloopState = cilSHOWINOROUT;
 
@@ -2545,7 +2550,7 @@ void setup() {
     writeToLCD("Initializing","Particle Cloud");
 
    
-    logToDB("restart",String(MN_FIRMWARE_VERSION),0,"","" );
+    logToDB("restart",String(MN_FIRMWARE_VERSION),0,"","","" );
 
     //Show all lights
     writeToLCD("Init all LEDs","should blink");
