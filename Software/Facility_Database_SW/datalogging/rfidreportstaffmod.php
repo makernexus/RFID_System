@@ -81,13 +81,6 @@ function makeRow($firstName, $lastName, $classes, $MODeligible) {
     return "<tr><td>" . $lastName . ", " . $firstName . "</td><td>" . $STAFF . "</td><td>" . $MOD . "</td></tr>" ;
 }
 
-function makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $MODeligible){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) . 
-  "</td></tr><tr><td class='clientNameTD'>" . $lastName . ", " . $firstName . 
-  "</td></tr><tr><td class='clientEquipTD'><p class='equiplist'>" . $dateLastSeen . "</p></td></tr></table>";
-}	
-function makeImageURL($data, $photoServer) {
-	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
-}
+
 
 ?>
