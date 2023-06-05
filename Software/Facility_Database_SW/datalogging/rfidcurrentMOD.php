@@ -39,11 +39,12 @@ $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 // -----------------------------------------
 
 $selectSQL = 
-    "SELECT dateEventLocal, clientID, firstName
-    FROM rawdata
-    WHERE logEvent = 'MOD'
-    AND eventName = 'RFIDLogCheckInOut'
-    AND dateEventLocal > " . date_format($today, "Ymd") . "
+    "SELECT r.dateEventLocal, c.clientID, c.firstName, c.pictureURL
+    FROM r rawdata join c clientInfo 
+      ON r.clientID = c.clientID
+    WHERE r.logEvent = 'MOD'
+    AND r.eventName = 'RFIDLogCheckInOut'
+    AND r.dateEventLocal > " . date_format($today, "Ymd") . "
     ORDER BY recNum DESC
     LIMIT 1";
 
@@ -55,7 +56,7 @@ if (mysqli_num_rows($result) > 0) {
     if (strcmp($row['clientID'], "0") !== 0) {
         // we have an MOD on duty
         $returnMessage['firstName'] = $row["firstName"];
-        $returnMessage['photoURL'] = makeImageLink($row['clientID'], $photoServer);
+        $returnMessage['photoURL'] = $row['pictureURL'];
         $returnMessage['clientID'] = $row["clientID"];
     } else {
         // there is no MOD on duty
@@ -80,13 +81,5 @@ mysqli_close($con);
 
 return;
 
-
-//------------------------------------------------------------------------
-//   FUNCTIONS BELOW
-//------------------------------------------------------------------------
-
-function makeImageLink($data, $photoServer) {
-	return $photoServer . $data . ".jpg";
-}
 
 ?>
