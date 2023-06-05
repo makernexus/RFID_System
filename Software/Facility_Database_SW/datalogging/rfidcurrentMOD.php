@@ -40,12 +40,12 @@ $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 
 $selectSQL = 
     "SELECT r.dateEventLocal, c.clientID, c.firstName, c.pictureURL
-    FROM r rawdata join c clientInfo 
+    FROM rawdata r join clientInfo c
       ON r.clientID = c.clientID
     WHERE r.logEvent = 'MOD'
     AND r.eventName = 'RFIDLogCheckInOut'
     AND r.dateEventLocal > " . date_format($today, "Ymd") . "
-    ORDER BY recNum DESC
+    ORDER BY r.recNum DESC
     LIMIT 1";
 
 $result = mysqli_query($con, $selectSQL);
