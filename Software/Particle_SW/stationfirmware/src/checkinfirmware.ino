@@ -1001,8 +1001,14 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
             g_cibcidResponseBuffer = g_cibcidResponseBuffer + pieces[i];
         }
     }
-    // WHY CALL THIS IF WE DON'T HAVE PART 0 YET?
-    clientInfoFromJSON(g_cibcidResponseBuffer);
+
+    
+    // WHY CALL THIS IF WE DON'T HAVE PART 0 YET? //WE REALLY SHOULD DO THIS NOW
+    // we could still fail if the last buffer part arrives first
+    int endOfEventIndicator = g_cibcidResponseBuffer.indexOf("ENDOFEVENT"); // Bug #25
+    if (endOfEventIndicator > 0 ) {  // we have the end of response  // Bug #25
+        clientInfoFromJSON(g_cibcidResponseBuffer);
+    }
 }
 
 
