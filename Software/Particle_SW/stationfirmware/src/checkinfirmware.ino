@@ -154,6 +154,7 @@
  *  2.7  Changed state of green button to correspond to the production PCB
  *  2.8  package checking is now done in all upper case
  *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
+ *       Fixed bug #25
 ************************************************************************/
 #define MN_FIRMWARE_VERSION 2.9
 
@@ -164,6 +165,9 @@
 
 // Our rfid card UTILITIES
 #include "mnrfidutils.h"
+
+// for local debugging
+SerialLogHandler logHandler;
 
 // Define the pins we're going to call pinMode on
 
@@ -195,6 +199,9 @@ String g_packages = ""; // Not implemented yet xxx
 
 bool g_MgrOnDutySwitch = false;   //when true the MOD switch is active and we're going to change who is MOD
 
+// used by ezfReceiveClientByClientID to hold parts of the message returned from the webhook   // Bug #25
+const int MAX_CLIENT_INFO_PIECES = 4;
+String g_receiveClientByClientIDPieces[MAX_CLIENT_INFO_PIECES] = {"","","",""};
 
 
 struct struct_authTokenCheckIn {
@@ -889,7 +896,20 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
 }
 
 
+// ------------- clearReceiveBuffers ----------------
+// Called by the handlers of ezfClientByClientID to clear out
+// the buffers we use to hold parts of the response for reassembly
+// 
+void clearClientByClientIDReceiveBuffers(){   // Bug #25
+    // clear receive buffers
+    for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++){
+            g_receiveClientByClientIDPieces[i] = "";
+    }
+}
+
+
 // ------------- Get Client Info by ClientID ----------------
+
 // Called by the Particle Console for debug use.
 // 
 // parameters
@@ -935,6 +955,8 @@ int ezfClientByClientID (int clientID) {
 
     clearClientInfo();
 
+    clearClientByClientIDReceiveBuffers();  // Bug #25
+
     // Create parameters in JSON to send to the webhook
     const int capacity = JSON_OBJECT_SIZE(8) + 2*JSON_OBJECT_SIZE(8);
     StaticJsonDocument<capacity> docJSON;
@@ -962,23 +984,7 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
 
     debugEvent ("clientInfoPart " + String(data));
 
-    // Temp workaround
-    const int MAX_CLIENT_INFO_PIECES = 4;
-    static String pieces[MAX_CLIENT_INFO_PIECES] = {"","","",""};
-    static unsigned long receiveFirstMS = 0;    // ms when the first package comes in 
-    const unsigned long MAX_MSG_WAIT_MS = 14000; // we must get all parts within 14 seconds
-
-    if (millis() - receiveFirstMS > MAX_MSG_WAIT_MS) {
-        // we have gone too long, so this must be a new set of parts
-        // reset all our local state
-        debugEvent("clearing client info receive");
-        receiveFirstMS = millis(); 
-        for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++){
-            pieces[i] = "";
-        }
-    } 
-
-    String eventName = String(event);
+     String eventName = String(event);
 
     // what part number do we have?
     String partNumberString = eventName.substring(eventName.lastIndexOf("/")+1,eventName.length());
@@ -986,27 +992,24 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
 
     // store the part in our static variables
     if (partNumberInt < MAX_CLIENT_INFO_PIECES) {
-        pieces[partNumberInt] = String(data);
+        g_receiveClientByClientIDPieces[partNumberInt] = String(data);
     } else {
-        // we must have gotten more than MAX_CLIENT_INFO_PIECES pieces and we don't handle that
-        // so set the timer so that when a new part comes in we'll clear all this out
-        receiveFirstMS = 0;
+        // we'll just discard anything over our max pieces and the state machine waiting
+        // on this will eventually time out
     }
 
     // if we have a piece 0, then concatenate and pass off to see if we have a full JSON
-    if (pieces[0].length() > 10) {
+    if (g_receiveClientByClientIDPieces[0].length() > 10) {
         // all responses are at least 10 characters long
         g_cibcidResponseBuffer = ""; // if some parts are not here, the parse test will fail
         for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++) {
-            g_cibcidResponseBuffer = g_cibcidResponseBuffer + pieces[i];
+            g_cibcidResponseBuffer = g_cibcidResponseBuffer + g_receiveClientByClientIDPieces[i];
         }
     }
 
-    
-    // WHY CALL THIS IF WE DON'T HAVE PART 0 YET? //WE REALLY SHOULD DO THIS NOW
-    // we could still fail if the last buffer part arrives first
-    int endOfEventIndicator = g_cibcidResponseBuffer.indexOf("ENDOFEVENT"); // Bug #25
-    if (endOfEventIndicator > 0 ) {  // we have the end of response  // Bug #25
+    // Look for end marker
+    int endOfEventIndicator = g_cibcidResponseBuffer.indexOf(String("ENDOFEVENT")); // Bug #25
+    if (endOfEventIndicator >= 0 ) {  // we have the end of response  // Bug #25
         clientInfoFromJSON(g_cibcidResponseBuffer);
     }
 }
@@ -2586,6 +2589,7 @@ void setup() {
         delay(500);
     } 
 
+    Log.info("End of Setup()");
 
 }
 
