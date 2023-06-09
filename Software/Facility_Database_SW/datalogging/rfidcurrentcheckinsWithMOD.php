@@ -125,7 +125,7 @@ return;
 // ------------------------------------------------------------
 
 function makeImageURL($pictureURL) {
-	return "<img class='IDPhoto' alt='no photo' src='" . $pictureURL . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
+	return "<img class='IDPhoto' alt='no photo' src='" . $pictureURL . "' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 function makeDiv($classes, $name, $clientID, $equip, $pictureURL) {
     return "<div class='photodiv " . $classes . "' style='height:280px;' >" . makeTable($name, $clientID, $equip, $pictureURL) . "</div>";
