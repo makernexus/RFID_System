@@ -6,6 +6,7 @@ Note that private keys, accounts, and passwords have been removed from this
 file.
 
 2021 09 30   Updated ezfClientByClientID to use Mustache code to reduce the amount of data returned.
+2023 06 07   Updated for Amilia integration
 
 {
     "event": "RFIDLogging",
@@ -26,28 +27,14 @@ file.
 }
 
 {
+    "name": "AmiliaClientByMemberNumber",
     "event": "ezfClientByMemberNumber",
     "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
-    "url": "https://api.sandbox.ezfacility.com/v2/clients/membershipNumber={{{memberNumber}}}",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{memberNumber}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "",
-    "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
-        "Accept": "application/json",
-        "ez-page-number": "1"
-    }
-}
-
-{
-    "event": "ezfClientByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
-    "url": "https://api.sandbox.ezfacility.com/v2/clients/{{{clientID}}}",
-    "requestType": "GET",
-    "noDefaults": true,
-    "rejectUnauthorized": true,
-    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values \n\tMake JSON that is just what we need in the client from what\n\tis returned from the EZF CRM system.\n\t}}\n\t{\n\t\"AmountDue\":{{AmountDue}},\n\t\"ClientID\":{{ClientID}},\n\n\t\"CustomFields\": [\n\n\t\t{{#CustomFields}} \n\t\t\t{\"Name\":\"{{Name}}\", \"Value\":\"{{Value}}\" },\n \t\t{{/CustomFields}} \n \t\t\n \t\t{\"Name\":\"Junk\",\"Value\":\"JunkValue\"}\n\t],\n\t   \n\t\"FirstName\":\"{{FirstName}}\",\n\t\"LastName\":\"{{LastName}}\",\n\t\"MembershipContractStatus\":\"{{MembershipContractStatus}}\",\n\t\"MembershipNumber\":\"{{MembershipNumber}}\"\n\t}",
+    "responseTemplate": "[{{! Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Custom Field 1\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"PictureUrl\":\"{{PictureUrl}}\"}]",
     "headers": {
         "ez-page-number": "1",
         "Accept": "application/json",
@@ -56,40 +43,55 @@ file.
 }
 
 {
-    "event": "ezfCheckInToken",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
-    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
-    "url": "https://api.sandbox.ezfacility.com/token",
-    "requestType": "POST",
-    "noDefaults": true,
-    "rejectUnauthorized": true,
-    "responseTemplate": "",
-    "headers": {
-        "Authorization": "Basic ...",
-        "Accept": "application/json",
-        "Content-type": "application/x-www-form-urlencoded"
-    },
-    "form": {
-        "password": "...",
-        "username": "...",
-        "grant_type": "password",
-        "scope": "realm:tms"
-    }
-}
-
-
-{
-    "event": "ezfGetPackagesByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfGetPackagesByClientID",
-    "url": "https://api.sandbox.ezfacility.com/v2/packages/{{{clientID}}}/active",
+    "name": "AmiliaClientByClientID",
+    "event": "ezfClientByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{clientID}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "{{#0}} {{ReservationType}}| {{/0}}\n{{#1}} {{ReservationType}}| {{/1}}\n{{#2}} {{ReservationType}}| {{/2}}\n{{#3}} {{ReservationType}}| {{/3}}\n{{#4}} {{ReservationType}}| {{/4}}\n{{#5}} {{ReservationType}}| {{/5}}\n{{#6}} {{ReservationType}}| {{/6}}\n{{#7}} {{ReservationType}}| {{/7}}\n{{#8}} {{ReservationType}}| {{/8}}\n{{#9}} {{ReservationType}}| {{/9}}\n{{#10}} {{ReservationType}}| {{/10}}\n{{#11}} {{ReservationType}}| {{/11}}\n{{#12}} {{ReservationType}}| {{/12}}\n{{#13}} {{ReservationType}}| {{/13}}\n{{#14}} {{ReservationType}}| {{/14}}\nEndOfPackages\n",
+    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values  Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Custom Field 1\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"PictureUrl\":\"{{PictureUrl}}\",\"ENDOFEVENT\":1 } \n    ",
     "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
+        "ez-page-number": "1",
         "Accept": "application/json",
-        "ez-page-number": "1"
+        "Authorization": "Bearer {{{access_token}}}",
+        "X-Amilia-Origin": "MakerNexus"
+    }
+}
+
+{
+    "name": "AmiliaGetToken for Amilia",
+    "event": "ezfCheckInToken",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
+    "url": "https://www.amilia.com/api/V3/authenticate",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "{ \"access_token\":\"{{Token}}\",\n\"Token_type\":\"bearer\",\n\"Expires_in\":86399,\n\"refresh_token\":\"none\"\n}",
+    "headers": {
+        "Authorization": "Basic ...",
+        "Accept": "application/json",
+        "Content-type": "application/x-www-form-urlencoded",
+        "X-Amilia-Origin": "MakerNexus"
+    }
+}
+
+// Note that this one has not been tested successfully because Amilia seems to have 
+// a bug in not returning Skills in the JSON for this call
+{
+    "name": "AmiliaGetPackagesByClientID",
+    "event": "ezfGetPackagesByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfGetPackagesByClientID",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{clientID}}}",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": " {{Skills.0.name}} |\n {{Skills.1.name}} |\n {{Skills.2.name}} |\n {{Skills.3.name}} |\n {{Skills.4.name}} |\n {{Skills.5.name}} |\n {{Skills.6.name}} |\n {{Skills.7.name}} |\n {{Skills.8.name}} |\n {{Skills.9.name}} |\n {{Skills.10.name}} |\n {{Skills.11.name}} |\n {{Skills.12.name}} |\n {{Skills.13.name}} |\n {{Skills.14.name}} |\n {{Skills.15.name}} |\n {{Skills.16.name}} |\n  \nEndOfPackages\n\n",
+    "headers": {
+        "X-Amilia-Origin": "MakerNexus",
+        "Accept": "application/json",
+        "Authorization": "Bearer {{{access_token}}}"
     }
 }
 
