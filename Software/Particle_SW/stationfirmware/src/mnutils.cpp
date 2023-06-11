@@ -165,7 +165,7 @@ void debugEvent (String message) {
 //    clientID - optional if this event was for a particular client 
 
 
-void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
+void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL, bool MgrOnDuty) {
     const size_t capacity = JSON_OBJECT_SIZE(10);
     DynamicJsonDocument doc(capacity);
     // doc.clear();   // json library says we don't have to do this, but github bug:???
@@ -178,6 +178,7 @@ void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData
     doc["lastName"] = clientLastName.c_str();
     doc["logEvent"] = logEvent.c_str();
     doc["logData"] = logData.c_str();
+    doc["pictureURL"] = pictureURL.c_str();
     String temp = "No";
     if (MgrOnDuty) {
         temp = "Yes";
@@ -194,21 +195,21 @@ void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData
 
 }
 
-void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
+void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL) {
     // call WithMgrOnDuty with the MgrOnDuty parameter as false
     bool MgrOnDuty = false;
-    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
+    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL, MgrOnDuty);
 }
 
-void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName){
+void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL){
     
-    publishToLogDB("RFIDLogging", logEvent, logData, clientID, clientFirstName, clientLastName);
+    publishToLogDB("RFIDLogging", logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL);
 
 }
 
-void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
+void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL, bool MgrOnDuty) {
 
-    publishToLogDBWithMgrOnDuty("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
+    publishToLogDBWithMgrOnDuty("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL, MgrOnDuty);
 
 }
 
