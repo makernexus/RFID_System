@@ -78,8 +78,7 @@ file.
     }
 }
 
-// Note that this one has not been tested successfully because Amilia seems to have 
-// a bug in not returning Skills in the JSON for this call
+
 {
     "name": "AmiliaGetPackagesByClientID",
     "event": "ezfGetPackagesByClientID",
@@ -88,11 +87,15 @@ file.
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": " {{Skills.0.name}} |\n {{Skills.1.name}} |\n {{Skills.2.name}} |\n {{Skills.3.name}} |\n {{Skills.4.name}} |\n {{Skills.5.name}} |\n {{Skills.6.name}} |\n {{Skills.7.name}} |\n {{Skills.8.name}} |\n {{Skills.9.name}} |\n {{Skills.10.name}} |\n {{Skills.11.name}} |\n {{Skills.12.name}} |\n {{Skills.13.name}} |\n {{Skills.14.name}} |\n {{Skills.15.name}} |\n {{Skills.16.name}} |\n  \nEndOfPackages\n\n",
+    "responseTemplate": " {{Skills.0.Name}} |\n {{Skills.1.Name}} |\n {{Skills.2.Name}} |\n {{Skills.3.Name}} |\n {{Skills.4.Name}} |\n {{Skills.5.Name}} |\n {{Skills.6.Name}} |\n {{Skills.7.Name}} |\n {{Skills.8.Name}} |\n {{Skills.9.Name}} |\n {{Skills.10.Name}} |\n {{Skills.11.Name}} |\n {{Skills.12.Name}} |\n {{Skills.13.Name}} |\n {{Skills.14.Name}} |\n {{Skills.15.Name}} |\n {{Skills.16.Name}} |\n  \nEndOfPackages\n\n",
     "headers": {
         "X-Amilia-Origin": "MakerNexus",
         "Accept": "application/json",
         "Authorization": "Bearer {{{access_token}}}"
+    },
+    "todayCounters": {
+        "date": "20230622",
+        "success": 4
     }
 }
 
