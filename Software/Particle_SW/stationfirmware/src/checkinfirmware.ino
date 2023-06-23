@@ -155,8 +155,9 @@
  *  2.8  package checking is now done in all upper case
  *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
  *       Fixed bug #25
+ *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.9
+#define MN_FIRMWARE_VERSION 2.91
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -886,7 +887,18 @@ int ezfClientByMemberNumber (String data) {
  * called by particleCallbackEZF()
 */
 void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
-    
+
+    // XXXX check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
+        g_clientInfo.clientID = 0;
+        g_clientInfo.firstName = "Member not found";
+        g_clientInfo.isValid = true;
+
+        return;
+    }
+
+    //  XXXX legacy code is below -- we did not get an http 404 error message
     g_cibmnResponseBuffer = g_cibmnResponseBuffer + String(data);
 
     debugEvent("clientInfoPart "); // + String(data));
