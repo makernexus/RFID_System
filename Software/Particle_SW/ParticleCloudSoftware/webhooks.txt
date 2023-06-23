@@ -31,6 +31,7 @@ file.
     "name": "AmiliaClientByMemberNumber",
     "event": "ezfClientByMemberNumber",
     "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
     "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{memberNumber}}}",
     "requestType": "GET",
     "noDefaults": true,
@@ -40,6 +41,12 @@ file.
         "ez-page-number": "1",
         "Accept": "application/json",
         "Authorization": "Bearer {{{access_token}}}"
+    },
+    "todayCounters": {
+        "date": "20230623",
+        "success": 10,
+        "error": 34,
+        "sleep": 7
     }
 }
 
