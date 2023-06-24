@@ -156,8 +156,9 @@
  *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
  *       Fixed bug #25
  *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
+ *  2.92    changed logging into message from EZ Facility to Amilia
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.91
+#define MN_FIRMWARE_VERSION 2.92
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -2293,7 +2294,8 @@ void adminGetUserInfo(int clientID, String memberNumber) {
         break;
 
     case guiIDLE: 
-        writeToLCD("Signing in","to EZFacility");
+//        writeToLCD("Signing in","to EZFacility");
+        writeToLCD("Signing in","to Amilia");   // updated for Amilia
         // request a good token from ezf
         ezfGetCheckInToken(false);
         processStartMilliseconds = millis();
