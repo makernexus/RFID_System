@@ -896,6 +896,12 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
         g_clientInfo.firstName = "Member not found";
         g_clientInfo.isValid = true;
 
+        // extra stuff added to 2.92 to see if we can better fake it out.
+        //  testing shows that this stuff doesn't seem to matter.
+        g_clientInfo.isError = true;   // XXXX does this matter? Doesn't seem so!
+        JSONParseError = "0";   // does this matter?  Doesn't seem so!
+        // end of extra stuff ...
+        
         return;
     }
 
