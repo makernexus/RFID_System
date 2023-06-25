@@ -157,8 +157,9 @@
  *       Fixed bug #25
  *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
  *  2.92    changed logging into message from EZ Facility to Amilia
+ *  2.93    added code to prevent bad member number from re-querying over and over.
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.92
+#define MN_FIRMWARE_VERSION 2.93
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -177,6 +178,9 @@ int led = D0;  // You'll need to wire an LED to this one to see it blink.
 int led2 = ONBOARD_LED_PIN; // This one is the built-in tiny one to the right of the USB jack
 
 //----------- Global Variables
+
+//  XXXX added the global variable receivedMemberNumberFromQuery in order to fake out 404 error from Amilia
+String receivedMemberNumberFromQuery = "";
 
 String g_tokenResponseBuffer = "";
 String g_cibmnResponseBuffer = "";
@@ -892,16 +896,17 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
     // XXXX check to see if the response was a non-json error message    
     String receivedData = String(data);
     if(receivedData.startsWith("error status 404")) {
-        g_clientInfo.clientID = 0;
+        g_clientInfo.clientID = 1;  // clientID of 0 has special meaning; don't use in fakeout
         g_clientInfo.firstName = "Member not found";
+        g_clientInfo.memberNumber = receivedMemberNumberFromQuery;
         g_clientInfo.isValid = true;
 
         // extra stuff added to 2.92 to see if we can better fake it out.
         //  testing shows that this stuff doesn't seem to matter.
-        g_clientInfo.isError = true;   // XXXX does this matter? Doesn't seem so!
+        g_clientInfo.isError = false;   // XXXX does this matter? Doesn't seem so!
         JSONParseError = "0";   // does this matter?  Doesn't seem so!
         // end of extra stuff ...
-        
+
         return;
     }
 
@@ -1463,6 +1468,9 @@ int cloudQueryMember(String data ) {
         // error, data is not a number or it really is 0
         return 4;
     }
+
+    //  store the member number (data) to global variable for fakeout of Amilia 404 error
+    receivedMemberNumberFromQuery = data;
 
     if ((g_clientInfo.isValid) && (g_clientInfo.memberNumber.startsWith(data))) {
         // we have a result for this query data 
