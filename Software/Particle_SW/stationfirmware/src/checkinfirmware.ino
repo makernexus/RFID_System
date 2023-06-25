@@ -896,7 +896,7 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
     // XXXX check to see if the response was a non-json error message    
     String receivedData = String(data);
     if(receivedData.startsWith("error status 404")) {
-        g_clientInfo.clientID = 1;  // clientID of 0 has special meaning; don't use in fakeout
+        g_clientInfo.clientID = 0;  // clientID of 0 has special meaning
         g_clientInfo.firstName = "Member not found";
         g_clientInfo.memberNumber = receivedMemberNumberFromQuery;
         g_clientInfo.isValid = true;
