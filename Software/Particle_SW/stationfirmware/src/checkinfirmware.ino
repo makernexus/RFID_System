@@ -158,8 +158,9 @@
  *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
  *  2.92    changed logging into message from EZ Facility to Amilia
  *  2.93    added code to prevent bad member number from re-querying over and over.
+ *  2.94    cleaned up extra stuff that I tried but did not fix the problem.
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.93
+#define MN_FIRMWARE_VERSION 2.94
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -903,8 +904,8 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
 
         // extra stuff added to 2.92 to see if we can better fake it out.
         //  testing shows that this stuff doesn't seem to matter.
-        g_clientInfo.isError = false;   // XXXX does this matter? Doesn't seem so!
-        JSONParseError = "0";   // does this matter?  Doesn't seem so!
+        //  g_clientInfo.isError = false;   // XXXX does this matter? Doesn't seem so!
+        //  JSONParseError = "0";   // does this matter?  Doesn't seem so!
         // end of extra stuff ...
 
         return;
