@@ -155,8 +155,12 @@
  *  2.8  package checking is now done in all upper case
  *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
  *       Fixed bug #25
+ *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
+ *  2.92    changed logging into message from EZ Facility to Amilia
+ *  2.93    added code to prevent bad member number from re-querying over and over.
+ *  2.94    cleaned up extra stuff that I tried but did not fix the problem.
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.9
+#define MN_FIRMWARE_VERSION 2.94
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -175,6 +179,9 @@ int led = D0;  // You'll need to wire an LED to this one to see it blink.
 int led2 = ONBOARD_LED_PIN; // This one is the built-in tiny one to the right of the USB jack
 
 //----------- Global Variables
+
+//  XXXX added the global variable receivedMemberNumberFromQuery in order to fake out 404 error from Amilia
+String receivedMemberNumberFromQuery = "";
 
 String g_tokenResponseBuffer = "";
 String g_cibmnResponseBuffer = "";
@@ -886,7 +893,25 @@ int ezfClientByMemberNumber (String data) {
  * called by particleCallbackEZF()
 */
 void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
-    
+
+    // XXXX check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
+        g_clientInfo.clientID = 0;  // clientID of 0 has special meaning
+        g_clientInfo.firstName = "Member not found";
+        g_clientInfo.memberNumber = receivedMemberNumberFromQuery;
+        g_clientInfo.isValid = true;
+
+        // extra stuff added to 2.92 to see if we can better fake it out.
+        //  testing shows that this stuff doesn't seem to matter.
+        //  g_clientInfo.isError = false;   // XXXX does this matter? Doesn't seem so!
+        //  JSONParseError = "0";   // does this matter?  Doesn't seem so!
+        // end of extra stuff ...
+
+        return;
+    }
+
+    //  XXXX legacy code is below -- we did not get an http 404 error message
     g_cibmnResponseBuffer = g_cibmnResponseBuffer + String(data);
 
     debugEvent("clientInfoPart "); // + String(data));
@@ -1444,6 +1469,9 @@ int cloudQueryMember(String data ) {
         // error, data is not a number or it really is 0
         return 4;
     }
+
+    //  store the member number (data) to global variable for fakeout of Amilia 404 error
+    receivedMemberNumberFromQuery = data;
 
     if ((g_clientInfo.isValid) && (g_clientInfo.memberNumber.startsWith(data))) {
         // we have a result for this query data 
@@ -2281,7 +2309,8 @@ void adminGetUserInfo(int clientID, String memberNumber) {
         break;
 
     case guiIDLE: 
-        writeToLCD("Signing in","to EZFacility");
+//        writeToLCD("Signing in","to EZFacility");
+        writeToLCD("Signing in","to Amilia");   // updated for Amilia
         // request a good token from ezf
         ezfGetCheckInToken(false);
         processStartMilliseconds = millis();
