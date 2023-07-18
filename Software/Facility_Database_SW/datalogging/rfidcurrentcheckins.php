@@ -74,7 +74,6 @@ if (mysqli_num_rows($result) > 0) {
     $currentFirstName = "";
     $currentDisplayClasses = "";
     $currentEquipment = "";
-    $currentPhotoURL = "";
     $firstIteration = true;
     while($row = mysqli_fetch_assoc($result)) {
 
@@ -86,7 +85,7 @@ if (mysqli_num_rows($result) > 0) {
                 $firstIteration = false;
             } else if ($currentClientID != $MODResult["clientID"]) {
                 // create div for previous clientID
-                $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName, $currentClientID, $currentEquipment, $currentPictureURL  ) . "\r\n";
+                $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName, $currentClientID, $currentEquipment, $photoServer  ) . "\r\n";
 
                 // add div to output accumulation
                 $photodivs = $photodivs . $thisDiv;
@@ -97,7 +96,6 @@ if (mysqli_num_rows($result) > 0) {
             $currentEquipment = $row["photoDisplay"];
             $currentClientID = $row["clientID"];
             $currentDisplayClasses = $row["displayClasses"];
-            $currentPictureURL = $row["pictureURL"];
 
         } else {
 
@@ -108,7 +106,7 @@ if (mysqli_num_rows($result) > 0) {
     }
     // last element from loop
     if ($currentClientID != $MODResult["clientID"]) {
-        $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName , $currentClientID, $currentEquipment, $currentPictureURL ) . "\r\n";
+        $thisDiv = makeDiv($currentDisplayClasses, $currentFirstName , $currentClientID, $currentEquipment, $photoServer ) . "\r\n";
         $photodivs = $photodivs . $thisDiv;
     }
 }
@@ -122,14 +120,14 @@ return;
 
 // ------------------------------------------------------------
 
-function makeImageURL($pictureURL) {
-	return "<img class='IDPhoto' alt='no photo' src='" . $pictureURL . "' onerror=\"this.src='WeNeedAPhoto.png'\" >";
+function makeImageURL($data, $photoServer) {
+	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
-function makeDiv($classes, $name, $clientID, $equip, $pictureURL) {
-    return "<div class='photodiv " . $classes . "' style='height:280px;' >" . makeTable($name, $clientID, $equip, $pictureURL) . "</div>";
+function makeDiv($classes, $name, $clientID, $equip, $photoServer) {
+    return "<div class='photodiv " . $classes . "' style='height:280px;' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
 }
-function makeTable($name, $clientID, $equip, $pictureURL){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($pictureURL) .
+function makeTable($name, $clientID, $equip, $photoServer){
+  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
   "</td></tr><tr><td class='clientNameTD'>" . makeNameCheckoutAction($clientID, $name) .
   "</td></tr><tr><td class='clientEquipTD'>" . makeEquipList($equip) . "</td></tr></table>";
 }
