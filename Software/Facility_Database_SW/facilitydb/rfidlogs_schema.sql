@@ -24,70 +24,8 @@ CREATE DATABASE IF NOT EXISTS `makernexuswiki_rfidlogs_sandbox` DEFAULT CHARACTE
 USE `makernexuswiki_rfidlogs_sandbox`;
 
 DELIMITER $$
---
--- Procedures
---
-DROP PROCEDURE IF EXISTS `sp_checkedInDisplay`$$
-CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_checkedInDisplay` (IN `dateToQuery` VARCHAR(8))   BEGIN 
-
--- get list of members checked in
-DROP TEMPORARY TABLE IF EXISTS tmp_checkedin_clients;
-CREATE TEMPORARY TABLE tmp_checkedin_clients AS
-(
-SELECT maxRecNum, clientID, logEvent
- 	FROM
-	(
-     SELECT  MAX(recNum) as maxRecNum, clientID 
-        FROM rawdata
-       WHERE logEvent in ('Checked In','Checked Out')
-         AND CONVERT( dateEventLocal, DATE) = CONVERT(dateToQuery, DATE) 
-         AND clientID <> 0
-      GROUP by clientID
-    ) AS p 
-    LEFT JOIN
-    (
-     SELECT  recNum, logEvent 
-        FROM rawdata
-       WHERE CONVERT( dateEventLocal, DATE) = CONVERT(dateToQuery, DATE) 
-    ) AS q 
-    ON p.maxRecNum = q.recNum
-    HAVING logEvent = 'Checked In'
-)
-;
-
--- create table with members and the stations they have tapped
-DROP TEMPORARY TABLE IF EXISTS tmp_client_taps;
-CREATE TEMPORARY TABLE tmp_client_taps
-SELECT DISTINCT p.logEvent, p.clientID, p.firstName
-FROM tmp_checkedin_clients a 
-LEFT JOIN 
-	(
-     	SELECT * 
-        FROM rawdata 
-        WHERE CONVERT( dateEventLocal, DATE) = CONVERT(dateToQuery, DATE) 
-       	  AND  logEvent in 
-             (select logEvent from stationConfig 
-               where active = 1
-                 and length(logEvent) > 0
-             )
- 	) AS  p 
-ON a.clientID = p.clientID
-;
-
--- add the photoDisplay column and return the final query
-SELECT DISTINCT photoDisplay, a.clientID, a.firstName, c.displayClasses
-FROM tmp_client_taps a 
-LEFT JOIN stationConfig b 
-ON a.logEvent = b.logEvent
-LEFT JOIN clientInfo c
-ON a.clientID = c.clientID
-ORDER BY firstName, photoDisplay
-;
-
-END$$
-
-DROP PROCEDURE IF EXISTS `sp_checkedInDisplayOLD`$$
-CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_checkedInDisplayOLD` (IN `dateToQuery` VARCHAR(8))   BEGIN 
+CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_checkedInDisplay`(IN `dateToQuery` VARCHAR(8))
+BEGIN 
 
 -- get list of members checked in
 DROP TEMPORARY TABLE IF EXISTS tmp_checkedin_clients;
@@ -129,40 +67,42 @@ LEFT JOIN
 ON a.clientID = p.clientID
 ;
 
--- add the photoDisplay column and return the final query
-SELECT DISTINCT photoDisplay, a.clientID, a.firstName, c.displayClasses
+-- add the photoDisplay column (tap in name) and pictureURL and return the final query
+SELECT DISTINCT a.clientID, c.firstName, displayClasses
 FROM tmp_client_taps a 
 LEFT JOIN stationConfig b 
 ON a.logEvent = b.logEvent
 LEFT JOIN clientInfo c
 ON a.clientID = c.clientID
-ORDER BY firstName, photoDisplay
+ORDER BY firstName
 ;
 
 END$$
+DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_insert_update_clientInfo`$$
-CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_insert_update_clientInfo` (IN `INclientID` INT, IN `INfirstName` VARCHAR(255), IN `INlastName` VARCHAR(255), IN `INdateLastSeen` DATETIME, IN `INisCheckedIn` INT)   BEGIN 
 
-IF EXISTS 
-    (
+
+DELIMITER $$
+CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_insert_update_clientInfo`(IN `INclientID` INT, IN `INfirstName` VARCHAR(255), IN `INlastName` VARCHAR(255), IN `INdateLastSeen` DATETIME, IN `INisCheckedIn` INT)
+BEGIN 
+
+IF EXISTS (
     SELECT clientID FROM clientInfo 
-	WHERE clientID = INclientID
-    )
+	WHERE clientID = INclientID)
 	
 THEN
-	UPDATE clientInfo set firstName = INfirstName, lastName = INLastName,
-    	dateLastSeen = INdateLastSeen 
+	UPDATE clientInfo set firstName=INfirstName, lastName=INLastName,
+    	dateLastSeen=INdateLastSeen 
     WHERE clientID = INclientID;
     
 ELSE
- 	INSERT INTO clientInfo (clientID, firstName, lastName, dateLastSeen, isCheckedIn)
-    VALUES (INclientID, INfirstName, INlastName, INdateLastSeen, isCheckedIn);
+	INSERT INTO clientInfo (clientID, firstName, lastName, dateLastSeen, isCheckedIn)
+    VALUES (INclientID, INfirstName, INlastName, INdateLastSeen, INisCheckedIn);
     
 END IF;
 
-END$$
 
+END$$
 DELIMITER ;
 
 -- --------------------------------------------------------
