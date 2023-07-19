@@ -3,7 +3,6 @@ DELIMITER $$
 -- This procedure returns a rowset of information for the web display
 -- that shows photos of the members who are currently checked in to 
 -- the facility: rfidcurrentcheckins.php
--- Updated to return pictureURL
 
 BEGIN $$
 
@@ -56,8 +55,8 @@ LEFT JOIN
 ON a.clientID = p.clientID
 ;
 
--- add the photoDisplay column (tap in name) and pictureURL and return the final query
-SELECT DISTINCT photoDisplay, a.clientID, c.firstName, displayClasses, c.pictureURL
+-- add the photoDisplay column and return the final query
+SELECT DISTINCT photoDisplay, a.clientID, a.firstName, c.displayClasses
 FROM tmp_client_taps a 
 LEFT JOIN stationConfig b 
 ON a.logEvent = b.logEvent
