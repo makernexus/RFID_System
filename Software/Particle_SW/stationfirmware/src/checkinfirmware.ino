@@ -2650,10 +2650,13 @@ void loop() {
            
             // if type is undefined or checkin, then don't need config.
             if (EEPROMdata.deviceType == DEVICETYPE_UNDEFINED) {
+                Log.info("Station Config undefined");
                 setStationConfig( DEVICETYPE_UNDEFINED, "Undefined","Undefined","Undefined","","");
             } else if (EEPROMdata.deviceType == DEVICETYPE_CHECKIN) {
+                Log.info("Station Config Checkin");
                 setStationConfig( DEVICETYPE_CHECKIN, "CheckIn", "Check In","Check In","","");
             } else {
+                Log.info("Station config error");
                 setStationConfig( 99999,"code error 1","code error 1","code error 1","","" );
             }
 
@@ -2666,6 +2669,7 @@ void loop() {
             processStart = millis();
             fdbGetStationConfig();
             mainloopState = mlsWAITFORSTATIONCONFIG;
+            Log.info("Requesting station config info from FDB");
 
         }
 
@@ -2679,7 +2683,7 @@ void loop() {
             mainloopState = mlsERROR;
 
         } else if (g_stationConfig.isValid) {
-
+            Log.info("Received Station Config");
             mainloopState = mlsASKFORTOKEN;
         }
         // otherwise stay in this state 
@@ -2714,6 +2718,7 @@ void loop() {
         break;
     }
     case mlsERROR: 
+        Log.error("Mainloop error state");
         mainloopState = mlsERROR; // No way out of this except a reboot
         break;
 
