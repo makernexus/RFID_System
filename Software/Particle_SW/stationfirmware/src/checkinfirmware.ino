@@ -160,8 +160,9 @@
  *  2.93    added code to prevent bad member number from re-querying over and over.
  *  2.94    cleaned up extra stuff that I tried but did not fix the problem.
  *  3.0  Pulling out Picture URL changes; we won't be using the CRM as the source of photos
+ *  3.01 Added 404 message handling to getClientByClientID
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 3.0
+#define MN_FIRMWARE_VERSION 3.01
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -181,8 +182,10 @@ int led2 = ONBOARD_LED_PIN; // This one is the built-in tiny one to the right of
 
 //----------- Global Variables
 
-//  XXXX added the global variable receivedMemberNumberFromQuery in order to fake out 404 error from Amilia
-String receivedMemberNumberFromQuery = "";
+// added these two global variables in order to 
+// handle the 404 error from Amilia
+String g_expectToReceiveThisMemberNumber = "";
+
 
 String g_tokenResponseBuffer = "";
 String g_cibmnResponseBuffer = "";
@@ -755,6 +758,8 @@ const size_t capacity = 3*JSON_ARRAY_SIZE(2) + 2*JSON_ARRAY_SIZE(3) + 10*JSON_OB
 
         // Set Error if the JSON does not parse
         g_clientInfo.isError = true;
+        g_clientInfo.errorMsgLine1 = "JSON Parse Error";
+        g_clientInfo.errorMsgLine2 = "try again.";
         return 1;
     }
 }
@@ -896,7 +901,7 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
     if(receivedData.startsWith("error status 404")) {
         g_clientInfo.clientID = 0;  // clientID of 0 has special meaning
         g_clientInfo.firstName = "Member not found";
-        g_clientInfo.memberNumber = receivedMemberNumberFromQuery;
+        g_clientInfo.memberNumber = g_expectToReceiveThisMemberNumber;
         g_clientInfo.isValid = true;
 
         // extra stuff added to 2.92 to see if we can better fake it out.
@@ -1006,7 +1011,21 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
 
     debugEvent ("clientInfoPart " + String(data));
 
-     String eventName = String(event);
+    // XXXX check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
+
+        g_clientInfo.errorMsgLine1 = "Member not found";
+        g_clientInfo.errorMsgLine2 = "in Amilia";
+        g_clientInfo.contractStatus = "Active"; // needed to get to next step in equipment loop
+        g_clientInfo.isError = true;
+
+        return;
+    }
+
+    String eventName = String(event);
+
+
 
     // what part number do we have?
     String partNumberString = eventName.substring(eventName.lastIndexOf("/")+1,eventName.length());
@@ -1467,8 +1486,8 @@ int cloudQueryMember(String data ) {
         return 4;
     }
 
-    //  store the member number (data) to global variable for fakeout of Amilia 404 error
-    receivedMemberNumberFromQuery = data;
+    //  store the member number (data) to global variable for handling Amilia 404 error
+    g_expectToReceiveThisMemberNumber = data;
 
     if ((g_clientInfo.isValid) && (g_clientInfo.memberNumber.startsWith(data))) {
         // we have a result for this query data 
@@ -1730,6 +1749,24 @@ void loopEquipStation() {
                     wsloopState = wslWAITFORCLIENTPACKAGES;
                 }
 
+        } else if ( g_clientInfo.isError ) { 
+                writeToLCD(g_clientInfo.errorMsgLine1, g_clientInfo.errorMsgLine2);
+                buzzerBadBeep();
+                digitalWrite(REJECT_LED,HIGH);
+                delay(2000);
+                digitalWrite(REJECT_LED,LOW);
+
+                // log this to DB
+                String tempout = ">";
+                tempout += g_cibcidResponseBuffer;
+                tempout += "<";
+                String tempout1 = tempout.substring(0,250);
+                logToDB("getClientInfo error a:", tempout1, g_clientInfo.clientID,"","");
+                tempout1 = tempout.substring(250,tempout.length());
+                logToDB("getClientInfo error b:", tempout1, g_clientInfo.clientID,"","");
+                
+                wsloopState = wslWAITFORCARD;
+
         } else {
             // client info is not valid yet
             // timer to limit this state
@@ -1963,7 +2000,7 @@ void loopCheckIn() {
         } else {
 
             if ( g_clientInfo.isError ) { 
-                writeToLCD("bad client JSON","Try Again");
+                writeToLCD(g_clientInfo.errorMsgLine1, g_clientInfo.errorMsgLine2);
                 buzzerBadBeep();
                 digitalWrite(REJECT_LED,HIGH);
                 delay(2000);
@@ -2656,7 +2693,7 @@ void loop() {
                 Log.info("Station Config Checkin");
                 setStationConfig( DEVICETYPE_CHECKIN, "CheckIn", "Check In","Check In","","");
             } else {
-                Log.info("Station config error");
+                Log.info("Station config error"); // should never get here
                 setStationConfig( 99999,"code error 1","code error 1","code error 1","","" );
             }
 
