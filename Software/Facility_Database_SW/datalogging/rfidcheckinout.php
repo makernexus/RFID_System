@@ -85,7 +85,6 @@ $lastName = cleanInput($myJSON["lastName"]);
 $clientID =  cleanInput($myJSON["clientID"] );
 $logEvent =  cleanInput($myJSON["logEvent"]);
 $logData =  cleanInput($myJSON["logData"] );
-$pictureURL =  cleanInput($myJSON["pictureURL"] );
 
 $MODActionRequested = false;
 if (strpos(" " . $myJSON["MODRequested"] ,"Yes") == 1) {
@@ -352,7 +351,7 @@ echo $returnMessage;
 //   b. might be a name change that we need to update
 // -----------------------------------------
 
-$clientInfoSQL = createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal, $pictureURL);
+$clientInfoSQL = createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal);
 
 if (mysqli_query($con, $clientInfoSQL)) {
     //echo "<p>update/insert ran successfully";
@@ -430,15 +429,14 @@ function createMODEligibleSQL ($clientID) {
 }
 
 // update Client Info SQL
-function createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal, $pictureURL) {
+function createClientInfoInsertSQL ($clientID, $lastName, $firstName, $dateEventLocal) {
     $clientInfoSQL = "CALL sp_insert_update_clientInfo(<<CLIENTID>>,'<<FIRSTNAME>>',
-        '<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>,'<<PICTUREURL>>');";
+        '<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>);";
     $clientInfoSQL = str_replace("<<CLIENTID>>", $clientID, $clientInfoSQL);
     $clientInfoSQL = str_replace("<<LASTNAME>>", $lastName, $clientInfoSQL);
     $clientInfoSQL = str_replace("<<FIRSTNAME>>", $firstName, $clientInfoSQL);
     $clientInfoSQL = str_replace("<<DATELASTSEEN>>", $dateEventLocal, $clientInfoSQL);
     $clientInfoSQL = str_replace("<<ISCHECKEDIN>>", "0", $clientInfoSQL);
-    $clientInfoSQL = str_replace("<<PICTUREURL>>", $pictureURL, $clientInfoSQL);
     return $clientInfoSQL;
 }
 

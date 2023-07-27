@@ -33,7 +33,7 @@ if (mysqli_connect_errno()) {
 }
 
 $selectSQL = 
-    "SELECT firstName, lastName, clientID, pictureURL, dateLastSeen, displayClasses, MOD_Eligible
+    "SELECT firstName, lastName, clientID, dateLastSeen, displayClasses, MOD_Eligible
      FROM clientInfo
      ORDER BY dateLastSeen DESC
      LIMIT 200";
@@ -47,7 +47,7 @@ if (mysqli_num_rows($result) > 0) {
 	
     while($row = mysqli_fetch_assoc($result)) {
 
-        $thisDiv = makeDiv($row["firstName"], $row["lastName"], $row["clientID"], $row["dateLastSeen"], $row["pictureURL"], $row["displayClasses"], $row["MOD_Eligible"]  ) . "\r\n";
+        $thisDiv = makeDiv($row["firstName"], $row["lastName"], $row["clientID"], $row["dateLastSeen"], $photoServer, $row["displayClasses"], $row["MOD_Eligible"]  ) . "\r\n";
             
         $photodivs = $photodivs . $thisDiv;
     }
@@ -63,20 +63,20 @@ return;
 // ------------------------------------------------------------
 
 
-function makeDiv($firstName, $lastName, $clientID, $dateLastSeen, $pictureURL, $classes, $MODeligible) {
+function makeDiv($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $classes, $MODeligible) {
     $MODclass = "";
     if ($MODeligible == 1) {
         $MODclass = "MOD";
     }
-    return "<div class='photodiv " . $classes . " " . $MODclass . "' >" . makeTable($firstName, $lastName, $clientID, $dateLastSeen, $pictureURL, $displayClasses, $MODeligible) . "</div>";
+    return "<div class='photodiv " . $classes . " " . $MODclass . "' >" . makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $displayClasses, $MODeligible) . "</div>";
 }
-function makeTable($firstName, $lastName, $clientID, $dateLastSeen, $pictureURL, $MODeligible){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($pictureURL) . 
+function makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $MODeligible){
+  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) . 
   "</td></tr><tr><td class='clientNameTD'>" . $lastName . ", " . $firstName . 
   "</td></tr><tr><td class='clientEquipTD'><p class='equiplist'>" . $dateLastSeen . "</p></td></tr></table>";
 }	
-function makeImageURL($pictureURL) {
-	return "<img class='IDPhoto' alt='no photo' src='" . $pictureURL . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
+function makeImageURL($data, $photoServer) {
+	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 
 ?>

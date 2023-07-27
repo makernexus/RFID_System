@@ -165,7 +165,7 @@ void debugEvent (String message) {
 //    clientID - optional if this event was for a particular client 
 
 
-void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL, bool MgrOnDuty) {
+void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
     const size_t capacity = JSON_OBJECT_SIZE(10);
     DynamicJsonDocument doc(capacity);
     // doc.clear();   // json library says we don't have to do this, but github bug:???
@@ -178,7 +178,6 @@ void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData
     doc["lastName"] = clientLastName.c_str();
     doc["logEvent"] = logEvent.c_str();
     doc["logData"] = logData.c_str();
-    doc["pictureURL"] = pictureURL.c_str();
     String temp = "No";
     if (MgrOnDuty) {
         temp = "Yes";
@@ -195,21 +194,21 @@ void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData
 
 }
 
-void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL) {
+void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
     // call WithMgrOnDuty with the MgrOnDuty parameter as false
     bool MgrOnDuty = false;
-    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL, MgrOnDuty);
+    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName,  MgrOnDuty);
 }
 
-void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL){
+void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName){
     
-    publishToLogDB("RFIDLogging", logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL);
+    publishToLogDB("RFIDLogging", logEvent, logData, clientID, clientFirstName, clientLastName);
 
 }
 
-void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL, bool MgrOnDuty) {
+void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty) {
 
-    publishToLogDBWithMgrOnDuty("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName, pictureURL, MgrOnDuty);
+    publishToLogDBWithMgrOnDuty("RFIDLogCheckInOut", logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
 
 }
 
@@ -246,6 +245,8 @@ void clearClientInfo() {
     
     g_clientInfo.isValid = false;
     g_clientInfo.isError = false;
+    g_clientInfo.errorMsgLine1 = "";
+    g_clientInfo.errorMsgLine2 = "";
     g_clientInfo.lastName = "";
     g_clientInfo.firstName = "";
     g_clientInfo.clientID = 0;

@@ -91,12 +91,13 @@ struct  struct_clientInfo {  // holds info on the current client
     String firstName = "";      // just the first lastName
     bool isValid = false;        // when true this sturcture has good data in it
     bool isError = false;     // when the JSON does not parse, this is set TRUE
+    String errorMsgLine1 = "";  // for the LCD display
+    String errorMsgLine2 = "";  // for the LCD display
     int clientID = 0;           // numeric value assigned by EZFacility. Guaranteed to be unique
     String RFIDCardKey = "";    // string stored in EZFacility "custom fields". We may want to change this name
     String memberNumber = "";   // string stored in EZFacility. May not be unique
     String contractStatus = ""; // string returned from EZF. Values we know of: Active, Frozen, Cancelled, Suspended
     int amountDue = 0;          // from EZF
-    String pictureURL =  "";    // from Amilia. 
 } ;
 
 extern struct_clientInfo g_clientInfo;
@@ -134,10 +135,10 @@ void debugEvent (String message);
 //    logEvent - a short reason for logging ("checkin","reboot","error", etc)
 //    logData - optional freeform text up to 250 characters
 //    clientID - optional if this event was for a particular client 
-void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL);
+void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName);
 
 // similar to logToDB, but calls the webhook RFIDLogCheckInOut
-void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, String pictureURL, bool MgrOnDuty);
+void logCheckInOut(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName, bool MgrOnDuty);
 
 
 // This is the return called by Particle cloud when the RFIDLogging webhook completes

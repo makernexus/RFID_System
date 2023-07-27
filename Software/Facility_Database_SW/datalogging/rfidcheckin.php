@@ -49,7 +49,6 @@ $lastName = cleanInput($myJSON["lastName"]);
 $clientID =  cleanInput($myJSON["clientID"] );
 $logEvent =  cleanInput($myJSON["logEvent"]);
 $logData =  cleanInput($myJSON["logData"] );
-$pictureURL =  cleanInput($myJSON["pictureURL"] );
 
 // set up SQL connection
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
@@ -156,14 +155,13 @@ if (strpos(" " . $logEvent,"checkin allowed") == 1) {
 echo $returnMessage;  
 
 // ------------------  Now update the clientInfo table
-$clientInfoSQL = "CALL sp_insert_update_client(<<CLIENTID>>,'<<FIRSTNAME>>','<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>,'<<PICTUREURL>>');";
+$clientInfoSQL = "CALL sp_insert_update_client(<<CLIENTID>>,'<<FIRSTNAME>>','<<LASTNAME>>','<<DATELASTSEEN>>',<<ISCHECKEDIN>>);";
 
 $clientInfoSQL = str_replace("<<CLIENTID>>",$clientID,$clientInfoSQL);
 $clientInfoSQL = str_replace("<<LASTNAME>>",$lastName,$clientInfoSQL);
 $clientInfoSQL = str_replace("<<FIRSTNAME>>",$firstName,$clientInfoSQL);
 $clientInfoSQL = str_replace("<<DATELASTSEEN>>",$dateEventLocal,$clientInfoSQL);
 $clientInfoSQL = str_replace("<<ISCHECKEDIN>>","0",$clientInfoSQL);
-$clientInfoSQL = str_replace("<<PICTUREURL>>",$pictureURL,$clientInfoSQL);
 
 echo "clientSQL:" . $clientInfoSQL;
 
