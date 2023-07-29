@@ -54,16 +54,22 @@ file.
     "name": "AmiliaClientByClientID",
     "event": "ezfClientByClientID",
     "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
     "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{clientID}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values  Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Name\":\"RFID Card UID\",\"Value\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"ENDOFEVENT\":1 } \n    ",
+    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values  Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Name\":\"RFID Card UID\",\"Value\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"PictureUrl\":\"{{PictureUrl}}\",\"ENDOFEVENT\":1 } \n    ",
     "headers": {
         "ez-page-number": "1",
         "Accept": "application/json",
         "Authorization": "Bearer {{{access_token}}}",
         "X-Amilia-Origin": "MakerNexus"
+    },
+    "todayCounters": {
+        "date": "20230729",
+        "success": 9,
+        "error": 24
     }
 }
 
