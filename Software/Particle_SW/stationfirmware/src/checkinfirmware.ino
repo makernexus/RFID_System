@@ -161,8 +161,9 @@
  *  2.94    cleaned up extra stuff that I tried but did not fix the problem.
  *  3.0  Pulling out Picture URL changes; we won't be using the CRM as the source of photos
  *  3.01 Added 404 message handling to getClientByClientID
+ *  3.02 Changed events and subscribtions to "amilia..." from "ezf..."
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 3.01
+#define MN_FIRMWARE_VERSION 3.02
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -492,23 +493,23 @@ void particleCallbackEZF (const char *event, const char *data) {
     // NOTE: NEVER call particle publish (incuding debugEvent) from any
     // routine called from here. Your Particle  processor will  panic
 
-    if (eventName.indexOf(myDeviceID + "ezfCheckInToken") >= 0) {
+    if (eventName.indexOf(myDeviceID + "amiliaCheckInToken") >= 0) {
     
         ezfReceiveCheckInToken(event, data );       
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByMemberNumber") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaClientByMemberNumber") >= 0) {
 
         ezfReceiveClientByMemberNumber(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaClientByClientID") >= 0) {
 
         ezfReceiveClientByClientID(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfCheckInClient") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaCheckInClient") >= 0) {
 
         // known webhook, but we don't do anything with the return code   
         
-    } else if (eventName.indexOf(myDeviceID + "ezfGetPackagesByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaGetPackagesByClientID") >= 0) {
 
         ezfReceivePackagesByClientID(event, data);
 
@@ -578,7 +579,7 @@ int ezfGetCheckInToken (bool cardIsPresented) {
                 // we haven't asked for a token in a while, so ask for one 
                 g_authTokenCheckIn.token = "";
                 g_tokenResponseBuffer = "";
-                Particle.publish("ezfCheckInToken", "", PRIVATE);
+                Particle.publish("amiliaCheckInToken", "", PRIVATE);
                 lastRequest = millis();
             }
 
@@ -883,7 +884,7 @@ int ezfClientByMemberNumber (String data) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfClientByMemberNumber",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaClientByMemberNumber",output, PRIVATE );
     if (rtnCode){} //XXX
     
     return g_clientInfo.memberNumber.toInt();
@@ -994,7 +995,7 @@ int ezfClientByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    Particle.publish("ezfClientByClientID",output, PRIVATE );
+    Particle.publish("amiliaClientByClientID",output, PRIVATE );
     
     return 0;
 }
@@ -1088,7 +1089,7 @@ int ezfGetPackagesByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfGetPackagesByClientID",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaGetPackagesByClientID",output, PRIVATE );
     
     return rtnCode;
 }
@@ -1275,7 +1276,7 @@ int ezfCheckInClient(String clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfCheckInClient",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaCheckInClient",output, PRIVATE );
     
     return rtnCode;
 }
@@ -2544,7 +2545,7 @@ void setup() {
     success = Particle.function("RFIDCardRead", cloudRFIDCardRead);
 
     // Needed for all devices
-    Particle.subscribe(System.deviceID() + "ezf",particleCallbackEZF, MY_DEVICES);
+    Particle.subscribe(System.deviceID() + "amilia",particleCallbackEZF, MY_DEVICES);
     Particle.subscribe(System.deviceID() + "mnlogdb",particleCallbackMNLOGDB, MY_DEVICES); // older
     Particle.subscribe(System.deviceID() + "fdb",particleCallbackMNLOGDB, MY_DEVICES); // newer
 
