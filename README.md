@@ -8,8 +8,8 @@ This is the production version for Maker Nexus. It was copied from https://githu
 
 This repository has been updated to support the change in CRM system from EZ Facility to Amilia SmartRec.  
 The overview document is supplemented with an addendum that describes the changes that
-have been made to this repository to support Amilia as the new Maker Nexus CRM system.  
-See the document "RFID_Amilia_Addendum_to_Overview_Document" in the Documents folder.
+have been made to this repository to support Amilia as the new Maker Nexus CRM system.  See the document 
+"RFID_Amilia_Addendum_to_Overview_Document" in the Documents folder.
 
 This repository has also been updated to support MOD check-in, status display, and management.  The overview
 document is supplemented with an addendum that describes the new MOD support functionality that
@@ -31,7 +31,8 @@ control decisions.  The Facility Database provides membership access records for
 status display and for off-line reporting on facility and equipment utilization.
 
 This project uses a Particle Argon.  The new Particle Photon 2 should be a plug-in replacement for 
-the Argon, but has not been tested at this time.  
+the Argon, but has not been tested at this time.
+
 The access control system is based upon Mifare Classic 1K (EV1) RFID cards that are written to/read from
 using a PN532-based MFC/RFID breakout board.  The Adafruit PN532 library is used to supply
 the underlying communication support between the Particle device and the RFID card. Mifare Classic 1K 
