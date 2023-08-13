@@ -6,7 +6,7 @@ Maker Nexus.
 
 This is the production version for Maker Nexus. It was copied from https://github.com/TeamPracticalProjects/MN_ACL
 
-This repository has been updated to support the changed in CRM system from EZ Facility to Amilia SmartRec.  
+This repository has been updated to support the change in CRM system from EZ Facility to Amilia SmartRec.  
 The overview document is supplemented with an addendum that describes the changes that
 have been made to this repository to support Amilia as the new Maker Nexus CRM system.  
 See the document "RFID_Amilia_Addendum_to_Overview_Document" in the Documents folder.
