@@ -197,7 +197,7 @@ void publishToLogDBWithMgrOnDuty(String webhook, String logEvent, String logData
 void publishToLogDB (String webhook, String logEvent, String logData, int clientID, String clientFirstName, String clientLastName) {
     // call WithMgrOnDuty with the MgrOnDuty parameter as false
     bool MgrOnDuty = false;
-    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName, MgrOnDuty);
+    publishToLogDBWithMgrOnDuty(webhook, logEvent, logData, clientID, clientFirstName, clientLastName,  MgrOnDuty);
 }
 
 void logToDB(String logEvent, String logData, int clientID, String clientFirstName, String clientLastName){
@@ -245,6 +245,8 @@ void clearClientInfo() {
     
     g_clientInfo.isValid = false;
     g_clientInfo.isError = false;
+    g_clientInfo.errorMsgLine1 = "";
+    g_clientInfo.errorMsgLine2 = "";
     g_clientInfo.lastName = "";
     g_clientInfo.firstName = "";
     g_clientInfo.clientID = 0;
