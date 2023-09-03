@@ -2,6 +2,7 @@
 
 // List all checkin/out by staff 
 //    start/stop dates in URL
+//    if no start/stop then 14 day lookback
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
@@ -9,17 +10,51 @@
 include 'commonfunctions.php';
 $maxRows = 1000;
 
-// get the URL parameters
-$startDate = $_GET["startDate"];
-if ($startDate == 0) {
-    echo "startDate= parameter not found.";
-    return;
+/*
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+*/
+
+// get start date
+$startDate = 0;
+
+if (isset($_REQUEST['startDate']))
+{
+    // param was set in the query string
+
+    if(!empty($_REQUEST['startDate']))
+    {
+        // passed in start date
+        $startDate = $_REQUEST['startDate'];
+    }
+} 
+
+if ($startDate == 0){
+    // so look back 14 days
+    $startDate = date("Ymd",strtotime("-14 day"));
 }
-$endDate = $_GET["endDate"];
-if ($endDate == 0) {
-    echo "endDate= parameter not found.";
-    return;
+
+// get end date
+
+$endDate = 0;
+
+if (isset($_REQUEST['endDate']))
+{
+    // param was set in the query string
+
+    if(!empty($_REQUEST['endDate']))
+    {
+        // passed in end date
+        $endDate = $_REQUEST['endDate'];
+    }
+} 
+
+if ($endDate == 0){
+    // so end today
+    $endDate = date('Ymd');
 }
+
 
 // get the HTML skeleton
 $myfile = fopen("rfidstaffactivity.txt", "r") or die("Unable to open file!");
@@ -60,6 +95,11 @@ $rowsReturned = mysqli_num_rows($result);
 
 // Construct the page
 
+$html = str_replace("<<STARTDATE>>", $startDate, $html);
+$html = str_replace("<<ENDDATE>>", $endDate, $html);
+
+$tableRows = "";
+
 if (mysqli_num_rows($result) > 0) {
 
 	$previousClientID = "---";
@@ -87,18 +127,19 @@ if (mysqli_num_rows($result) > 0) {
     		),
     	$html);
     $html = str_replace("<<TABLEROWS>>", $tableRows,$html);
-    $html = str_replace("<<STARTDATE>>", $startDate, $html);
-    $html = str_replace("<<ENDDATE>>", $endDate, $html);
+
     if ($rowsReturned > $maxRows - 1) {
         $html = str_replace("<<TOTALROWS>>", "<p style='color:red'>WARNING: more than " . $maxRows ." rows, results truncated.</p>", $html);
     } else {
         $html = str_replace("<<TOTALROWS>>", $rowsReturned, $html);
     }
-	echo $html;
 
 } else {
-    echo "0 results";
+    $html = str_replace("<<TABLEROWS>>", "",$html);
+    $html = str_replace("<<TOTALROWS>>", "0 found", $html);
 }
+
+echo $html;
 
 mysqli_close($con);
 
