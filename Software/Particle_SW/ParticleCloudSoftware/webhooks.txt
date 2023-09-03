@@ -6,6 +6,9 @@ Note that private keys, accounts, and passwords have been removed from this
 file.
 
 2021 09 30   Updated ezfClientByClientID to use Mustache code to reduce the amount of data returned.
+2023 06 07   Updated for Amilia integration
+2023 06 15   Bug fix #31
+2023 08 01   Updated webhooks for Amilia (events are: amilia...)
 
 {
     "event": "RFIDLogging",
@@ -26,88 +29,110 @@ file.
 }
 
 {
-    "event": "ezfClientByMemberNumber",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
-    "url": "https://api.sandbox.ezfacility.com/v2/clients/membershipNumber={{{memberNumber}}}",
+    "name": "AmiliaClientByMemberNumber",
+    "event": "amiliaClientByMemberNumber",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}amiliaClientByMemberNumber",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}amiliaClientByMemberNumber",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{memberNumber}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "",
-    "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
-        "Accept": "application/json",
-        "ez-page-number": "1"
-    }
-}
-
-{
-    "event": "ezfClientByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
-    "url": "https://api.sandbox.ezfacility.com/v2/clients/{{{clientID}}}",
-    "requestType": "GET",
-    "noDefaults": true,
-    "rejectUnauthorized": true,
-    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values \n\tMake JSON that is just what we need in the client from what\n\tis returned from the EZF CRM system.\n\t}}\n\t{\n\t\"AmountDue\":{{AmountDue}},\n\t\"ClientID\":{{ClientID}},\n\n\t\"CustomFields\": [\n\n\t\t{{#CustomFields}} \n\t\t\t{\"Name\":\"{{Name}}\", \"Value\":\"{{Value}}\" },\n \t\t{{/CustomFields}} \n \t\t\n \t\t{\"Name\":\"Junk\",\"Value\":\"JunkValue\"}\n\t],\n\t   \n\t\"FirstName\":\"{{FirstName}}\",\n\t\"LastName\":\"{{LastName}}\",\n\t\"MembershipContractStatus\":\"{{MembershipContractStatus}}\",\n\t\"MembershipNumber\":\"{{MembershipNumber}}\"\n\t}",
+    "responseTemplate": "[{{! Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Name\":\"RFID Card UID\",\"Value\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"PictureUrl\":\"{{PictureUrl}}\"}]",
     "headers": {
         "ez-page-number": "1",
         "Accept": "application/json",
         "Authorization": "Bearer {{{access_token}}}"
-    }
-}
-
-{
-    "event": "ezfCheckInToken",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
-    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
-    "url": "https://api.sandbox.ezfacility.com/token",
-    "requestType": "POST",
-    "noDefaults": true,
-    "rejectUnauthorized": true,
-    "responseTemplate": "",
-    "headers": {
-        "Authorization": "Basic ...",
-        "Accept": "application/json",
-        "Content-type": "application/x-www-form-urlencoded"
     },
-    "form": {
-        "password": "...",
-        "username": "...",
-        "grant_type": "password",
-        "scope": "realm:tms"
+    "todayCounters": {
+        "date": "20230801",
+        "success": 1
     }
 }
 
-
 {
-    "event": "ezfGetPackagesByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfGetPackagesByClientID",
-    "url": "https://api.sandbox.ezfacility.com/v2/packages/{{{clientID}}}/active",
+    "name": "AmiliaClientByClientID",
+    "event": "amiliaClientByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}amiliaClientByClientID",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}amiliaClientByClientID",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{clientID}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "{{#0}} {{ReservationType}}| {{/0}}\n{{#1}} {{ReservationType}}| {{/1}}\n{{#2}} {{ReservationType}}| {{/2}}\n{{#3}} {{ReservationType}}| {{/3}}\n{{#4}} {{ReservationType}}| {{/4}}\n{{#5}} {{ReservationType}}| {{/5}}\n{{#6}} {{ReservationType}}| {{/6}}\n{{#7}} {{ReservationType}}| {{/7}}\n{{#8}} {{ReservationType}}| {{/8}}\n{{#9}} {{ReservationType}}| {{/9}}\n{{#10}} {{ReservationType}}| {{/10}}\n{{#11}} {{ReservationType}}| {{/11}}\n{{#12}} {{ReservationType}}| {{/12}}\n{{#13}} {{ReservationType}}| {{/13}}\n{{#14}} {{ReservationType}}| {{/14}}\nEndOfPackages\n",
+    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values  Make JSON that is just what we need in the client from what is returned from the Amilia CRM system. }} { \"AmountDue\":0, \"ClientID\":{{Id}}, \"CustomFields\": [ {\"Name\":\"RFID Card UID\",\"Value\":\"{{ExternalId}}\"},     {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{#Memberships}}Active{{/Memberships}}{{^Memberships}}Inactive{{/Memberships}}\", \"MembershipNumber\":\"{{Id}}\", \"ENDOFEVENT\":1 } \n    ",
     "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
+        "ez-page-number": "1",
         "Accept": "application/json",
-        "ez-page-number": "1"
+        "Authorization": "Bearer {{{access_token}}}",
+        "X-Amilia-Origin": "MakerNexus"
+    },
+    "todayCounters": {
+        "date": "20230801",
+        "success": 10,
+        "error": 3
+    }
+}
+
+{
+    "name": "AmiliaGetToken for Amilia",
+    "event": "amiliaCheckInToken",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}amiliaCheckInToken",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}amiliaCheckInToken",
+    "url": "https://www.amilia.com/api/V3/authenticate",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": "{ \"access_token\":\"{{Token}}\",\n\"Token_type\":\"bearer\",\n\"Expires_in\":86399,\n\"refresh_token\":\"none\"\n}",
+    "headers": {
+        "Authorization": "Basic bW4uYW1pbGlhUkZJRGFwaUBtYWtlcm5leHVzLm9yZzplRWhbbV84Q1Y0P04=",
+        "Accept": "application/json",
+        "Content-type": "application/x-www-form-urlencoded",
+        "X-Amilia-Origin": "MakerNexus"
+    },
+    "todayCounters": {
+        "date": "20230801",
+        "success": 4
     }
 }
 
 
 {
-    "event": "ezfCheckInClient",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInClient",
+    "name": "AmiliaGetPackagesByClientID",
+    "event": "amiliaGetPackagesByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}amiliaGetPackagesByClientID",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}amiliaGetPackagesByClientID",
+    "url": "https://www.amilia.com/api/V3/en/org/makernexus/persons/{{{clientID}}}",
+    "requestType": "GET",
+    "noDefaults": true,
+    "rejectUnauthorized": true,
+    "responseTemplate": " {{Skills.0.Name}} |\n {{Skills.1.Name}} |\n {{Skills.2.Name}} |\n {{Skills.3.Name}} |\n {{Skills.4.Name}} |\n {{Skills.5.Name}} |\n {{Skills.6.Name}} |\n {{Skills.7.Name}} |\n {{Skills.8.Name}} |\n {{Skills.9.Name}} |\n {{Skills.10.Name}} |\n {{Skills.11.Name}} |\n {{Skills.12.Name}} |\n {{Skills.13.Name}} |\n {{Skills.14.Name}} |\n {{Skills.15.Name}} |\n {{Skills.16.Name}} |\n  \nEndOfPackages\n\n",
+    "headers": {
+        "X-Amilia-Origin": "MakerNexus",
+        "Accept": "application/json",
+        "Authorization": "Bearer {{{access_token}}}"
+    },
+    "todayCounters": {
+        "date": "20230801",
+        "success": 2
+    }
+}
+
+
+{
+    "name": "AmiliaCheckInClient for ezfacility.com",
+    "event": "amiliaCheckInClient",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}amiliaCheckInClient",
+    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}amiliaCheckInClient",
     "url": "https://api.sandbox.ezfacility.com/v2/checkins/clientID/{{{clientID}}}",
     "requestType": "POST",
     "noDefaults": true,
     "rejectUnauthorized": true,
     "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "Authorization": "Bearer {{{access_token}}}"
     },
     "form": {
-        "CheckInLocationID": "14170",
         "CheckInStationID": "5487",
+        "CheckInLocationID": "14170",
         "BookedSessionsMessage": "junk for now"
     }
 }

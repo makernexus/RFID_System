@@ -153,8 +153,17 @@
  *  2.6  Added Manager on Duty functionality. See design docs.
  *  2.7  Changed state of green button to correspond to the production PCB
  *  2.8  package checking is now done in all upper case
+ *  2.9  changes to support pictureURL coming from the CRM and being passed to the FDB. Needed for Amilia support.
+ *       Fixed bug #25
+ *  2.91   added test for http 404 message to handle this gracefully (for Amilia)
+ *  2.92    changed logging into message from EZ Facility to Amilia
+ *  2.93    added code to prevent bad member number from re-querying over and over.
+ *  2.94    cleaned up extra stuff that I tried but did not fix the problem.
+ *  3.0  Pulling out Picture URL changes; we won't be using the CRM as the source of photos
+ *  3.01 Added 404 message handling to getClientByClientID
+ *  3.02 Changed events and subscribtions to "amilia..." from "ezf..."
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.8
+#define MN_FIRMWARE_VERSION 3.02
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -164,12 +173,20 @@
 // Our rfid card UTILITIES
 #include "mnrfidutils.h"
 
+// for local debugging
+SerialLogHandler logHandler;
+
 // Define the pins we're going to call pinMode on
 
 int led = D0;  // You'll need to wire an LED to this one to see it blink.
 int led2 = ONBOARD_LED_PIN; // This one is the built-in tiny one to the right of the USB jack
 
 //----------- Global Variables
+
+// added these two global variables in order to 
+// handle the 404 error from Amilia
+String g_expectToReceiveThisMemberNumber = "";
+
 
 String g_tokenResponseBuffer = "";
 String g_cibmnResponseBuffer = "";
@@ -194,6 +211,9 @@ String g_packages = ""; // Not implemented yet xxx
 
 bool g_MgrOnDutySwitch = false;   //when true the MOD switch is active and we're going to change who is MOD
 
+// used by ezfReceiveClientByClientID to hold parts of the message returned from the webhook   // Bug #25
+const int MAX_CLIENT_INFO_PIECES = 4;
+String g_receiveClientByClientIDPieces[MAX_CLIENT_INFO_PIECES] = {"","","",""};
 
 
 struct struct_authTokenCheckIn {
@@ -473,23 +493,23 @@ void particleCallbackEZF (const char *event, const char *data) {
     // NOTE: NEVER call particle publish (incuding debugEvent) from any
     // routine called from here. Your Particle  processor will  panic
 
-    if (eventName.indexOf(myDeviceID + "ezfCheckInToken") >= 0) {
+    if (eventName.indexOf(myDeviceID + "amiliaCheckInToken") >= 0) {
     
         ezfReceiveCheckInToken(event, data );       
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByMemberNumber") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaClientByMemberNumber") >= 0) {
 
         ezfReceiveClientByMemberNumber(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaClientByClientID") >= 0) {
 
         ezfReceiveClientByClientID(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfCheckInClient") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaCheckInClient") >= 0) {
 
         // known webhook, but we don't do anything with the return code   
         
-    } else if (eventName.indexOf(myDeviceID + "ezfGetPackagesByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "amiliaGetPackagesByClientID") >= 0) {
 
         ezfReceivePackagesByClientID(event, data);
 
@@ -559,7 +579,7 @@ int ezfGetCheckInToken (bool cardIsPresented) {
                 // we haven't asked for a token in a while, so ask for one 
                 g_authTokenCheckIn.token = "";
                 g_tokenResponseBuffer = "";
-                Particle.publish("ezfCheckInToken", "", PRIVATE);
+                Particle.publish("amiliaCheckInToken", "", PRIVATE);
                 lastRequest = millis();
             }
 
@@ -739,6 +759,8 @@ const size_t capacity = 3*JSON_ARRAY_SIZE(2) + 2*JSON_ARRAY_SIZE(3) + 10*JSON_OB
 
         // Set Error if the JSON does not parse
         g_clientInfo.isError = true;
+        g_clientInfo.errorMsgLine1 = "JSON Parse Error";
+        g_clientInfo.errorMsgLine2 = "try again.";
         return 1;
     }
 }
@@ -803,7 +825,7 @@ int clientInfoFromJSONArray (String data) {
                 g_clientInfo.memberNumber = String(root_0["MembershipNumber"].as<const char*>());
 
                 g_clientInfo.amountDue = root_0["AmountDue"]; 
-                
+
                 g_clientInfo.isValid = true;
             }
 
@@ -862,7 +884,7 @@ int ezfClientByMemberNumber (String data) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfClientByMemberNumber",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaClientByMemberNumber",output, PRIVATE );
     if (rtnCode){} //XXX
     
     return g_clientInfo.memberNumber.toInt();
@@ -874,7 +896,25 @@ int ezfClientByMemberNumber (String data) {
  * called by particleCallbackEZF()
 */
 void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
-    
+
+    // XXXX check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
+        g_clientInfo.clientID = 0;  // clientID of 0 has special meaning
+        g_clientInfo.firstName = "Member not found";
+        g_clientInfo.memberNumber = g_expectToReceiveThisMemberNumber;
+        g_clientInfo.isValid = true;
+
+        // extra stuff added to 2.92 to see if we can better fake it out.
+        //  testing shows that this stuff doesn't seem to matter.
+        //  g_clientInfo.isError = false;   // XXXX does this matter? Doesn't seem so!
+        //  JSONParseError = "0";   // does this matter?  Doesn't seem so!
+        // end of extra stuff ...
+
+        return;
+    }
+
+    //  XXXX legacy code is below -- we did not get an http 404 error message
     g_cibmnResponseBuffer = g_cibmnResponseBuffer + String(data);
 
     debugEvent("clientInfoPart "); // + String(data));
@@ -884,7 +924,20 @@ void ezfReceiveClientByMemberNumber (const char *event, const char *data)  {
 }
 
 
+// ------------- clearReceiveBuffers ----------------
+// Called by the handlers of ezfClientByClientID to clear out
+// the buffers we use to hold parts of the response for reassembly
+// 
+void clearClientByClientIDReceiveBuffers(){   // Bug #25
+    // clear receive buffers
+    for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++){
+            g_receiveClientByClientIDPieces[i] = "";
+    }
+}
+
+
 // ------------- Get Client Info by ClientID ----------------
+
 // Called by the Particle Console for debug use.
 // 
 // parameters
@@ -930,6 +983,8 @@ int ezfClientByClientID (int clientID) {
 
     clearClientInfo();
 
+    clearClientByClientIDReceiveBuffers();  // Bug #25
+
     // Create parameters in JSON to send to the webhook
     const int capacity = JSON_OBJECT_SIZE(8) + 2*JSON_OBJECT_SIZE(8);
     StaticJsonDocument<capacity> docJSON;
@@ -940,7 +995,7 @@ int ezfClientByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    Particle.publish("ezfClientByClientID",output, PRIVATE );
+    Particle.publish("amiliaClientByClientID",output, PRIVATE );
     
     return 0;
 }
@@ -957,23 +1012,21 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
 
     debugEvent ("clientInfoPart " + String(data));
 
-    // Temp workaround
-    const int MAX_CLIENT_INFO_PIECES = 4;
-    static String pieces[MAX_CLIENT_INFO_PIECES] = {"","","",""};
-    static unsigned long receiveFirstMS = 0;    // ms when the first package comes in 
-    const unsigned long MAX_MSG_WAIT_MS = 14000; // we must get all parts within 14 seconds
+    // XXXX check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
 
-    if (millis() - receiveFirstMS > MAX_MSG_WAIT_MS) {
-        // we have gone too long, so this must be a new set of parts
-        // reset all our local state
-        debugEvent("clearing client info receive");
-        receiveFirstMS = millis(); 
-        for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++){
-            pieces[i] = "";
-        }
-    } 
+        g_clientInfo.errorMsgLine1 = "Member not found";
+        g_clientInfo.errorMsgLine2 = "in Amilia";
+        g_clientInfo.contractStatus = "Active"; // needed to get to next step in equipment loop
+        g_clientInfo.isError = true;
+
+        return;
+    }
 
     String eventName = String(event);
+
+
 
     // what part number do we have?
     String partNumberString = eventName.substring(eventName.lastIndexOf("/")+1,eventName.length());
@@ -981,23 +1034,26 @@ void ezfReceiveClientByClientID (const char *event, const char *data)  {
 
     // store the part in our static variables
     if (partNumberInt < MAX_CLIENT_INFO_PIECES) {
-        pieces[partNumberInt] = String(data);
+        g_receiveClientByClientIDPieces[partNumberInt] = String(data);
     } else {
-        // we must have gotten more than MAX_CLIENT_INFO_PIECES pieces and we don't handle that
-        // so set the timer so that when a new part comes in we'll clear all this out
-        receiveFirstMS = 0;
+        // we'll just discard anything over our max pieces and the state machine waiting
+        // on this will eventually time out
     }
 
     // if we have a piece 0, then concatenate and pass off to see if we have a full JSON
-    if (pieces[0].length() > 10) {
+    if (g_receiveClientByClientIDPieces[0].length() > 10) {
         // all responses are at least 10 characters long
         g_cibcidResponseBuffer = ""; // if some parts are not here, the parse test will fail
         for (int i=0; i < MAX_CLIENT_INFO_PIECES; i++) {
-            g_cibcidResponseBuffer = g_cibcidResponseBuffer + pieces[i];
+            g_cibcidResponseBuffer = g_cibcidResponseBuffer + g_receiveClientByClientIDPieces[i];
         }
     }
-    // WHY CALL THIS IF WE DON'T HAVE PART 0 YET?
-    clientInfoFromJSON(g_cibcidResponseBuffer);
+
+    // Look for end marker
+    int endOfEventIndicator = g_cibcidResponseBuffer.indexOf(String("ENDOFEVENT")); // Bug #25
+    if (endOfEventIndicator >= 0 ) {  // we have the end of response  // Bug #25
+        clientInfoFromJSON(g_cibcidResponseBuffer);
+    }
 }
 
 
@@ -1033,7 +1089,7 @@ int ezfGetPackagesByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfGetPackagesByClientID",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaGetPackagesByClientID",output, PRIVATE );
     
     return rtnCode;
 }
@@ -1220,7 +1276,7 @@ int ezfCheckInClient(String clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfCheckInClient",output, PRIVATE );
+    int rtnCode = Particle.publish("amiliaCheckInClient",output, PRIVATE );
     
     return rtnCode;
 }
@@ -1430,6 +1486,9 @@ int cloudQueryMember(String data ) {
         // error, data is not a number or it really is 0
         return 4;
     }
+
+    //  store the member number (data) to global variable for handling Amilia 404 error
+    g_expectToReceiveThisMemberNumber = data;
 
     if ((g_clientInfo.isValid) && (g_clientInfo.memberNumber.startsWith(data))) {
         // we have a result for this query data 
@@ -1691,6 +1750,24 @@ void loopEquipStation() {
                     wsloopState = wslWAITFORCLIENTPACKAGES;
                 }
 
+        } else if ( g_clientInfo.isError ) { 
+                writeToLCD(g_clientInfo.errorMsgLine1, g_clientInfo.errorMsgLine2);
+                buzzerBadBeep();
+                digitalWrite(REJECT_LED,HIGH);
+                delay(2000);
+                digitalWrite(REJECT_LED,LOW);
+
+                // log this to DB
+                String tempout = ">";
+                tempout += g_cibcidResponseBuffer;
+                tempout += "<";
+                String tempout1 = tempout.substring(0,250);
+                logToDB("getClientInfo error a:", tempout1, g_clientInfo.clientID,"","");
+                tempout1 = tempout.substring(250,tempout.length());
+                logToDB("getClientInfo error b:", tempout1, g_clientInfo.clientID,"","");
+                
+                wsloopState = wslWAITFORCARD;
+
         } else {
             // client info is not valid yet
             // timer to limit this state
@@ -1751,7 +1828,7 @@ void loopEquipStation() {
             digitalWrite(REJECT_LED,LOW);
             
             // log this to DB 
-            logToDB(g_stationConfig.LCDName + " denied", allowInMessage, g_clientInfo.clientID, "","");
+            logToDB(g_stationConfig.LCDName + " denied", allowInMessage, g_clientInfo.clientID,"","");
 
             wsloopState = wslWAITFORCARD;
             
@@ -1761,7 +1838,7 @@ void loopEquipStation() {
             
             // log this to our DB 
             processStartMilliseconds = millis();
-            logToDB(g_stationConfig.logEvent, "", g_clientInfo.clientID, g_clientInfo.firstName, g_clientInfo.lastName );
+            logToDB(g_stationConfig.logEvent, "", g_clientInfo.clientID, g_clientInfo.firstName, g_clientInfo.lastName);
             
             wsloopState = wslSHOWEQUIPRESULT;
 
@@ -1924,7 +2001,7 @@ void loopCheckIn() {
         } else {
 
             if ( g_clientInfo.isError ) { 
-                writeToLCD("bad client JSON","Try Again");
+                writeToLCD(g_clientInfo.errorMsgLine1, g_clientInfo.errorMsgLine2);
                 buzzerBadBeep();
                 digitalWrite(REJECT_LED,HIGH);
                 delay(2000);
@@ -1935,9 +2012,9 @@ void loopCheckIn() {
                 tempout += g_cibcidResponseBuffer;
                 tempout += "<";
                 String tempout1 = tempout.substring(0,250);
-                logToDB("client JSON error A", tempout1, g_clientInfo.clientID,"","" );
+                logToDB("client JSON error A", tempout1, g_clientInfo.clientID,"","");
                 tempout1 = tempout.substring(250,tempout.length());
-                logToDB("client JSON error B", tempout1, g_clientInfo.clientID,"","" );
+                logToDB("client JSON error B", tempout1, g_clientInfo.clientID,"","");
                 
                 cilloopState = cilWAITFORCARD;
             }
@@ -2012,7 +2089,7 @@ void loopCheckIn() {
                 // log this to our DB 
                 processStartMilliseconds = millis();
                 // call our DB and find out if this is checkin or checkout 
-                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName,mgrOnDutyForThisCardRead);
+                mnlogdbCheckInOut(g_clientInfo.clientID,g_clientInfo.firstName,g_clientInfo.lastName, mgrOnDutyForThisCardRead);
                 
                 cilloopState = cilSHOWINOROUT;
 
@@ -2267,7 +2344,8 @@ void adminGetUserInfo(int clientID, String memberNumber) {
         break;
 
     case guiIDLE: 
-        writeToLCD("Signing in","to EZFacility");
+//        writeToLCD("Signing in","to EZFacility");
+        writeToLCD("Signing in","to Amilia");   // updated for Amilia
         // request a good token from ezf
         ezfGetCheckInToken(false);
         processStartMilliseconds = millis();
@@ -2467,7 +2545,7 @@ void setup() {
     success = Particle.function("RFIDCardRead", cloudRFIDCardRead);
 
     // Needed for all devices
-    Particle.subscribe(System.deviceID() + "ezf",particleCallbackEZF, MY_DEVICES);
+    Particle.subscribe(System.deviceID() + "amilia",particleCallbackEZF, MY_DEVICES);
     Particle.subscribe(System.deviceID() + "mnlogdb",particleCallbackMNLOGDB, MY_DEVICES); // older
     Particle.subscribe(System.deviceID() + "fdb",particleCallbackMNLOGDB, MY_DEVICES); // newer
 
@@ -2545,7 +2623,7 @@ void setup() {
     writeToLCD("Initializing","Particle Cloud");
 
    
-    logToDB("restart",String(MN_FIRMWARE_VERSION),0,"","" );
+    logToDB("restart",String(MN_FIRMWARE_VERSION),0,"","");
 
     //Show all lights
     writeToLCD("Init all LEDs","should blink");
@@ -2575,6 +2653,7 @@ void setup() {
         delay(500);
     } 
 
+    Log.info("End of Setup()");
 
 }
 
@@ -2609,10 +2688,13 @@ void loop() {
            
             // if type is undefined or checkin, then don't need config.
             if (EEPROMdata.deviceType == DEVICETYPE_UNDEFINED) {
+                Log.info("Station Config undefined");
                 setStationConfig( DEVICETYPE_UNDEFINED, "Undefined","Undefined","Undefined","","");
             } else if (EEPROMdata.deviceType == DEVICETYPE_CHECKIN) {
+                Log.info("Station Config Checkin");
                 setStationConfig( DEVICETYPE_CHECKIN, "CheckIn", "Check In","Check In","","");
             } else {
+                Log.info("Station config error"); // should never get here
                 setStationConfig( 99999,"code error 1","code error 1","code error 1","","" );
             }
 
@@ -2625,6 +2707,7 @@ void loop() {
             processStart = millis();
             fdbGetStationConfig();
             mainloopState = mlsWAITFORSTATIONCONFIG;
+            Log.info("Requesting station config info from FDB");
 
         }
 
@@ -2638,7 +2721,7 @@ void loop() {
             mainloopState = mlsERROR;
 
         } else if (g_stationConfig.isValid) {
-
+            Log.info("Received Station Config");
             mainloopState = mlsASKFORTOKEN;
         }
         // otherwise stay in this state 
@@ -2673,6 +2756,7 @@ void loop() {
         break;
     }
     case mlsERROR: 
+        Log.error("Mainloop error state");
         mainloopState = mlsERROR; // No way out of this except a reboot
         break;
 
