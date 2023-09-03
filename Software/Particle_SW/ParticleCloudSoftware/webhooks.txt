@@ -81,16 +81,16 @@ file.
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "{ \"access_token\":\"{{Token}}\",\n\"Token_type\":\"bearer\",\n\"Expires_in\":86399,\n\"refresh_token\":\"none\"\n}",
+    "responseTemplate": "{ \"access_token\":\"{{Token}}\",\n\"token_type\":\"bearer\",\n\"expires_in\":86399,\n\"refresh_token\":\"none\"\n}",
     "headers": {
-        "Authorization": "Basic bW4uYW1pbGlhUkZJRGFwaUBtYWtlcm5leHVzLm9yZzplRWhbbV84Q1Y0P04=",
+        "Authorization": "Basic <<Your Autorization String Here>>",
         "Accept": "application/json",
         "Content-type": "application/x-www-form-urlencoded",
         "X-Amilia-Origin": "MakerNexus"
     },
     "todayCounters": {
-        "date": "20230801",
-        "success": 4
+        "date": "20230903",
+        "success": 2289
     }
 }
 
