@@ -162,8 +162,9 @@
  *  3.0  Pulling out Picture URL changes; we won't be using the CRM as the source of photos
  *  3.01 Added 404 message handling to getClientByClientID
  *  3.02 Changed events and subscribtions to "amilia..." from "ezf..."
+ *  3.03 Bug #54 - multi part response to Get Packages was not working
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 3.02
+#define MN_FIRMWARE_VERSION 3.03
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -214,6 +215,10 @@ bool g_MgrOnDutySwitch = false;   //when true the MOD switch is active and we're
 // used by ezfReceiveClientByClientID to hold parts of the message returned from the webhook   // Bug #25
 const int MAX_CLIENT_INFO_PIECES = 4;
 String g_receiveClientByClientIDPieces[MAX_CLIENT_INFO_PIECES] = {"","","",""};
+
+// used by ezfReceivePackagesByClientID to hold parts of the message returned from the webhook  // bug #54 
+const int MAX_PACKAGES_PIECES = 4;
+String g_receivePackagesByClientIDPieces[MAX_PACKAGES_PIECES] = {"","","",""};
 
 
 struct struct_authTokenCheckIn {
@@ -1108,21 +1113,55 @@ int ezfGetPackagesByClientID (int clientID) {
 */
 
 void ezfReceivePackagesByClientID (const char *event, const char *data)  {
-    
-    static int partCnt = 0;
-    if (g_clientPackagesResponseBuffer.length() == 0) {
-        partCnt = 0;
-    }
-    partCnt++;
 
-    g_clientPackagesResponseBuffer = g_clientPackagesResponseBuffer + String(data);
-    //debugEvent ("PackagesPart " + String(partCnt) + ": " + String(data));
+    // Note: the full response might be in several parts and they may not come in 
+    // order. 
 
-    if (g_clientPackagesResponseBuffer.indexOf("EndOfPackages") > 0 ) {
-        g_clientPackages.packagesString = g_clientPackagesResponseBuffer.toUpperCase();
+    debugEvent ("Packages Part " + String(data));
+
+    // check to see if the response was a non-json error message    
+    String receivedData = String(data);
+    if(receivedData.startsWith("error status 404")) {
+
+        g_clientPackages.packagesString =  "failed with 404";
         g_clientPackages.isValid = true;
-        g_clientPackagesResponseBuffer = "";
-        debugEvent("Final packages string: " + g_clientPackages.packagesString);
+        debugEvent("Packages failed with 404 error - likely unknown clientId");
+
+        return;
+    }
+
+    String eventName = String(event);
+
+    // what part number do we have?
+    String partNumberString = eventName.substring(eventName.lastIndexOf("/")+1,eventName.length());
+    int partNumberInt = partNumberString.toInt(); // if this fails, the value is 0 - grrr
+
+    // store the part in our static variables
+    if (partNumberInt < MAX_PACKAGES_PIECES) {
+        g_receivePackagesByClientIDPieces[partNumberInt] = String(data);
+    } else {
+        g_clientPackages.packagesString =  "failed too many pieces";
+        g_clientPackages.isValid = true;
+        debugEvent("Packages failed, too many pieces");
+    }
+
+    // if we have a piece 0, then see if we have all the pieces
+    if (g_receivePackagesByClientIDPieces[0].length() > 10) {
+        
+        // all responses are at least 10 characters long
+        g_clientPackagesResponseBuffer = ""; // if some parts are not here, the end marker test will fail
+        for (int i=0; i < MAX_PACKAGES_PIECES; i++) {
+            g_clientPackagesResponseBuffer = g_clientPackagesResponseBuffer + g_receivePackagesByClientIDPieces[i];
+        }
+
+        // If we have the end marker, then we're done. Else we wait for more pieces
+        if (g_clientPackagesResponseBuffer.indexOf("EndOfPackages") > 0 ) {
+            g_clientPackages.packagesString = g_clientPackagesResponseBuffer.toUpperCase();
+            g_clientPackages.isValid = true;
+            g_clientPackagesResponseBuffer = "";
+            debugEvent("Final packages string: " + g_clientPackages.packagesString);
+        }
+
     }
         
 }
