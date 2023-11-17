@@ -172,11 +172,11 @@ function makeMODDiv($name, $photoURL) {
 }
 function makeMODTable($name, $photoURL){
     return "<table class='clientTable'>" .
-    //"<tr><td><p class='MODtitle'>Manager On Duty</p></td></tr>" .
+    //"<tr><td><p class='MODtitle'>Maker On Duty</p></td></tr>" .
     "<tr><td class='clientImageTD'><img class='IDPhoto' alt='no photo' src='" . $photoURL . "' onerror=\"this.src='WeNeedAPhoto.png'\"></td>" .
     "</tr>" .
     "<tr><td class='clientNameTD'><p class='photoname'>" . $name . "</p></td></tr>" .
-    "<tr><td class='clientEquipTD'>Manager On Duty</td></tr>" .
+    "<tr><td class='clientEquipTD'>Maker On Duty</td></tr>" .
     "</table>";
   }
 

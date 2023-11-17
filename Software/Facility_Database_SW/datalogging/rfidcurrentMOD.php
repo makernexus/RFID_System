@@ -1,6 +1,6 @@
 <?php
 
-// Information on the current Manager on Duty
+// Information on the current Maker on Duty
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
