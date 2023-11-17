@@ -1147,7 +1147,7 @@ void ezfReceivePackagesByClientID (const char *event, const char *data)  {
 
     // if we have a piece 0, then see if we have all the pieces
     if (g_receivePackagesByClientIDPieces[0].length() > 10) {
-
+        
         // all responses are at least 10 characters long
         g_clientPackagesResponseBuffer = ""; // if some parts are not here, the end marker test will fail
         for (int i=0; i < MAX_PACKAGES_PIECES; i++) {
