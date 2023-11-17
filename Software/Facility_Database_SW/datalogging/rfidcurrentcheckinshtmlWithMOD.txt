@@ -41,7 +41,7 @@
 <body>
     <div class='MODDiv' style='float:left; width: 20%;'>
         <div>
-            <p class='MODTitle'>Manager On Duty</p>
+            <p class='MODTitle'>Maker On Duty</p>
         </div>
         <div class='MODImageDiv'>
             <img class='MODImage' alt='no photo' src='<<MODPHOTO>>' onerror="this.src='WeNeedAPhoto.png'">
