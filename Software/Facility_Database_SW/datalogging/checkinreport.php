@@ -48,7 +48,7 @@ LEFT JOIN clientInfo ci
 ON rd.clientID = ci.clientID
 WHERE dateEventLocal > '20191001'
   and logEvent = 'Checked In'
-  and (TRIM(displayClasses) <> 'staff' or displayClasses is NULL)
+  and (displayClasses NOT LIKE '%staff%')
 group by YEAR(dateEventLocal), MONTH(dateEventLocal), clientID
 order by YEAR(dateEventLocal), MONTH(dateEventLocal)
 ) as X
@@ -112,7 +112,7 @@ LEFT JOIN clientInfo ci
 ON rd.clientID = ci.clientID
 WHERE dateEventLocal > '20191001'
   and logEvent = 'Checked In'
-  and (TRIM(displayClasses) <> 'staff' or displayClasses is NULL)
+  and (displayClasses NOT LIKE '%staff%')
 group by YEAR(dateEventLocal), MONTH(dateEventLocal), DAY(dateEventLocal), clientID
 order by YEAR(dateEventLocal), MONTH(dateEventLocal), DAY(dateEventLocal)
 ) as X
@@ -182,7 +182,7 @@ ON rd.clientID = ci.clientID
 WHERE dateEventLocal BETWEEN "
 . $SQLDateRange .
 " and logEvent = 'Checked In'
-  and (TRIM(displayClasses) <> 'staff' OR displayClasses is NULL);
+  and (displayClasses NOT LIKE '%staff%');
 ";
 
 $result3 = mysqli_query($con, $selectSQLMembersLast90Days);
