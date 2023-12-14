@@ -13,13 +13,15 @@ $assumedHoursForNoCheckout = 5;
 // get the URL parameters
 $startDate = $_GET["startDate"];
 if ($startDate == 0) {
-    echo "startDate= parameter not found.";
-    return;
+    // echo "startDate= parameter not found.";
+    // return;
+    $startDate = date("Ymd", strtotime("-1 year"));
 }
 $endDate = $_GET["endDate"];
 if ($endDate == 0) {
-    echo "endDate= parameter not found.";
-    return;
+    //echo "endDate= parameter not found.";
+    //return;
+    $endDate = date("Ymd");
 }
 
 // These are the eventData we will query for
