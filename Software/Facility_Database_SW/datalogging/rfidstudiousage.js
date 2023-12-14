@@ -3,7 +3,10 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
 //
-//  Nov 2022: 
+// Dec 2023:
+//     added 3 more graphs 
+//     increased the y-axis range to 30
+// Nov 2022: 
 //      Moved JS from the .txt to this file. 
 
 
@@ -40,6 +43,24 @@ window.onload = function() {
 		graphlayout3 = makeGraphLayout( 'Woodshop, visits per week',rangeStart, rangeEnd);
 		gdiv3 = document.getElementById('graphwoodshop');
 		Plotly.newPlot(gdiv3,graphdata3,graphlayout3,{responsive: true});
+
+        // make graph 4, woodshop
+		graphdata4 = makeGraphData('graphhotshopdataX','graphhotshopdataY');
+		graphlayout4 = makeGraphLayout( 'Hot Shop, visits per week',rangeStart, rangeEnd);
+		gdiv4 = document.getElementById('graphhotshop');
+		Plotly.newPlot(gdiv4,graphdata4,graphlayout4,{responsive: true});
+
+        // make graph 5, woodshop
+		graphdata5 = makeGraphData('graphcoldshopdataX','graphcoldshopdataY');
+		graphlayout5 = makeGraphLayout( 'Cold Shop, visits per week',rangeStart, rangeEnd);
+		gdiv5 = document.getElementById('graphcoldshop');
+		Plotly.newPlot(gdiv5,graphdata5,graphlayout5,{responsive: true});
+
+        // make graph 6, woodshop
+		graphdata6 = makeGraphData('graph3ddataX','graph3ddataY');
+		graphlayout6 = makeGraphLayout( '3D Printers, visits per week',rangeStart, rangeEnd);
+		gdiv6 = document.getElementById('graph3d');
+		Plotly.newPlot(gdiv6,graphdata6,graphlayout6,{responsive: true});
 }
 
 // ------------
@@ -66,7 +87,7 @@ function makeGraphLayout(title, rangeStart, rangeEnd) {
         },
         yaxis: {
             autorange: false,
-            range: [0, 20]
+            range: [0, 30]
         }
     };
     return graphLayout;
