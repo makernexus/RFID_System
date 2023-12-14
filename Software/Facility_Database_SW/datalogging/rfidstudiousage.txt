@@ -46,6 +46,18 @@
 		<div id='graphwoodshop' class='graphDiv'></div>
 	</div>
 
+    <div style="clear:both;">
+		<div id='graphhotshop' class='graphDiv'></div>
+	</div>
+
+    <div style="clear:both;">
+		<div id='graphcoldshop' class='graphDiv'></div>
+	</div>
+
+    <div style="clear:both;">
+		<div id='graph3d' class='graphDiv'></div>
+	</div>
+
 
 	<!-- hidden div for passing data from PHP to the JS graphing functions -->
 	<div id="graph1data" style="display:none">
@@ -54,8 +66,17 @@
 	<div id="graph2data" style="display:none">
 		<div id="graphtextiledataX"><<GRAPHTEXTILE ALLOWEDDATAX>></div><div id="graphtextiledataY"><<GRAPHTEXTILE ALLOWEDDATAY>></div>
 	</div>
-    <div id="graph2data" style="display:none">
+    <div id="graph3data" style="display:none">
 		<div id="graphwoodshopdataX"><<GRAPHWOODSHOP ALLOWEDDATAX>></div><div id="graphwoodshopdataY"><<GRAPHWOODSHOP ALLOWEDDATAY>></div>
+	</div>
+    <div id="graph4data" style="display:none">
+		<div id="graphhotshopdataX"><<GRAPHHOTSHOP ALLOWEDDATAX>></div><div id="graphhotshopdataY"><<GRAPHHOTSHOP ALLOWEDDATAY>></div>
+	</div>
+    <div id="graph5data" style="display:none">
+		<div id="graphcoldshopdataX"><<GRAPHCOLDSHOP ALLOWEDDATAX>></div><div id="graphcoldshopdataY"><<GRAPHCOLDSHOP ALLOWEDDATAY>></div>
+	</div>
+    <div id="graph6data" style="display:none">
+		<div id="graph3ddataX"><<GRAPH3D ALLOWEDDATAX>></div><div id="graph3ddataY"><<GRAPH3D ALLOWEDDATAY>></div>
 	</div>
 
 
@@ -79,6 +100,21 @@
             <div style='float:left; padding-left:50px;'>
                 <h3>Wood Shop</h3>
                 <<TABLEWOODSHOP ALLOWED>>
+            </div>
+
+            <div style='float:left; padding-left:50px;'>
+                <h3>Hot Shop</h3>
+                <<TABLEHOTSHOP ALLOWED>>
+            </div>
+
+            <div style='float:left; padding-left:50px;'>
+                <h3>Cold Shop</h3>
+                <<TABLECOLDSHOP ALLOWED>>
+            </div>
+
+            <div style='float:left; padding-left:50px;'>
+                <h3>3D Printer</h3>
+                <<TABLE3D ALLOWED>>
             </div>
 
         </div>

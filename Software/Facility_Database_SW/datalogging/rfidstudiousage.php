@@ -5,6 +5,9 @@
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp, Bob Glicksman
+//
+// Dec 2023: 
+//   added three more studis: 3D, hotshop, coldshop
 
 include 'commonfunctions.php';
 $maxRows = 10000;
@@ -25,7 +28,8 @@ if ($endDate == 0) {
 }
 
 // These are the eventData we will query for
-$studios = array("Electronics","Textile allowed", "Woodshop allowed");
+$studios = array("Electronics", "Textile allowed", "Woodshop allowed", "3D allowed", 
+                "hotshop allowed", "coldshop allowed" );
 
 // get the HTML skeleton
 $myfile = fopen("rfidstudiousage.txt", "r") or die("Unable to open file!");
