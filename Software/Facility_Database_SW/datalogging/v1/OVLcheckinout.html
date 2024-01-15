@@ -1,0 +1,77 @@
+<HTML>
+<!-- 
+    This is the HTML form for the OVL check in/out page.  It is a simple form that collects the following information:
+    - First Name
+    - Last Name
+    - Visit Reason
+    - Liability Waiver
+    - How did you hear about Maker Nexus?
+    
+    The form is submitted to OVLcheckinout.php, which processes the form and writes the data to the database.
+
+    created: 2024-01-10
+    by: Jim Schrempp
+    copyright Maker Nexus:
+        This work is licensed under a Attribution/Share Alike/Non Commercial (cc) 2024 Maker Nexus
+-->
+    
+<HEAD>
+    <TITLE>Check In/Out</TITLE>
+    <META NAME="Author" CONTENT="">
+    <META NAME="Keywords" CONTENT="">
+    <META NAME="Description" CONTENT="">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+    <FORM METHOD="POST" ACTION="OVLcheckinout.php">
+        <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
+        <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+            <TR>
+                <TD COLSPAN="2" ALIGN="CENTER"><FONT SIZE="+2">Check In/Out</FONT></TD>
+            </TR>
+            <TR>
+                <TD COLSPAN="2" ALIGN="CENTER">&nbsp;</TD>
+            </TR>
+            <TR>
+                <TD ALIGN="RIGHT">First Name:</TD>
+                <TD><INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32"></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="RIGHT">Last Name:</TD>
+                <TD><INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32"></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="RIGHT">Visit Reason:</TD>
+                <TD><label><input type="checkbox" name="visitReason" value="tour"> Tour</label><br>
+                    <label><input type="checkbox" name="visitReason" value="classOrworkshop"> Class or Workshop</label><br>
+                    <label><input type="checkbox" name="visitReason" value="makernexusevent"> Maker Nexus Event</label><br>
+                    <label><input type="checkbox" name="visitReason" value="volunteering"> Volunteering</label><br>   
+                    <label><input type="checkbox" name="visitReason" value="guest"> Guest of a member</label><br>
+                    <label><input type="checkbox" name="visitReason" value="forgotbadge"> Member, forgot badge</label><br>
+                    <label><input type="checkbox" name="visitReason" value="other"> Other</label><br>
+            </TR>
+            <TR>
+                <TD ALIGN="RIGHT">I have already completed a liability waiver:</TD>
+                <TD><label><input type="radio" name="hasSignedWaiver" value="yes"> Yes</label><br>
+                    <label><input type="radio" name="hasSignedWaiver" value="no"> No</label></TD>
+            </TR><TR>
+                <TD ALIGN="RIGHT">How did you hear about Maker Nexus?</TD>
+                <TD><INPUT TYPE="TEXT" NAME="howdidyouhear" SIZE="128" MAXLENGTH="128"></TD>
+            </TR>
+            
+            <TR>
+                <TD COLSPAN="2" ALIGN="CENTER">&nbsp;</TD>
+            </TR>
+            <TR>
+                <TD COLSPAN="2" ALIGN="CENTER"><INPUT TYPE="SUBMIT" VALUE="Check In/Out"></TD>
+            </TR>
+        </TABLE>
+    </FORM>
+
+
+</BODY>
+
+
+
+</HTML>
