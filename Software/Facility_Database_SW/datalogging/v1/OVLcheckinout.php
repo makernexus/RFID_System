@@ -10,7 +10,7 @@
 // Date: 2024-10-10
 //
 
-include 'commonfunctions.php';
+include 'OVLcommonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
 
@@ -22,8 +22,8 @@ if (!$html){
 
 // Get the data
 $ini_array = parse_ini_file("OVLconfig.ini", true);
-$dbUser = $ini_array["SQL_DB"]["readOnlyUser"];
-$dbPassword = $ini_array["SQL_DB"]["readOnlyPassword"];
+$dbUser = $ini_array["SQL_DB"]["writeUser"];
+$dbPassword = $ini_array["SQL_DB"]["writePassword"];
 $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
