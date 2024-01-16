@@ -92,17 +92,6 @@ switch ($previousVisitNum) {
         echo "insert new";
         // insert the new visit into the database
         insertNewVisitInDatabase($con, $nameFirst, $nameLast, $email, $phone, $visitReason);
-
-        $result = mysqli_query($con, $sql);
-        if (!$result) {
-            echo "Error: " . $sql . "<br>" . mysqli_error($con);
-            logfile("Error: " . $sql . "<br>" . mysqli_error($con));
-            exit;
-        } else {
-            // update 
-            echo "New record created successfully";  // xxx
-            logfile("New record created successfully");
-        }
         break;
 
     case 0:
@@ -121,7 +110,7 @@ switch ($previousVisitNum) {
         // we have a visitID so this is either a checkout, or a new checkin from a repeat visitor
         echo "previousVisitNum: " . $previousVisitNum . " has been received.";
         // is the visitID in the database from since the start of the day?
-        $sql = "SELECT * FROM visitorLog WHERE visitID = " . $visitID 
+        $sql = "SELECT * FROM ovl_visits WHERE visitID = " . $visitID 
             . " AND dateCreated > '" . $today->format("Y-m-d") . "'";
         $result = mysqli_query($con, $sql);
         if (!$result) {
@@ -151,10 +140,10 @@ switch ($previousVisitNum) {
 function insertNewVisitInDatabase($con, $nameFirst, $nameLast, $email, $phone, $visitReason) {
     $today = new DateTime();
 
-    $sql = "INSERT INTO visitorLog SET nameFirst = '" . $nameFirst . "', nameLast = '" . $nameLast . "'," 
+    $sql = "INSERT INTO ovl_visits SET nameFirst = '" . $nameFirst . "', nameLast = '" . $nameLast . "'," 
         . " email = '" . $email . "', phone = '" . $phone . "'," 
         . " visitReason = '" . $visitReason . "'"
-        . ", dateCheckedIn = '" . $today->format("Y-m-d H:i:s") . "'";
+        . ", timeCheckinLocal = '" . $today->format("Y-m-d H:i:s") . "'";
 
     $result = mysqli_query($con, $sql);
     if (!$result) {
@@ -170,8 +159,8 @@ function insertNewVisitInDatabase($con, $nameFirst, $nameLast, $email, $phone, $
 function updateVisitInDatabase($con, $visitID) {
 
     $today = new DateTime();
-    $sql = "UPDATE visitorLog SET dateOut = '" . $today->format("Y-m-d H:i:s") 
-        . " dateCheckout = '" . $today->format("Y-m-d H:i:s")
+    $sql = "UPDATE ovl_visits SET dateOut = '" . $today->format("Y-m-d H:i:s") 
+        . " timeCheckoutLocal = '" . $today->format("Y-m-d H:i:s")
         . "' WHERE visitID = " . $visitID;
     $result = mysqli_query($con, $sql);
     if (!$result) {
