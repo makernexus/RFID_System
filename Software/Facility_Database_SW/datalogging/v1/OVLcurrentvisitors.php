@@ -89,15 +89,22 @@ function makeDiv($visitID, $nameFirst, $nameLast) {
     $div = "<div class='visitor'>"
         . $nameFirst . " "
         . $nameLast . " "
-        . makeCheckoutLink($visitID)
+        . makeCheckoutLink($visitID) . "&nbsp;&nbsp;&nbsp;"
+        . makeNewBadgeLink($visitID)
         . "</div>";
     return $div;
 }
 
 function makeCheckoutLink($visitID) {
-    $link = "<a href='OVLcheckinout.php?vid=" . $visitID . "'>Check Out</a>";
+    $link = "<a href='OVLcheckinout.php?vid=" . $visitID . "' target='_blank'>Check Out</a>";
     return $link;
 }
+
+function makeNewBadgeLink($visitID) {
+    $link = "<a href='OVLreprintbadge.php?vid=" . $visitID . "' target='_blank'>Reprint Badge</a>";
+    return $link;
+}
+
 
 
 //-------------------------------------
