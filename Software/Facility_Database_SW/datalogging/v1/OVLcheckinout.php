@@ -162,6 +162,11 @@ switch ($previousVisitNum) {
 
 function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum) {
 
+    $labelNeedsPrinting = 1;
+    if ($previousVisitNum != 0) {
+        $labelNeedsPrinting = 0;  // don't print a label badge for a person using a QR code
+    }
+
     $sql = "INSERT INTO ovl_visits SET"
         . " nameFirst = '" . $nameFirst . "',"
         . " nameLast = '" . $nameLast . "'," 
@@ -170,7 +175,8 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
         . " visitReason = '" . $visitReason . "',"
         . " previousRecNum = " . $previousVisitNum . ","
         . " dateCreatedLocal = '" . $nowSQL . "',"
-        . " dateCheckinLocal = '" . $nowSQL  . "'";
+        . " dateCheckinLocal = '" . $nowSQL  . "',"
+        . " labelNeedsPrinting = " . $labelNeedsPrinting;
 
     debugToUser(  "sql: " . $sql . "<br>");
 
