@@ -12,6 +12,13 @@
 
 include 'OVLcommonfunctions.php';
 
+$today = new DateTime();  
+$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+$nowSQL = $today->format("Y-m-d H:i:s");
+
+$OVLdebug = false; // set to true to see debug messages 
+debugToUser( "OVLdebug is active. " . $nowSQL .  "<br>");
+
 allowWebAccess();  // if IP not allowed, then die
 
 // get the HTML skeleton
@@ -30,13 +37,11 @@ $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 
 // Check connection
 if (mysqli_connect_errno()) {
-    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    debugToUser(  "Failed to connect to MySQL: " . mysqli_connect_error());
     logfile("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
-$today = new DateTime();  
-$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
-$nowSQL = $today->format("Y-m-d H:i:s");
+
 
 // posted data
 $nameFirst =  cleanInput($_POST["nameFirst"]);
@@ -46,8 +51,14 @@ $hasSignedWaiver = cleanInput($_POST["hasSignedWaiver"]);
 
 $visitReason = "";
 if (isset($_POST["visitReason"])) {
-    $visitReason = cleanInput($_POST["visitReason"]);
-    echo "visitReason: " . $visitReason . " has been received.";
+    $visitReasonArray = $_POST["visitReason"];
+    if (is_array($visitReasonArray)) {
+        // make one string of the reasons
+        foreach ($visitReasonArray as $value) {
+            $visitReason .= $value . "| ";
+        }
+    }
+    $visitReason = cleanInput($visitReason);
 }
 
 $email = "";
@@ -79,24 +90,29 @@ if (!is_numeric($previousVisitNum)) {
     logfile("visitID: " . $previousVisitNum . " is not a number. Exiting.");
     exit;
 } else  {
-    echo "visitID: " . $previousVisitNum . " has been received. Thank you.";
+    //echo "visitID: " . $previousVisitNum . " has been received. Thank you.";
     logfile("visitID: " . $previousVisitNum . " has been received.");
 }
 
 switch ($previousVisitNum) {
     case -1:
         // if visitid =-1, then this came from the form, add a record to the database
-        echo "insert new";
         // insert the new visit into the database
         $previousVisitNum = 0;
+        if ($nameFirst == "" or $nameLast == "") {
+            echo "First and last name are required. No action taken.";
+            logfile("No name entered. No action taken.");
+            exit;
+        }
         insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
+        echo "New Visit Added.";
         break;
 
     case 0:
         // request from a bare URL, serve up the HTML form
         $html = file_get_contents("OVLcheckinout.html");
         if (!$html){
-            logfile("unable to open file");
+            //logfile("unable to open file");
             die("unable to open file");
         }
         // send the HTML
@@ -104,20 +120,37 @@ switch ($previousVisitNum) {
         break;
 
     default:
-        // we have a previousVisitNum so this is either a checkout, or a new checkin from a repeat visitor
-        echo "previousVisitNum: " . $previousVisitNum . " has been received.";
+        // we have a previousVisitNum so this is either a checkout, 
+        // or a new checkin from a repeat visitor with QR code
+
         // is the visitID in the database from since the start of the day without a checkout?
-        $currentCheckInRecNum = getCurrentCheckin($con, $previousVisitNum);
-        // if no records in result, then this is a new checkin
-        if ($currentCheckInRecNum == 0) {
+        $currentCheckInData = getCurrentCheckin($con, $previousVisitNum);
+        $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
+        $nameFirst = $currentCheckInData["nameFirst"];
+        $nameLast = $currentCheckInData["nameLast"];
+        $email = $currentCheckInData["email"];
+        $phone = $currentCheckInData["phone"];
+
+        // if no current checkin result, then this is a new checkin
+        if ($currentCheckInRecNum == -1) {
+
+            echo "No previous record found for visitID: " . $previousVisitNum . ".<br> No action taken.<br>";
+            echo "Please use the web form to check in.";
+            logfile("No previous record found for visitID: " . $previousVisitNum . ". No action taken.");
+            exit;
+
+        } elseif ($currentCheckInRecNum == 0) {
+
             // this is a new checkin
-            // insert the new visit into the database
             insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
-            echo "insert new with previousVisitNum: " . $currentCheckInRecNum . ".";
+            echo "Checked In with previousVisitNum: " . $previousVisitNum . ".";
+
         } else {
+
             // this is a checkout
             updateVisitInDatabase($con, $nowSQL, $currentCheckInRecNum);
-            echo "checkout";
+            echo "Checked Out";
+
         }
 
         // close the database connection
@@ -129,6 +162,10 @@ switch ($previousVisitNum) {
 
 function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum) {
 
+    $labelNeedsPrinting = 1;
+    if ($previousVisitNum != 0) {
+        $labelNeedsPrinting = 0;  // don't print a label badge for a person using a QR code
+    }
 
     $sql = "INSERT INTO ovl_visits SET"
         . " nameFirst = '" . $nameFirst . "',"
@@ -138,17 +175,18 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
         . " visitReason = '" . $visitReason . "',"
         . " previousRecNum = " . $previousVisitNum . ","
         . " dateCreatedLocal = '" . $nowSQL . "',"
-        . " dateCheckinLocal = '" . $nowSQL  . "'";
+        . " dateCheckinLocal = '" . $nowSQL  . "',"
+        . " labelNeedsPrinting = " . $labelNeedsPrinting;
 
-    echo "sql: " . $sql;
+    debugToUser(  "sql: " . $sql . "<br>");
 
     $result = mysqli_query($con, $sql);
     if (!$result) {
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
         logfile("Error: " . $sql . "<br>" . mysqli_error($con));
     } else {
         // update 
-        echo "New record created successfully";
+        debugToUser(  "New record created successfully");
         logfile("New record created successfully");
     }
 }
@@ -159,7 +197,7 @@ function updateVisitInDatabase($con, $nowSQL, $visitID) {
         . " WHERE recNum = " . $visitID;
     $result = mysqli_query($con, $sql);
     if (!$result) {
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
         logfile("Error: " . $sql . "<br>" . mysqli_error($con));
         exit;
     } else {
@@ -175,7 +213,7 @@ function updateVisitInDatabase($con, $nowSQL, $visitID) {
     $interval = $dateCheckinLocal->diff($dateCheckoutLocal);
     $elapsedTime = $interval->format('%h');
 
-
+    // update the existing visit to check the visitor out
     $sql = "UPDATE ovl_visits SET "
         . " dateUpdated = '" . $nowSQL . "',"
         . " dateUpdatedLocal = '" . $nowSQL . "',"
@@ -184,45 +222,107 @@ function updateVisitInDatabase($con, $nowSQL, $visitID) {
         . " labelNeedsPrinting = 0"
         . " WHERE recNum = " . $visitID;
 
-    echo "sql: " . $sql;
+    debugToUser(  "sql: " . $sql);
 
     $result = mysqli_query($con, $sql);
     if (!$result) {
         logfile("Error: " . $sql . "<br>" . mysqli_error($con));
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
     } else {
         // update 
-        echo "Record updated successfully";
+        debugToUser(  "Record updated successfully");
         logfile("Record updated successfully");
     }
 }
 
 function getCurrentCheckin ($con, $visitID){
-    $today = new DateTime();
+
+    $today = new DateTime(); 
     $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
     $todaySQL = $today->format("Y-m-d"); // date only, no time
 
-    $sql = "SELECT max(recNum) as recNum FROM ovl_visits WHERE "
-            . "(recNum = " . $visitID . " OR previousRecNum = " . $visitID . ")"
-            . " AND dateCreated > '" . $todaySQL . "'"
-            . " AND dateCheckoutLocal = '0000-00-00 00:00:00'";
+    // get the most recent occurrence for this visitor
+    $sql = "SELECT max(recNum) as maxRecNum FROM ovl_visits " 
+        . " WHERE (recNum = " . $visitID . " OR previousRecNum = " . $visitID . ")";
 
-    echo "sql: " . $sql;
+    debugToUser("sql: " . $sql . "<br>");
 
     $result = mysqli_query($con, $sql);
     if (!$result) {
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
         logfile("Error: " . $sql . "<br>" . mysqli_error($con));
         exit;
-    } 
-    # if results are empty, then there is no open checkin from today
-    if (mysqli_num_rows($result) == 0) {
-        $currentCheckInRecNum = 0;
     } else {
+        if (mysqli_num_rows($result) == 0) {
+            debugToUser(  "Parameter error 1: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
+            $maxRecNum = 0;
+        } else {
+            $row = mysqli_fetch_assoc($result);
+            $maxRecNum = $row["maxRecNum"];
+            if ($maxRecNum == "") {
+                debugToUser(  "Parameter error 2: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
+                $maxRecNum = -1;
+            }
+        }
+    }       
+    
+    if ($maxRecNum > 0) {
+        // we have a previous visit, get its data
+        $sql = "SELECT recNum, nameLast, nameFirst, email, phone, dateCheckinLocal, dateCheckoutLocal FROM ovl_visits"
+                . " WHERE recNum = " . $maxRecNum;
+
+        debugToUser("sql: " . $sql . "<br>");
+
+        $result = mysqli_query($con, $sql);
+        if (!$result) {
+            debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con) );
+            logfile("Error: " . $sql . "<br>" . mysqli_error($con));
+            exit;
+        } 
+        # if results are empty, then we have a problem since we just got this recNum from the database
+        if (mysqli_num_rows($result) == 0) {
+            logfile("Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.");
+            echo "Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.";
+            exit;
+        }
         $row = mysqli_fetch_assoc($result);
-        $currentCheckInRecNum = $row["recNum"];
+
+        $today = date_create(); // creates a DateTime object for today's date
+        $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+        $checkinDate = date_create($row["dateCheckinLocal"]);
+        $checkinDate->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+
+        // was this record from before today?
+        if ($checkinDate->format('Y-m-d') < $today->format('Y-m-d')) {
+            // dateCheckinLocal is from yesterday or before
+            debugToUser(  "No record found from today" . "<br>");
+            $currentCheckInRecNum = 0; // should add a new record
+
+        } else {
+            // dateCheckinLocal is from today. Is there a checkout date?
+            if ($row["dateCheckoutLocal"] == "0000-00-00 00:00:00") {
+                // there is an open checkin for today
+                $row = mysqli_fetch_assoc($result);
+                $currentCheckInRecNum = $maxRecNum;  // should update this record 
+            } else {
+                debugToUser( "No open checkin from today" . "<br>");
+                $currentCheckInRecNum = 0; // should add a new record
+            }
+
+        }
+    } else {
+        // no previous visit, this is a new checkin
+        $currentCheckInRecNum = $maxRecNum; // should add a new record
     }
-    return $currentCheckInRecNum;
+
+    $returnThis = array(
+                "currentCheckInRecNum" => $currentCheckInRecNum, 
+                "nameLast" =>$row["nameLast"], 
+                "nameFirst" => $row["nameFirst"],
+                "email" => $row["email"], 
+                "phone" => $row["phone"]
+                ) ;
+    return $returnThis;
 }
 
 function logfile($logEntry) {
@@ -249,6 +349,15 @@ function cleanInput ($data) {
 	$baditems = array("select ","update ","delete ","`","insert ","alter ", "drop ");
 	$data = str_ireplace($baditems, "[] ",$data);
 	return $data;
+}
+
+//-------------------------------------
+// Echo a string to the user for debugging
+function debugToUser ($data) {
+    global $OVLdebug;
+    if ($OVLdebug){
+        echo "<br>" . $data . "<br>";
+    }
 }
 
 ?>
