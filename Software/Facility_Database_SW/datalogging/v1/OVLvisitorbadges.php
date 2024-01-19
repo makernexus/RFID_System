@@ -58,7 +58,7 @@ if (!$result) {
             $visitorArray[$visitorCount]["recNum"] = $row["recNum"];
             $visitorArray[$visitorCount]["nameFirst"] = $row["nameFirst"];
             $visitorArray[$visitorCount]["nameLast"] = $row["nameLast"];
-            $visitorArray[$visitorCount]["URL"] = "https://rfidsandbox.makernexuswiki.com/testcheckinout.php?vid=" . $row["recNum"];
+            $visitorArray[$visitorCount]["URL"] = "https://rfidsandbox.makernexuswiki.com/v1/OVLcheckinout.php?vid=" . $row["recNum"];
             $recNumList = $recNumList . $row["recNum"] . ",";
         }
         $recNumList = substr($recNumList, 0, -1); // remove trailing comma
