@@ -71,6 +71,10 @@ if (isset($_POST["phone"])) {
     $phone = cleanInput($_POST["phone"]);
 }
 
+if (isset($_POST["hasSignedWaiver"])) {
+    $hasSignedWaiver = $_POST['hasSignedWaiver'];
+} 
+
 $howdidyouhear = "";
 if (isset($_POST["howDidYouHear"])) {
     $howdidyouhear = cleanInput($_POST["howDidYouHear"]);
