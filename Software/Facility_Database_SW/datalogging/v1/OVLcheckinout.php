@@ -7,7 +7,7 @@
 // By Jim Schrempp
 //
 //
-// Date: 2024-10-10
+// Date: 2024-10-20
 //
 
 include 'OVLcommonfunctions.php';
@@ -70,6 +70,12 @@ $phone = "";
 if (isset($_POST["phone"])) {
     $phone = cleanInput($_POST["phone"]);
 }
+
+$howdidyouhear = "";
+if (isset($_POST["howDidYouHear"])) {
+    $howdidyouhear = cleanInput($_POST["howDidYouHear"]);
+}
+
 
 // previousVisitNum 
 //    -1: post data came from the form, human input
@@ -167,23 +173,22 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
         $labelNeedsPrinting = 0;  // don't print a label badge for a person using a QR code
     }
 
-    $sql = "INSERT INTO ovl_visits SET"
-        . " nameFirst = '" . $nameFirst . "',"
-        . " nameLast = '" . $nameLast . "'," 
-        . " email = '" . $email . "', "
-        . " phone = '" . $phone . "'," 
-        . " visitReason = '" . $visitReason . "',"
-        . " previousRecNum = " . $previousVisitNum . ","
-        . " dateCreatedLocal = '" . $nowSQL . "',"
-        . " dateCheckinLocal = '" . $nowSQL  . "',"
-        . " labelNeedsPrinting = " . $labelNeedsPrinting;
+    $sql = "INSERT INTO ovl_visits (nameFirst, nameLast, email, phone, visitReason, previousRecNum, "
+        . " dateCreatedLocal, dateCheckinLocal, labelNeedsPrinting) VALUES (?,?,?,?,?,?,?,?,?)";
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, "sssssissi", $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, 
+            $nowSQL, $nowSQL, $labelNeedsPrinting);
+
+    $result = mysqli_stmt_execute($stmt);
+    
+    mysqli_stmt_close($stmt);
 
     debugToUser(  "sql: " . $sql . "<br>");
 
-    $result = mysqli_query($con, $sql);
+    //$result = mysqli_query($con, $sql);
     if (!$result) {
-        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
-        logfile("Error: " . $sql . "<br>" . mysqli_error($con));
+        debugToUser(  "Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
+        logfile("Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
     } else {
         // update 
         debugToUser(  "New record created successfully");
@@ -346,7 +351,7 @@ function logfile($logEntry) {
 // perfect, just meant to hold off some badness
 function cleanInput ($data) {
 	
-	$baditems = array("select ","update ","delete ","`","insert ","alter ", "drop ");
+	$baditems = array("select ","update ","delete ","`","insert ","alter ", "drop ", "'","`","&",";");
 	$data = str_ireplace($baditems, "[] ",$data);
 	return $data;
 }
