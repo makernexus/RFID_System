@@ -75,9 +75,9 @@ if (isset($_POST["hasSignedWaiver"])) {
     $hasSignedWaiver = $_POST['hasSignedWaiver'];
 } 
 
-$howdidyouhear = "";
+$howDidYouHear = "";
 if (isset($_POST["howDidYouHear"])) {
-    $howdidyouhear = cleanInput($_POST["howDidYouHear"]);
+    $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
 }
 
 
@@ -114,7 +114,8 @@ switch ($previousVisitNum) {
             logfile("No name entered. No action taken.");
             exit;
         }
-        insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
+        insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone,
+             $visitReason, $previousVisitNum, $howDidYouHear);
         echoMessage("New Visit Added.");
         break;
 
@@ -138,8 +139,6 @@ switch ($previousVisitNum) {
         $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
         $nameFirst = $currentCheckInData["nameFirst"];
         $nameLast = $currentCheckInData["nameLast"];
-        $email = $currentCheckInData["email"];
-        $phone = $currentCheckInData["phone"];
 
         // if no current checkin result, then this is a new checkin
         if ($currentCheckInRecNum == -1) {
@@ -151,8 +150,9 @@ switch ($previousVisitNum) {
 
         } elseif ($currentCheckInRecNum == 0) {
 
-            // this is a new checkin
-            insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
+            // this is a new checkin for an existing visitor
+            insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, "", "", 
+                    "", $previousVisitNum, "");
             echoMessage( "Checked In with previousVisitNum: " . $previousVisitNum . ".");
 
         } else {
@@ -170,7 +170,7 @@ switch ($previousVisitNum) {
         exit;
 }
 
-function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum) {
+function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, $howDidYouHear) {
 
     $labelNeedsPrinting = 1;
     if ($previousVisitNum != 0) {
@@ -178,10 +178,10 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
     }
 
     $sql = "INSERT INTO ovl_visits (nameFirst, nameLast, email, phone, visitReason, previousRecNum, "
-        . " dateCreatedLocal, dateCheckinLocal, labelNeedsPrinting) VALUES (?,?,?,?,?,?,?,?,?)";
+        . " dateCreatedLocal, dateCheckinLocal, labelNeedsPrinting, howDidYouHear) VALUES (?,?,?,?,?,?,?,?,?,?)";
     $stmt = mysqli_prepare($con, $sql);
-    mysqli_stmt_bind_param($stmt, "sssssissi", $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, 
-            $nowSQL, $nowSQL, $labelNeedsPrinting);
+    mysqli_stmt_bind_param($stmt, "sssssissis", $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, 
+            $nowSQL, $nowSQL, $labelNeedsPrinting, $howDidYouHear);
 
     $result = mysqli_stmt_execute($stmt);
     
