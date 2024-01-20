@@ -7,7 +7,7 @@
 // By Jim Schrempp
 //
 //
-// Date: 2024-10-10
+// Date: 2024-10-20
 //
 
 include 'OVLcommonfunctions.php';
@@ -71,6 +71,16 @@ if (isset($_POST["phone"])) {
     $phone = cleanInput($_POST["phone"]);
 }
 
+if (isset($_POST["hasSignedWaiver"])) {
+    $hasSignedWaiver = $_POST['hasSignedWaiver'];
+} 
+
+$howDidYouHear = "";
+if (isset($_POST["howDidYouHear"])) {
+    $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
+}
+
+
 // previousVisitNum 
 //    -1: post data came from the form, human input
 //     0: request came from a URL with no previous visit
@@ -104,7 +114,8 @@ switch ($previousVisitNum) {
             logfile("No name entered. No action taken.");
             exit;
         }
-        insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
+        insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone,
+             $visitReason, $previousVisitNum, $howDidYouHear);
         echoMessage("New Visit Added.");
         break;
 
@@ -128,8 +139,6 @@ switch ($previousVisitNum) {
         $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
         $nameFirst = $currentCheckInData["nameFirst"];
         $nameLast = $currentCheckInData["nameLast"];
-        $email = $currentCheckInData["email"];
-        $phone = $currentCheckInData["phone"];
 
         // if no current checkin result, then this is a new checkin
         if ($currentCheckInRecNum == -1) {
@@ -141,8 +150,9 @@ switch ($previousVisitNum) {
 
         } elseif ($currentCheckInRecNum == 0) {
 
-            // this is a new checkin
-            insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
+            // this is a new checkin for an existing visitor
+            insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, "", "", 
+                    "", $previousVisitNum, "");
             echoMessage( "Checked In with previousVisitNum: " . $previousVisitNum . ".");
 
         } else {
@@ -160,30 +170,29 @@ switch ($previousVisitNum) {
         exit;
 }
 
-function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum) {
+function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, $howDidYouHear) {
 
     $labelNeedsPrinting = 1;
     if ($previousVisitNum != 0) {
         $labelNeedsPrinting = 0;  // don't print a label badge for a person using a QR code
     }
 
-    $sql = "INSERT INTO ovl_visits SET"
-        . " nameFirst = '" . $nameFirst . "',"
-        . " nameLast = '" . $nameLast . "'," 
-        . " email = '" . $email . "', "
-        . " phone = '" . $phone . "'," 
-        . " visitReason = '" . $visitReason . "',"
-        . " previousRecNum = " . $previousVisitNum . ","
-        . " dateCreatedLocal = '" . $nowSQL . "',"
-        . " dateCheckinLocal = '" . $nowSQL  . "',"
-        . " labelNeedsPrinting = " . $labelNeedsPrinting;
+    $sql = "INSERT INTO ovl_visits (nameFirst, nameLast, email, phone, visitReason, previousRecNum, "
+        . " dateCreatedLocal, dateCheckinLocal, labelNeedsPrinting, howDidYouHear) VALUES (?,?,?,?,?,?,?,?,?,?)";
+    $stmt = mysqli_prepare($con, $sql);
+    mysqli_stmt_bind_param($stmt, "sssssissis", $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, 
+            $nowSQL, $nowSQL, $labelNeedsPrinting, $howDidYouHear);
+
+    $result = mysqli_stmt_execute($stmt);
+    
+    mysqli_stmt_close($stmt);
 
     debugToUser(  "sql: " . $sql . "<br>");
 
-    $result = mysqli_query($con, $sql);
+    //$result = mysqli_query($con, $sql);
     if (!$result) {
-        debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
-        logfile("Error: " . $sql . "<br>" . mysqli_error($con));
+        debugToUser(  "Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
+        logfile("Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
     } else {
         // update 
         debugToUser(  "New record created successfully");
@@ -346,7 +355,7 @@ function logfile($logEntry) {
 // perfect, just meant to hold off some badness
 function cleanInput ($data) {
 	
-	$baditems = array("select ","update ","delete ","`","insert ","alter ", "drop ");
+	$baditems = array("select ","update ","delete ","`","insert ","alter ", "drop ", "'","`","&",";");
 	$data = str_ireplace($baditems, "[] ",$data);
 	return $data;
 }

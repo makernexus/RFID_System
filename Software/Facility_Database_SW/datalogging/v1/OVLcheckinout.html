@@ -20,7 +20,7 @@
     <META NAME="Author" CONTENT="">
     <META NAME="Keywords" CONTENT="">
     <META NAME="Description" CONTENT="">
-    <script src="/OVLcheckinout.js"></script>
+    <script src="/v1/OVLcheckinout.js"></script>
     <style type="text/css">
         body {
             width: 80%;
@@ -153,6 +153,7 @@
         }
 
     </style>
+
 </HEAD>
 
 <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
@@ -164,31 +165,32 @@
             
             <h1 class="topheading">Maker Nexus Visitor Log</h1>
             <p>In case of an emergency, it is important for us to know who is in the building at any given time.</p>
-            <p>Please complete the form. When done we will print you a name bagde. Please wear the 
+            <p>Please complete the form. When done we will print you a name badge. Please wear the 
                 name badge while you are in the makerspace.
             </p>
             <p>When you leave, use the QR code on your badge to checkout.</p>
         </div>
     </div>
     <div class="ourform">
-        <FORM METHOD="POST" ACTION="OVLcheckinout.php">
+        <FORM id="checkinform" METHOD="POST">
             <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
             <div class= "fieldtitle">
                 First Name:
             </div>
             <div class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32">
+                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32" VLAUE="">
             </div>
             <div class= "fieldtitle" >
                 Last Name:
             </div>
             <div  class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32">
+                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32" VLAUE="">
             </div>
             <div class= "fieldtitle">
                 Visit Reason:
             </div>
             <div  class="inputfield">
+                <div style="display:none;"><input type="checkbox" name="visitReason[]" value="none" checked></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="tour"> Tour</label></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="classOrworkshop"> Class or Workshop</label></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="makernexusevent"> Maker Nexus Event</label></div>
@@ -202,17 +204,17 @@
             </div>
             <div  class="inputfield">
                 <div style="float:left; margin-left: 40px; ">
-                    <label><input type="radio" name="hasSignedWaiver" value="yes"> Yes</label>
+                    <label><input type="radio" name="hasSignedWaiver" value="1"> Yes</label>
                 </div>
                 <div id="waiverbuttonno" style="float:left; ">
-                    <label><input type="radio" name="hasSignedWaiver" value="no"> No</label>
+                    <label><input type="radio" name="hasSignedWaiver" value="0"> No</label>
                 </div>
             </div>
             <div class= "fieldtitle">
                 How did you hear about Maker Nexus?</TD>
             </div>
             <div  class="inputfield">
-               <TEXTAREA NAME="howdidyouhear" ROWS=2 COLS=40 MAXLENGTH="128"></TEXTAREA>
+               <TEXTAREA NAME="howDidYouHear" ROWS=2 COLS=40 MAXLENGTH="128" VLAUE=""></TEXTAREA>
             </div>
             <div class= "fieldtitle">
                 <INPUT TYPE="SUBMIT" VALUE="Check In">
