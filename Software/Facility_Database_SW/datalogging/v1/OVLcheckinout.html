@@ -21,54 +21,207 @@
     <META NAME="Keywords" CONTENT="">
     <META NAME="Description" CONTENT="">
     <script src="/OVLcheckinout.js"></script>
+    <style type="text/css">
+        body {
+            width: 80%;
+            margin: 1px 10px 1px 10px;
+            font-size: 16px;
+        }
+        h1.topheading{
+            font-size: 24px; 
+        }
+        div.intro{
+            font-size: 16px; 
+            margin: 1px 1px 1px 1px;
+            width: 70%;
+        }
+        div.logo{
+            margin: 1px 1px 1px 1px;
+        }
+        div.ourform{
+            clear:both;
+            margin: 1px 10px 1px 20px;
+            width: 100%;
+        }
+        div.fieldtitle{
+            clear:both;
+            float:left;
+            font-size: 16px; 
+            margin: 20px 1px 1px 1px;
+            width: 100%;
+        }
+        div.inputfield{
+            margin-left:20px; 
+            clear:both; 
+            float:left
+        }
+        input {
+            font-size: 16px;
+        }
+        p{
+            font-size: 16px;
+        }
+        label{
+            font-size: 16px;
+            margin-top:20px;
+        }
+        td{
+            font-size: 16px;
+        }
+        input[type="checkbox"] {
+            transform: scale(1);
+        }
+        input[type="radio"] {
+            transform: scale(1);
+        }
+        #waiverbuttonno {            
+            margin-left: 40px; 
+            font-size: 20px
+        }
+
+        /* Smartphones (portrait and landscape) ----------- */
+
+        @media screen and (max-device-width: 600px) {
+            body {
+                width: auto;
+                margin: 1px 10px 1px 10px;
+                font-size: 50px;
+            }
+            h1.topheading{
+                font-size: 70px; 
+            }
+            div.intro{
+                clear:both;
+                font-size: 50px; 
+                margin: 1px 1px 1px 1px;
+                width: 100%;
+            }
+            div.logo{
+                margin: 1px 1px 1px 1px;
+            }
+            div.ourform{
+                clear:both;
+                font-size: 50px; 
+                margin: 1px 10px 1px 20px;
+                width: 100%;
+            }
+            div.fieldtitle{
+                clear:both;
+                float:left;
+                font-size: 50px; 
+                margin: 20px 1px 1px 1px;
+                width: 100%;
+            }
+            div.inputfield{
+                margin-left:20px; 
+                clear:both; 
+                float:left
+            }
+            div.visitreasoncheckbox{
+                margin-top:20px;
+            }
+            input {
+                font-size: 32px;
+            }
+            p{
+                font-size: 50px;
+            }
+            label{
+                font-size: 50px;
+            }
+            td{
+                font-size: 32px;
+            }
+            input[type="checkbox"] {
+                transform: scale(2);
+                font-size: 50px;
+                margin-left: 100px;
+            }            
+            input[type="radio"] {
+                transform: scale(2);
+                font-size: 50px;
+            }
+            #waiverbuttonno {            
+                margin-left: 200px; 
+            }
+            input[type="submit"] {
+                margin: 20px 1px 50px 1px;
+                width: 400px;
+                height: 150px;
+                font-size: 50px
+            }
+        }
+
+    </style>
 </HEAD>
 
 <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
-
-    <FORM METHOD="POST" ACTION="OVLcheckinout.php">
-        <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
-        <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
-            <TR>
-                <TD COLSPAN="2" ALIGN="CENTER"><FONT SIZE="+2">Check In/Out</FONT></TD>
-            </TR>
-            <TR>
-                <TD COLSPAN="2" ALIGN="CENTER">&nbsp;</TD>
-            </TR>
-            <TR>
-                <TD ALIGN="RIGHT">First Name:</TD>
-                <TD><INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32"></TD>
-            </TR>
-            <TR>
-                <TD ALIGN="RIGHT">Last Name:</TD>
-                <TD><INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32"></TD>
-            </TR>
-            <TR>
-                <TD ALIGN="RIGHT">Visit Reason:</TD>
-                <TD><label><input type="checkbox" name="visitReason[]" value="tour"> Tour</label><br>
-                    <label><input type="checkbox" name="visitReason[]" value="classOrworkshop"> Class or Workshop</label><br>
-                    <label><input type="checkbox" name="visitReason[]" value="makernexusevent"> Maker Nexus Event</label><br>
-                    <label><input type="checkbox" name="visitReason[]" value="volunteering"> Volunteering</label><br>   
-                    <label><input type="checkbox" name="visitReason[]" value="guest"> Guest of a member</label><br>
-                    <label><input type="checkbox" name="visitReason[]" value="forgotbadge"> Member, forgot badge</label><br>
-                    <label><input type="checkbox" name="visitReason[]" value="other"> Other</label><br>
-            </TR>
-            <TR>
-                <TD ALIGN="RIGHT">I have already completed a liability waiver:</TD>
-                <TD><label><input type="radio" name="hasSignedWaiver" value="yes"> Yes</label><br>
-                    <label><input type="radio" name="hasSignedWaiver" value="no"> No</label></TD>
-            </TR><TR>
-                <TD ALIGN="RIGHT">How did you hear about Maker Nexus?</TD>
-                <TD><INPUT TYPE="TEXT" NAME="howdidyouhear" SIZE="128" MAXLENGTH="128"></TD>
-            </TR>
+    <div >
+        <div class="logo" style="float: right; margin: 0px 0px 0px 20px; width: 20%;">
+            <img src="MakerNexus_Logo.jpg" alt="Maker Nexus Logo">
+        </div>
+        <div class="intro" style="float: left; margin: 0px 0px 0px 20px;">
             
-            <TR>
-                <TD COLSPAN="2" ALIGN="CENTER">&nbsp;</TD>
-            </TR>
-            <TR>
-                <TD COLSPAN="2" ALIGN="CENTER"><INPUT TYPE="SUBMIT" VALUE="Check In/Out"></TD>
-            </TR>
-        </TABLE>
-    </FORM>
+            <h1 class="topheading">Maker Nexus Visitor Log</h1>
+            <p>In case of an emergency, it is important for us to know who is in the building at any given time.</p>
+            <p>Please complete the form. When done we will print you a namebagde. Please wear the 
+                namebadge while you are in the makerspace.
+            </p>
+            <p>When you leave, use the QR code on your badge to checkout.</p>
+        </div>
+    </div>
+    <div class="ourform">
+        <FORM METHOD="POST" ACTION="OVLcheckinout.php">
+            <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
+            <div class= "fieldtitle">
+                First Name:
+            </div>
+            <div class="inputfield">
+                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32">
+            </div>
+            <div class= "fieldtitle" >
+                Last Name:
+            </div>
+            <div  class="inputfield">
+                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32">
+            </div>
+            <div class= "fieldtitle">
+                Visit Reason:
+            </div>
+            <div  class="inputfield">
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="tour"> Tour</label></div>
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="classOrworkshop"> Class or Workshop</label></div>
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="makernexusevent"> Maker Nexus Event</label></div>
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="volunteering"> Volunteering</label></div>   
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="guest"> Guest of a member</label></div>
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="forgotbadge"> Member, forgot badge</label></div>
+                <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="other"> Other</label></div>
+            </div>
+            <div class= "fieldtitle">
+                I have already completed a liability waiver:
+            </div>
+            <div  class="inputfield">
+                <div style="float:left; margin-left: 40px; ">
+                    <label><input type="radio" name="hasSignedWaiver" value="yes"> Yes</label>
+                </div>
+                <div id="waiverbuttonno" style="float:left; ">
+                    <label><input type="radio" name="hasSignedWaiver" value="no"> No</label>
+                </div>
+            </div>
+            <div class= "fieldtitle">
+                How did you hear about Maker Nexus?</TD>
+            </div>
+            <div  class="inputfield">
+               <INPUT TYPE="TEXT" NAME="howdidyouhear" SIZE="128" MAXLENGTH="128">
+            </div>
+            <div class= "fieldtitle">
+                <INPUT TYPE="SUBMIT" VALUE="Check In">
+            </div>
+        </FORM>
+        <div class="fieldtitle" style="margin-bottom: 50px;">
+            Thank you for checking in.  Please wear your namebadge while you are in the makerspace.
+        </div>
+    </div>
 
 
 </BODY>

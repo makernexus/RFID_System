@@ -86,7 +86,7 @@ if (isset($_POST["previousVisitNum"])) {
 } 
 #if vid is not a number, then exit
 if (!is_numeric($previousVisitNum)) {
-    echo "visitID: " . $previousVisitNum . " is not a number. Exiting.";
+    echoMessage( "visitID: " . $previousVisitNum . " is not a number. Exiting.");
     logfile("visitID: " . $previousVisitNum . " is not a number. Exiting.");
     exit;
 } else  {
@@ -100,12 +100,12 @@ switch ($previousVisitNum) {
         // insert the new visit into the database
         $previousVisitNum = 0;
         if ($nameFirst == "" or $nameLast == "") {
-            echo "First and last name are required. No action taken.";
+            echoMessage("First and last name are required. No action taken.");
             logfile("No name entered. No action taken.");
             exit;
         }
         insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
-        echo "New Visit Added.";
+        echoMessage("New Visit Added.");
         break;
 
     case 0:
@@ -134,8 +134,8 @@ switch ($previousVisitNum) {
         // if no current checkin result, then this is a new checkin
         if ($currentCheckInRecNum == -1) {
 
-            echo "No previous record found for visitID: " . $previousVisitNum . ".<br> No action taken.<br>";
-            echo "Please use the web form to check in.";
+            echoMessage("No previous record found for visitID: " . $previousVisitNum . ".<br> No action taken.<br>");
+            echoMessage( "Please use the web form to check in.");
             logfile("No previous record found for visitID: " . $previousVisitNum . ". No action taken.");
             exit;
 
@@ -143,13 +143,13 @@ switch ($previousVisitNum) {
 
             // this is a new checkin
             insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum);
-            echo "Checked In with previousVisitNum: " . $previousVisitNum . ".";
+            echoMessage( "Checked In with previousVisitNum: " . $previousVisitNum . ".");
 
         } else {
 
             // this is a checkout
             updateVisitInDatabase($con, $nowSQL, $currentCheckInRecNum);
-            echo "Checked Out";
+            echoMessage( "Checked Out");
 
         }
 
@@ -358,6 +358,14 @@ function debugToUser ($data) {
     if ($OVLdebug){
         echo "<br>" . $data . "<br>";
     }
+}
+
+// -------------------------------------
+// Send message back to user
+function echoMessage($msg) {
+    echo "<H1>" . $msg . "</H1>";
+    logfile($msg);
+    exit;
 }
 
 ?>
