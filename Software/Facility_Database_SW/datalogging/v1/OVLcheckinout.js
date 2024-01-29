@@ -14,16 +14,16 @@ document.addEventListener('DOMContentLoaded', function(){
 
         // Check if names are set
         if (!this.elements['nameFirst'].value || !this.elements['nameLast'].value) {
-            alertUser5seconds("First and last name are required.", "red");
+            alertUser("First and last name are required.", "red");
             return;
         };
         if(this.elements['nameFirst'].value.trim() === "" || this.elements['nameLast'].value.trim() === "") {
-            alertUser5seconds("First and last name are required.", "red");
+            alertUser("First and last name are required.", "red");
             return;
         };
         // Check if "hasSignedWaiver" is set
         if (!this.elements['hasSignedWaiver'].value) {
-            alertUser5seconds("You must answer the Signed Waiver question.", "red");
+            alertUser("You must answer the Signed Waiver question.", "red");
             return;
         }
     
@@ -39,15 +39,22 @@ document.addEventListener('DOMContentLoaded', function(){
         .then(data => console.log(data))
         .catch((error) => console.error('Error:', error));
 
-        // Clear the form
-        this.reset();
-
-        alertUser5seconds("You have been checked in. Thank you.", "green");
+        if (this.elements['hasSignedWaiver'].value == 0 ) {
+            // Clear the form
+            this.reset();
+            alertUser("You will now go to the waiver page.", "blue",1000)
+            window.location.href = "https://app.waiversign.com/e/6421facd543e76001945bf5c/doc/6421fb7d543e76001945c3cb?event=none";
+        } else {
+            // Clear the form
+            this.reset();
+            alertUser("You have been checked in. Thank you.", "green");
+            echo("");
+        }
 
     });
 });
 
-function alertUser5seconds(message, color) {
+function alertUser(message, color, showForMS=5000) {
     var alertBox = document.createElement('div');
     alertBox.textContent = message;
     alertBox.style.position = 'fixed';
@@ -62,7 +69,7 @@ function alertUser5seconds(message, color) {
 
     setTimeout(function() {
         alertBox.remove();
-    }, 5000);
+    }, showForMS);
 
     return;
 }
