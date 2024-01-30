@@ -52,6 +52,53 @@ document.addEventListener('DOMContentLoaded', function(){
         }
 
     });
+
+    var button = document.querySelector("#addAPerson");
+
+    button.addEventListener("click", function() {
+       
+        // Get the form
+        var divTarget = document.querySelector("#extraPeople");
+
+        var numPeopleField = document.querySelector("#numPeople");
+        var numPeople = parseInt(numPeopleField.value) + 1;
+
+        var divNew = document.createElement("div");
+        divNew.style.marginTop = "20px";
+
+        // Create the first input field
+        var input1 = document.createElement("input");
+        input1.type = "text";
+        input1.name = "first_name[]";
+        input1.id = "first_name" + numPeople.toString();
+
+        // Create the second input field
+        var input2 = document.createElement("input");
+        input2.type = "text";
+        input2.name = "last_name[]";
+        input2.id = "last_name" + numPeople.toString();
+
+        // Create a label for the first input field
+        var label1 = document.createElement("label");
+        label1.for = "first_name" + numPeople.toString();
+        label1.textContent = "First Name:";
+
+        // Create a label for the first input field
+        var label2 = document.createElement("label");
+        label2.for = "last_name" + numPeople.toString();
+        label2.textContent = "Last Name:";
+        label2.style.marginLeft = "10px";
+
+        // Add the input fields to the form
+        divNew.appendChild(label1);
+        divNew.appendChild(input1);
+        divNew.appendChild(label2);
+        divNew.appendChild(input2);
+        divTarget.appendChild(divNew);
+        numPeopleField.value = numPeople;
+    });
+
+
 });
 
 function alertUser(message, color, showForMS=5000) {
