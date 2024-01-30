@@ -178,13 +178,21 @@
                 First Name:
             </div>
             <div class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32" VLAUE="">
+                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32" VALUE="">
             </div>
             <div class= "fieldtitle" >
                 Last Name:
             </div>
             <div  class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32" VLAUE="">
+                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32" VALUE="">
+            </div>
+            <div id="extraPeopleWithButton"  class="inputfield" style="margin-top: 10px;">
+                <div id="extraPeople">
+                </div>
+                <div style="margin-top: 10px;">
+                    <input type="hidden" id="numPeople" name="numPeople" value="0">
+                    <INPUT TYPE="BUTTON" id="addAPerson" NAME="addAPerson" SIZE="32" MAXLENGTH="32" VALUE="Add another person">
+                </div>
             </div>
             <div class= "fieldtitle">
                 Visit Reason:
@@ -214,7 +222,7 @@
                 How did you hear about Maker Nexus?</TD>
             </div>
             <div  class="inputfield">
-               <TEXTAREA NAME="howDidYouHear" ROWS=2 COLS=40 MAXLENGTH="128" VLAUE=""></TEXTAREA>
+               <TEXTAREA NAME="howDidYouHear" ROWS=2 COLS=40 MAXLENGTH="128" VALUE=""></TEXTAREA>
             </div>
             <div class= "fieldtitle">
                 <INPUT TYPE="SUBMIT" VALUE="Check In">
