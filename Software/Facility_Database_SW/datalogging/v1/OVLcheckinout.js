@@ -10,17 +10,17 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Add a listener to the form to intercept the submit event
     document.getElementById('checkinform').addEventListener('submit', function(event) {
+        // Prevent the default form submit
         event.preventDefault();
 
         // Check if names are set
-        if (!this.elements['nameFirst'].value || !this.elements['nameLast'].value) {
+        nameFirstArray = document.getElementsByName('nameFirst[]');
+        nameLastArray = document.getElementsByName('nameLast[]');
+        if(nameFirstArray[0].value.trim() === "" || nameLastArray[0].value.trim() === "") {
             alertUser("First and last name are required.", "red");
             return;
         };
-        if(this.elements['nameFirst'].value.trim() === "" || this.elements['nameLast'].value.trim() === "") {
-            alertUser("First and last name are required.", "red");
-            return;
-        };
+
         // Check if "hasSignedWaiver" is set
         if (!this.elements['hasSignedWaiver'].value) {
             alertUser("You must answer the Signed Waiver question.", "red");
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function(){
         } else {
             // Clear the form
             this.reset();
-            alertUser("You have been checked in. Thank you.", "green");
-            echo("");
+            alertUser("You have been checked in. Thank you.", "green", 2000);
+            window.location.href = "https://makernexus.org";
         }
 
     });
@@ -69,23 +69,23 @@ document.addEventListener('DOMContentLoaded', function(){
         // Create the first input field
         var input1 = document.createElement("input");
         input1.type = "text";
-        input1.name = "first_name[]";
-        input1.id = "first_name" + numPeople.toString();
+        input1.name = "nameFirst[]";
+        input1.id = "nameFirst" + numPeople.toString();
 
         // Create the second input field
         var input2 = document.createElement("input");
         input2.type = "text";
-        input2.name = "last_name[]";
-        input2.id = "last_name" + numPeople.toString();
+        input2.name = "nameLast[]";
+        input2.id = "nameLast" + numPeople.toString();
 
         // Create a label for the first input field
         var label1 = document.createElement("label");
-        label1.for = "first_name" + numPeople.toString();
+        label1.for = "nameFirst" + numPeople.toString();
         label1.textContent = "First Name:";
 
         // Create a label for the first input field
         var label2 = document.createElement("label");
-        label2.for = "last_name" + numPeople.toString();
+        label2.for = "nameLast" + numPeople.toString();
         label2.textContent = "Last Name:";
         label2.style.marginLeft = "10px";
 

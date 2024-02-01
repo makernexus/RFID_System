@@ -41,13 +41,12 @@ if (mysqli_connect_errno()) {
     logfile("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
-
-
 // posted data
-$nameFirst =  cleanInput($_POST["nameFirst"]);
-$nameLast =  cleanInput($_POST["nameLast"] );
+$nameFirstArray =  $_POST["nameFirst"];
+$nameLastArray =  $_POST["nameLast"];
 $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
 $hasSignedWaiver = cleanInput($_POST["hasSignedWaiver"]);
+$numPeople = cleanInput($_POST["numPeople"]);
 
 $visitReason = "";
 if (isset($_POST["visitReason"])) {
@@ -105,18 +104,28 @@ if (!is_numeric($previousVisitNum)) {
 }
 
 switch ($previousVisitNum) {
+    
     case -1:
         // if visitid =-1, then this came from the form, add a record to the database
-        // insert the new visit into the database
+        // insert the new visit into the database for each person in the form
         $previousVisitNum = 0;
-        if ($nameFirst == "" or $nameLast == "") {
+
+        # the first person must be populated
+        if (trim($nameFirstArray[0]) == "" or trim($nameLastArray[0]) == "") {
             echoMessage("First and last name are required. No action taken.");
             logfile("No name entered. No action taken.");
             exit;
         }
-        insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone,
-             $visitReason, $previousVisitNum, $howDidYouHear);
-        echoMessage("New Visit Added.");
+
+        # add to database for each person
+        $numAdded = 0;
+        for ($i = 0; $i < $numPeople; $i++) {
+            if (trim($nameFirstArray[$i]) != "" and trim($nameLastArray[$i]) != "") {
+                $numAdded++;
+                insertNewVisitInDatabase($con, $nowSQL, $nameFirstArray[$i], $nameLastArray[$i], $email, $phone,
+                    $visitReason, $previousVisitNum, $howDidYouHear);
+            }
+        }
         break;
 
     case 0:
@@ -137,8 +146,8 @@ switch ($previousVisitNum) {
         // is the visitID in the database from since the start of the day without a checkout?
         $currentCheckInData = getCurrentCheckin($con, $previousVisitNum);
         $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
-        $nameFirst = $currentCheckInData["nameFirst"];
-        $nameLast = $currentCheckInData["nameLast"];
+        $nameFirstFromDB = $currentCheckInData["nameFirstFromDB"];
+        $nameLastFromDB = $currentCheckInData["nameLastFromDB"];
 
         // if no current checkin result, then this is a new checkin
         if ($currentCheckInRecNum == -1) {
@@ -151,7 +160,7 @@ switch ($previousVisitNum) {
         } elseif ($currentCheckInRecNum == 0) {
 
             // this is a new checkin for an existing visitor
-            insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, "", "", 
+            insertNewVisitInDatabase($con, $nowSQL, $nameFirstFromDB, $nameLastFromDB, "", "", 
                     "", $previousVisitNum, "");
             echoMessage( "Checked In with previousVisitNum: " . $previousVisitNum . ".");
 
@@ -326,8 +335,8 @@ function getCurrentCheckin ($con, $visitID){
 
     $returnThis = array(
                 "currentCheckInRecNum" => $currentCheckInRecNum, 
-                "nameLast" =>$row["nameLast"], 
-                "nameFirst" => $row["nameFirst"],
+                "nameLastFromDB" =>$row["nameLast"], 
+                "nameFirstFromDB" => $row["nameFirst"],
                 "email" => $row["email"], 
                 "phone" => $row["phone"]
                 ) ;
