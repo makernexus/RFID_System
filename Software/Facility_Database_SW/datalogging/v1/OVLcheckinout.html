@@ -174,23 +174,23 @@
     <div class="ourform">
         <FORM id="checkinform" METHOD="POST">
             <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
+            <input type="hidden" id="numPeople" name="numPeople" value="1">
             <div class= "fieldtitle">
                 First Name:
             </div>
             <div class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameFirst" SIZE="32" MAXLENGTH="32" VALUE="">
+                <INPUT TYPE="TEXT" id="mainNameFirst" NAME="nameFirst[]" SIZE="32" MAXLENGTH="32" VALUE="">
             </div>
             <div class= "fieldtitle" >
                 Last Name:
             </div>
             <div  class="inputfield">
-                <INPUT TYPE="TEXT" NAME="nameLast" SIZE="32" MAXLENGTH="32" VALUE="">
+                <INPUT TYPE="TEXT" id="mainNameLast" NAME="nameLast[]" SIZE="32" MAXLENGTH="32" VALUE="">
             </div>
             <div id="extraPeopleWithButton"  class="inputfield" style="margin-top: 10px;">
                 <div id="extraPeople">
                 </div>
                 <div style="margin-top: 10px;">
-                    <input type="hidden" id="numPeople" name="numPeople" value="0">
                     <INPUT TYPE="BUTTON" id="addAPerson" NAME="addAPerson" SIZE="32" MAXLENGTH="32" VALUE="Add another person">
                 </div>
             </div>
