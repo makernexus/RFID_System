@@ -32,6 +32,20 @@ div.inputfield{
     clear:both; 
     float:left
 }
+
+div.extraPersonButton{
+    margin-top:20px;
+    clear:both;
+    float:left;
+}
+div.extraPersonInput{
+    float:left;
+    clear:both;
+}
+div.extraPersonField{
+    margin-top:20px;
+    float:left;
+}
 input {
     font-size: 16px;
 }
@@ -64,38 +78,28 @@ input[type="radio"] {
         margin: 1px 10px 1px 10px;
         font-size: 50px;
     }
+    div.pagetopdiv{
+        width: 100%;
+    }
     h1.topheading{
         font-size: 70px; 
     }
     div.intro{
         clear:both;
         font-size: 50px; 
-        margin: 1px 1px 1px 1px;
         width: 100%;
-    }
-    div.logo{
-        margin: 1px 1px 1px 1px;
     }
     div.ourform{
-        clear:both;
         font-size: 50px; 
-        margin: 1px 10px 1px 20px;
-        width: 100%;
     }
     div.fieldtitle{
-        clear:both;
-        float:left;
         font-size: 50px; 
-        margin: 20px 1px 1px 1px;
-        width: 100%;
-    }
-    div.inputfield{
-        margin-left:20px; 
-        clear:both; 
-        float:left
     }
     div.visitreasoncheckbox{
         margin-top:20px;
+    }
+    div.extraPersonField{
+        margin-top:75px;
     }
     input {
         font-size: 50px;

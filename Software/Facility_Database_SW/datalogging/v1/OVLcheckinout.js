@@ -64,36 +64,50 @@ document.addEventListener('DOMContentLoaded', function(){
         var numPeople = parseInt(numPeopleField.value) + 1;
 
         var divNew = document.createElement("div");
-        divNew.style.marginTop = "20px";
+        divNew.className = "extraPersonInput";
 
         // Create the first input field
+        var nameFirstDiv = document.createElement("div");
+        nameFirstDiv.className = "extraPersonField";
+
         var input1 = document.createElement("input");
+        input1.className = "inputField, extraPersonField";
         input1.type = "text";
         input1.name = "nameFirst[]";
         input1.id = "nameFirst" + numPeople.toString();
 
+        // Create a label for the first input field
+        var label1 = document.createElement("label");
+        label1.className = "inputField, extraPersonField";
+        label1.for = "nameFirst" + numPeople.toString();
+        label1.textContent = "First Name:";
+
+        nameFirstDiv.appendChild(label1);
+        nameFirstDiv.appendChild(input1);
+
         // Create the second input field
+        var nameLastDiv = document.createElement("div");
+        nameLastDiv.className = "extraPersonField";
+
         var input2 = document.createElement("input");
+        input2.className = "inputField, extraPersonField";
         input2.type = "text";
         input2.name = "nameLast[]";
         input2.id = "nameLast" + numPeople.toString();
 
         // Create a label for the first input field
-        var label1 = document.createElement("label");
-        label1.for = "nameFirst" + numPeople.toString();
-        label1.textContent = "First Name:";
-
-        // Create a label for the first input field
         var label2 = document.createElement("label");
+        label2.className = "inputField, extraPersonField";
         label2.for = "nameLast" + numPeople.toString();
         label2.textContent = "Last Name:";
         label2.style.marginLeft = "10px";
 
+        nameLastDiv.appendChild(label2);
+        nameLastDiv.appendChild(input2);
+
         // Add the input fields to the form
-        divNew.appendChild(label1);
-        divNew.appendChild(input1);
-        divNew.appendChild(label2);
-        divNew.appendChild(input2);
+        divNew.appendChild(nameFirstDiv);
+        divNew.appendChild(nameLastDiv);
         divTarget.appendChild(divNew);
         numPeopleField.value = numPeople;
     });

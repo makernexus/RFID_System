@@ -20,14 +20,15 @@
     <META NAME="Author" CONTENT="">
     <META NAME="Keywords" CONTENT="">
     <META NAME="Description" CONTENT="">
-    <script src="/v1/OVLcheckinout.js"></script>
-    <link rel="stylesheet" type="text/css" href="OLVstyles.css">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <script src="OVLcheckinout.js"></script>
+    <link rel="stylesheet" type="text/css" href="OVLstyles.css">
     
 
 </HEAD>
 
 <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
-    <div >
+    <div class="pagetopdiv">
         <div class="logo" style="float: right; margin: 0px 0px 0px 20px; width: 20%;">
             <img src="MakerNexus_Logo.jpg" alt="Maker Nexus Logo">
         </div>
@@ -45,22 +46,34 @@
         <FORM id="checkinform" METHOD="POST">
             <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
             <input type="hidden" id="numPeople" name="numPeople" value="1">
-            <div class= "fieldtitle">
-                First Name:
+            <div class="fieldwrapper">
+                <div class= "fieldtitle">
+                    First Name:
+                </div>
+                <div class="inputfield">
+                    <INPUT TYPE="TEXT" id="mainNameFirst" NAME="nameFirst[]" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div class="inputfield">
-                <INPUT TYPE="TEXT" id="mainNameFirst" NAME="nameFirst[]" SIZE="32" MAXLENGTH="32" VALUE="">
+            <div class="fieldwrapper">
+                <div class= "fieldtitle" >
+                    Last Name:
+                </div>
+                <div  class="inputfield">
+                    <INPUT TYPE="TEXT" id="mainNameLast" NAME="nameLast[]" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div class= "fieldtitle" >
-                Last Name:
+            <div class="fieldwrapper">
+                <div class= "fieldtitle">
+                    email address:
+                </div>
+                <div class="inputfield">
+                    <INPUT TYPE="TEXT" id="email" NAME="email" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div  class="inputfield">
-                <INPUT TYPE="TEXT" id="mainNameLast" NAME="nameLast[]" SIZE="32" MAXLENGTH="32" VALUE="">
-            </div>
-            <div id="extraPeopleWithButton"  class="inputfield" style="margin-top: 10px;">
+            <div id="extraPeopleWithButton"  class="inputfield">
                 <div id="extraPeople">
                 </div>
-                <div style="margin-top: 10px;">
+                <div class="extraPersonButton">
                     <INPUT TYPE="BUTTON" id="addAPerson" NAME="addAPerson" SIZE="32" MAXLENGTH="32" VALUE="Add another person">
                 </div>
             </div>

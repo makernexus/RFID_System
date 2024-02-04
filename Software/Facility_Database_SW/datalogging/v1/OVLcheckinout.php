@@ -65,11 +65,7 @@ if (isset($_POST["email"])) {
     $email = cleanInput($_POST["email"]);
 } 
 
-$phone = "";
-if (isset($_POST["phone"])) {
-    $phone = cleanInput($_POST["phone"]);
-}
-
+$hasSignedWaiver = 0;
 if (isset($_POST["hasSignedWaiver"])) {
     $hasSignedWaiver = $_POST['hasSignedWaiver'];
 } 
