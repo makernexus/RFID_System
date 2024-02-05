@@ -3,13 +3,15 @@
     This is the HTML form for the OVL check in/out page.  It is a simple form that collects the following information:
     - First Name
     - Last Name
+    - Email Address
+    - Additional People in the party (intended to cover minors and other family members)
     - Visit Reason
     - Liability Waiver
     - How did you hear about Maker Nexus?
     
     The form is submitted to OVLcheckinout.php, which processes the form and writes the data to the database.
 
-    created: 2024-01-10
+    created: 2024-02-04
     by: Jim Schrempp
     copyright Maker Nexus:
         This work is licensed under a Attribution/Share Alike/Non Commercial (cc) 2024 Maker Nexus
@@ -20,144 +22,15 @@
     <META NAME="Author" CONTENT="">
     <META NAME="Keywords" CONTENT="">
     <META NAME="Description" CONTENT="">
-    <script src="/v1/OVLcheckinout.js"></script>
-    <style type="text/css">
-        body {
-            width: 80%;
-            margin: 1px 10px 1px 10px;
-            font-size: 16px;
-        }
-        h1.topheading{
-            font-size: 24px; 
-        }
-        div.intro{
-            font-size: 16px; 
-            margin: 1px 1px 1px 1px;
-            width: 70%;
-        }
-        div.logo{
-            margin: 1px 1px 1px 1px;
-        }
-        div.ourform{
-            clear:both;
-            margin: 1px 10px 1px 20px;
-            width: 100%;
-        }
-        div.fieldtitle{
-            clear:both;
-            float:left;
-            font-size: 16px; 
-            margin: 20px 1px 1px 1px;
-            width: 100%;
-        }
-        div.inputfield{
-            margin-left:20px; 
-            clear:both; 
-            float:left
-        }
-        input {
-            font-size: 16px;
-        }
-        p{
-            font-size: 16px;
-        }
-        label{
-            font-size: 16px;
-            margin-top:20px;
-        }
-        td{
-            font-size: 16px;
-        }
-        input[type="checkbox"] {
-            transform: scale(1);
-        }
-        input[type="radio"] {
-            transform: scale(1);
-        }
-        #waiverbuttonno {            
-            margin-left: 40px; 
-            font-size: 20px
-        }
-
-        /* Smartphones (portrait and landscape) ----------- */
-
-        @media screen and (max-device-width: 600px) {
-            body {
-                width: auto;
-                margin: 1px 10px 1px 10px;
-                font-size: 50px;
-            }
-            h1.topheading{
-                font-size: 70px; 
-            }
-            div.intro{
-                clear:both;
-                font-size: 50px; 
-                margin: 1px 1px 1px 1px;
-                width: 100%;
-            }
-            div.logo{
-                margin: 1px 1px 1px 1px;
-            }
-            div.ourform{
-                clear:both;
-                font-size: 50px; 
-                margin: 1px 10px 1px 20px;
-                width: 100%;
-            }
-            div.fieldtitle{
-                clear:both;
-                float:left;
-                font-size: 50px; 
-                margin: 20px 1px 1px 1px;
-                width: 100%;
-            }
-            div.inputfield{
-                margin-left:20px; 
-                clear:both; 
-                float:left
-            }
-            div.visitreasoncheckbox{
-                margin-top:20px;
-            }
-            input {
-                font-size: 50px;
-            }
-            textarea {
-                font-size: 50px;
-            }
-            p{
-                font-size: 50px;
-            }
-            label{
-                font-size: 50px;
-            }
-            input[type="checkbox"] {
-                transform: scale(2);
-                font-size: 50px;
-                margin-left: 100px;
-            }            
-            input[type="radio"] {
-                transform: scale(2);
-                font-size: 50px;
-            }
-            #waiverbuttonno {            
-                margin-left: 200px; 
-            }
-            input[type="submit"] {
-                margin: 20px 1px 50px 1px;
-                width: 400px;
-                height: 150px;
-                font-size: 50px
-            }
-        }
-
-    </style>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <script src="OVLcheckinout.js"></script>
+    <link rel="stylesheet" type="text/css" href="OVLstyles.css">
+    
 
 </HEAD>
 
 <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
-    <div >
+    <div class="pagetopdiv">
         <div class="logo" style="float: right; margin: 0px 0px 0px 20px; width: 20%;">
             <img src="MakerNexus_Logo.jpg" alt="Maker Nexus Logo">
         </div>
@@ -175,22 +48,34 @@
         <FORM id="checkinform" METHOD="POST">
             <INPUT TYPE="HIDDEN" NAME="previousVisitNum" VALUE="-1">
             <input type="hidden" id="numPeople" name="numPeople" value="1">
-            <div class= "fieldtitle">
-                First Name:
+            <div class="fieldwrapper">
+                <div class= "fieldtitle">
+                    First Name:
+                </div>
+                <div class="inputfield">
+                    <INPUT TYPE="TEXT" id="mainNameFirst" NAME="nameFirst[]" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div class="inputfield">
-                <INPUT TYPE="TEXT" id="mainNameFirst" NAME="nameFirst[]" SIZE="32" MAXLENGTH="32" VALUE="">
+            <div class="fieldwrapper">
+                <div class= "fieldtitle" >
+                    Last Name:
+                </div>
+                <div  class="inputfield">
+                    <INPUT TYPE="TEXT" id="mainNameLast" NAME="nameLast[]" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div class= "fieldtitle" >
-                Last Name:
+            <div class="fieldwrapper">
+                <div class= "fieldtitle">
+                    email address:
+                </div>
+                <div class="inputfield">
+                    <INPUT TYPE="TEXT" id="email" NAME="email" SIZE="32" MAXLENGTH="32" VALUE="">
+                </div>
             </div>
-            <div  class="inputfield">
-                <INPUT TYPE="TEXT" id="mainNameLast" NAME="nameLast[]" SIZE="32" MAXLENGTH="32" VALUE="">
-            </div>
-            <div id="extraPeopleWithButton"  class="inputfield" style="margin-top: 10px;">
+            <div id="extraPeopleWithButton"  class="inputfield">
                 <div id="extraPeople">
                 </div>
-                <div style="margin-top: 10px;">
+                <div class="extraPersonButton">
                     <INPUT TYPE="BUTTON" id="addAPerson" NAME="addAPerson" SIZE="32" MAXLENGTH="32" VALUE="Add another person">
                 </div>
             </div>
@@ -198,7 +83,6 @@
                 Visit Reason:
             </div>
             <div  class="inputfield">
-                <div style="display:none;"><input type="checkbox" name="visitReason[]" value="none" checked></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="tour"> Tour</label></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="classOrworkshop"> Class or Workshop</label></div>
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="makernexusevent"> Maker Nexus Event</label></div>
@@ -208,7 +92,7 @@
                 <div class="visitreasoncheckbox" ><label><input type="checkbox" name="visitReason[]" value="other"> Other</label></div>
             </div>
             <div class= "fieldtitle">
-                I have already signed a liability waiver:
+                I certify that all members of my party have a signed a liability waiver on file:
             </div>
             <div  class="inputfield">
                 <div style="float:left; margin-left: 40px; ">

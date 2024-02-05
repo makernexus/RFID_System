@@ -6,18 +6,30 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
 //
+// This code is called from a web form or a QR code. It checks in or checks out a visitor.
+// The code is called with a visitID from a QR code or from a web form. If the visitID is -1, then the
+// code is being called from a web form. If the visitID is 0, then the code is being called from a bare URL
+// and the code will serve up the HTML form. If the visitID is a number, then the code is being called
+// from a QR code and the code will check in or check out the visitor.
 //
-// Date: 2024-10-20
+// Date: 2024-02-04
 //
 
 include 'OVLcommonfunctions.php';
 
 $today = new DateTime();  
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
-$nowSQL = $today->format("Y-m-d H:i:s");
+$nowSQL = $today->format("Y-m-d H:i:s");  // used in SQL statements
 
 $OVLdebug = false; // set to true to see debug messages 
 debugToUser( "OVLdebug is active. " . $nowSQL .  "<br>");
+
+logfile(">>>----- OVLcheckinout.php called");
+
+// write php errors to the log file
+ini_set('log_errors', 1);
+ini_set('error_log', 'OVLlog.txt');
+
 
 allowWebAccess();  // if IP not allowed, then die
 
@@ -27,7 +39,7 @@ if (!$html){
   die("unable to open file");
 }
 
-// Get the data
+// Get the database connection info from the ini file
 $ini_array = parse_ini_file("OVLconfig.ini", true);
 $dbUser = $ini_array["SQL_DB"]["writeUser"];
 $dbPassword = $ini_array["SQL_DB"]["writePassword"];
@@ -41,44 +53,6 @@ if (mysqli_connect_errno()) {
     logfile("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
-// posted data
-$nameFirstArray =  $_POST["nameFirst"];
-$nameLastArray =  $_POST["nameLast"];
-$howDidYouHear = cleanInput($_POST["howDidYouHear"]);
-$hasSignedWaiver = cleanInput($_POST["hasSignedWaiver"]);
-$numPeople = cleanInput($_POST["numPeople"]);
-
-$visitReason = "";
-if (isset($_POST["visitReason"])) {
-    $visitReasonArray = $_POST["visitReason"];
-    if (is_array($visitReasonArray)) {
-        // make one string of the reasons
-        foreach ($visitReasonArray as $value) {
-            $visitReason .= $value . "| ";
-        }
-    }
-    $visitReason = cleanInput($visitReason);
-}
-
-$email = "";
-if (isset($_POST["email"])) {
-    $email = cleanInput($_POST["email"]);
-} 
-
-$phone = "";
-if (isset($_POST["phone"])) {
-    $phone = cleanInput($_POST["phone"]);
-}
-
-if (isset($_POST["hasSignedWaiver"])) {
-    $hasSignedWaiver = $_POST['hasSignedWaiver'];
-} 
-
-$howDidYouHear = "";
-if (isset($_POST["howDidYouHear"])) {
-    $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
-}
-
 
 // previousVisitNum 
 //    -1: post data came from the form, human input
@@ -88,8 +62,7 @@ $previousVisitNum = 0;
 if (isset($_GET["vid"])) {
     // this would come from a QR code
     $previousVisitNum = cleanInput($_GET["vid"]);
-} 
-if (isset($_POST["previousVisitNum"])) {
+} elseif (isset($_POST["previousVisitNum"])) {
     // this would come from the form
     $previousVisitNum = cleanInput($_POST["previousVisitNum"]);
 } 
@@ -103,12 +76,68 @@ if (!is_numeric($previousVisitNum)) {
     logfile("visitID: " . $previousVisitNum . " has been received.");
 }
 
+
+$nameFirstArray = array();
+$nameLastArray = array();
+$howDidYouHear = "";
+$hasSignedWaiver = 0;
+$numPeople = 1;
+$email = "";
+$phone = "";
+$visitReason = "";
+
+if ($previousVisitNum == -1) {
+    // this is a post from the form, get the data
+
+    // Get the posted data
+    $nameFirstArray =  $_POST["nameFirst"];
+    $nameLastArray =  $_POST["nameLast"];
+    $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
+    $hasSignedWaiver = cleanInput($_POST["hasSignedWaiver"]);
+    $numPeople = cleanInput($_POST["numPeople"]);
+
+    $email = "";
+    if (isset($_POST["email"])) {
+        $email = cleanInput($_POST["email"]);
+    } 
+
+    $hasSignedWaiver = 0;
+    if (isset($_POST["hasSignedWaiver"])) {
+        $hasSignedWaiver = $_POST['hasSignedWaiver'];
+    } 
+
+    $howDidYouHear = "";
+    if (isset($_POST["howDidYouHear"])) {
+        $howDidYouHear = cleanInput($_POST["howDidYouHear"]);
+    }
+
+    // Turn visit reason array into a pipe delimited string
+    $visitReason = "";
+    if (isset($_POST["visitReason"])) {
+        $visitReasonArray = $_POST["visitReason"];
+        if (is_array($visitReasonArray)) {
+            // make one string of the reasons
+            foreach ($visitReasonArray as $value) {
+                $visitReason .= $value . "| ";
+            }
+        }
+        // remove trailing pipe and space
+        $visitReason = rtrim($visitReason, "| ");
+
+        $visitReason = cleanInput($visitReason); // prevent attacks
+    }
+}
+
+// based on $previousVisitNum:
+//   -1: post data came from the form, human input
+//    0: request came from a URL with no previous visit
+//  num: data came from a QR code with the previous visit number in it
+//
 switch ($previousVisitNum) {
     
     case -1:
-        // if visitid =-1, then this came from the form, add a record to the database
-        // insert the new visit into the database for each person in the form
-        $previousVisitNum = 0;
+        // This came from the form, 
+        // insert a new visit into the database for each person in the form
 
         # the first person must be populated
         if (trim($nameFirstArray[0]) == "" or trim($nameLastArray[0]) == "") {
@@ -120,10 +149,15 @@ switch ($previousVisitNum) {
         # add to database for each person
         $numAdded = 0;
         for ($i = 0; $i < $numPeople; $i++) {
+            // only add if first and last name are populated
             if (trim($nameFirstArray[$i]) != "" and trim($nameLastArray[$i]) != "") {
                 $numAdded++;
+                if ($numAdded > 1) {
+                    $email = "";
+                    $phone = "";
+                }
                 insertNewVisitInDatabase($con, $nowSQL, $nameFirstArray[$i], $nameLastArray[$i], $email, $phone,
-                    $visitReason, $previousVisitNum, $howDidYouHear);
+                    $visitReason, 0, $howDidYouHear);
             }
         }
         break;
@@ -143,31 +177,28 @@ switch ($previousVisitNum) {
         // we have a previousVisitNum so this is either a checkout, 
         // or a new checkin from a repeat visitor with QR code
 
-        // is the visitID in the database from since the start of the day without a checkout?
+        // is the visitID in the database since the start of today without a checkout?
         $currentCheckInData = getCurrentCheckin($con, $previousVisitNum);
         $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
-        $nameFirstFromDB = $currentCheckInData["nameFirstFromDB"];
-        $nameLastFromDB = $currentCheckInData["nameLastFromDB"];
-
-        // if no current checkin result, then this is a new checkin
+        
         if ($currentCheckInRecNum == -1) {
 
             echoMessage("No previous record found for visitID: " . $previousVisitNum . ".<br> No action taken.<br>");
             echoMessage( "Please use the web form to check in.");
             logfile("No previous record found for visitID: " . $previousVisitNum . ". No action taken.");
-            exit;
+            die;
 
         } elseif ($currentCheckInRecNum == 0) {
 
-            // this is a new checkin for an existing visitor
-            insertNewVisitInDatabase($con, $nowSQL, $nameFirstFromDB, $nameLastFromDB, "", "", 
-                    "", $previousVisitNum, "");
+            // this is a new checkin today for an existing visitor
+            insertNewVisitInDatabase($con, $nowSQL, $currentCheckInData["nameFirstFromDB"], $currentCheckInData["nameLastFromDB"],
+                     "", "", "", $previousVisitNum, "");
             echoMessage( "Checked In with previousVisitNum: " . $previousVisitNum . ".");
 
         } else {
 
-            // this is a checkout
-            updateVisitInDatabase($con, $nowSQL, $currentCheckInRecNum);
+            // we have a currentCheckInRecNum so this is a checkout
+            checkoutVisitInDatabase($con, $nowSQL, $currentCheckInRecNum);
             echoMessage( "Checked Out");
 
         }
@@ -176,9 +207,13 @@ switch ($previousVisitNum) {
         mysqli_close($con);
 
         // end the php
-        exit;
+        die;
 }
+// END OF MAIN CODE
 
+
+//------------------------------------------------------------------------
+// Insert a new visit into the database
 function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, $phone, $visitReason, $previousVisitNum, $howDidYouHear) {
 
     $labelNeedsPrinting = 1;
@@ -186,6 +221,7 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
         $labelNeedsPrinting = 0;  // don't print a label badge for a person using a QR code
     }
 
+    // use this format to avoid SQL injection attacks
     $sql = "INSERT INTO ovl_visits (nameFirst, nameLast, email, phone, visitReason, previousRecNum, "
         . " dateCreatedLocal, dateCheckinLocal, labelNeedsPrinting, howDidYouHear) VALUES (?,?,?,?,?,?,?,?,?,?)";
     $stmt = mysqli_prepare($con, $sql);
@@ -193,23 +229,21 @@ function insertNewVisitInDatabase($con, $nowSQL, $nameFirst, $nameLast, $email, 
             $nowSQL, $nowSQL, $labelNeedsPrinting, $howDidYouHear);
 
     $result = mysqli_stmt_execute($stmt);
-    
-    mysqli_stmt_close($stmt);
-
-    debugToUser(  "sql: " . $sql . "<br>");
-
-    //$result = mysqli_query($con, $sql);
     if (!$result) {
-        debugToUser(  "Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
-        logfile("Error: " . $result . "<br>" . mysqli_error_stmt($stmt));
+        logfile("Error on exec: " . mysqli_stmt_error($stmt));
+        debugToUser(  "Error on exec: " . mysqli_stmt_error($stmt) . "<br>");
     } else {
         // update 
-        debugToUser(  "New record created successfully");
+        debugToUser(  "New record created successfully" . "<br>");
         logfile("New record created successfully");
     }
+
+    mysqli_stmt_close($stmt);
 }
 
-function updateVisitInDatabase($con, $nowSQL, $visitID) {
+//------------------------------------------------------------------------
+// check the visitor out
+function checkoutVisitInDatabase($con, $nowSQL, $visitID) {
 
     $sql = "SELECT dateCheckinLocal FROM ovl_visits " 
         . " WHERE recNum = " . $visitID;
@@ -253,11 +287,20 @@ function updateVisitInDatabase($con, $nowSQL, $visitID) {
     }
 }
 
+//------------------------------------------------------------------------
+// See if the visitID is currently checked in.
+// Returns several fields.
+// Based on currentCheckInRecNum:
+//    -1: no record found in database. 
+//     0: record found in checked OUT state
+//   num: record found in checked IN state
 function getCurrentCheckin ($con, $visitID){
 
     $today = new DateTime(); 
     $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
     $todaySQL = $today->format("Y-m-d"); // date only, no time
+
+    $currentCheckInRecNum = -1;  // default to no record found
 
     // get the most recent occurrence for this visitor
     $sql = "SELECT max(recNum) as maxRecNum FROM ovl_visits " 
@@ -269,22 +312,26 @@ function getCurrentCheckin ($con, $visitID){
     if (!$result) {
         debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con));
         logfile("Error: " . $sql . "<br>" . mysqli_error($con));
-        exit;
+        die;
     } else {
         if (mysqli_num_rows($result) == 0) {
             debugToUser(  "Parameter error 1: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
-            $maxRecNum = 0;
+            $maxRecNum = -1;
         } else {
             $row = mysqli_fetch_assoc($result);
             $maxRecNum = $row["maxRecNum"];
+
             if ($maxRecNum == "") {
                 debugToUser(  "Parameter error 2: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
                 $maxRecNum = -1;
             }
+
         }
     }       
     
+    // if we have a previous visit, get its data
     if ($maxRecNum > 0) {
+
         // we have a previous visit, get its data
         $sql = "SELECT recNum, nameLast, nameFirst, email, phone, dateCheckinLocal, dateCheckoutLocal FROM ovl_visits"
                 . " WHERE recNum = " . $maxRecNum;
@@ -295,28 +342,29 @@ function getCurrentCheckin ($con, $visitID){
         if (!$result) {
             debugToUser(  "Error: " . $sql . "<br>" . mysqli_error($con) );
             logfile("Error: " . $sql . "<br>" . mysqli_error($con));
-            exit;
+            die;
         } 
         # if results are empty, then we have a problem since we just got this recNum from the database
         if (mysqli_num_rows($result) == 0) {
             logfile("Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.");
             echo "Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.";
-            exit;
+            die;
         }
+
         $row = mysqli_fetch_assoc($result);
 
-        $today = date_create(); // creates a DateTime object for today's date
-        $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
         $checkinDate = date_create($row["dateCheckinLocal"]);
         $checkinDate->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 
         // was this record from before today?
         if ($checkinDate->format('Y-m-d') < $today->format('Y-m-d')) {
+
             // dateCheckinLocal is from yesterday or before
             debugToUser(  "No record found from today" . "<br>");
             $currentCheckInRecNum = 0; // should add a new record
 
         } else {
+
             // dateCheckinLocal is from today. Is there a checkout date?
             if ($row["dateCheckoutLocal"] == "0000-00-00 00:00:00") {
                 // there is an open checkin for today
@@ -328,10 +376,7 @@ function getCurrentCheckin ($con, $visitID){
             }
 
         }
-    } else {
-        // no previous visit, this is a new checkin
-        $currentCheckInRecNum = $maxRecNum; // should add a new record
-    }
+    } 
 
     $returnThis = array(
                 "currentCheckInRecNum" => $currentCheckInRecNum, 
@@ -343,6 +388,9 @@ function getCurrentCheckin ($con, $visitID){
     return $returnThis;
 }
 
+//------------------------------------------------------------------------
+// Log message to a rolling log file
+//
 function logfile($logEntry) {
     // rolling log file set up
     $logFile = 'OVLlog.txt';
@@ -354,6 +402,11 @@ function logfile($logEntry) {
         // Rename the log file to the backup file
         rename($logFile, $backupFile);
     }
+
+    // add a carriage return to the log entry
+    $logEntry = $logEntry . "\n\r";
+    // add a date/time stamp to the log entry
+    $logEntry = date('Y-m-d H:i:s') . " " . $logEntry;
 
     // Write to the log file
     file_put_contents($logFile, $logEntry, FILE_APPEND);
@@ -371,6 +424,8 @@ function cleanInput ($data) {
 
 //-------------------------------------
 // Echo a string to the user for debugging
+// only if $OVLdebug is true
+// otherwise, do nothing
 function debugToUser ($data) {
     global $OVLdebug;
     if ($OVLdebug){

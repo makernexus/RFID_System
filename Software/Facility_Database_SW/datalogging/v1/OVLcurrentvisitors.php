@@ -81,9 +81,12 @@ if (!$result) {
 mysqli_close($con);
 
 // end the php
-exit;
+die;
 
+// -------------------------------------
+// Functions
 
+// make a div
 function makeDiv($visitID, $nameFirst, $nameLast) {
     
     $div = "<div class='visitor'>"
@@ -95,19 +98,18 @@ function makeDiv($visitID, $nameFirst, $nameLast) {
     return $div;
 }
 
+// make a checkout link
 function makeCheckoutLink($visitID) {
     $link = "<a href='OVLcheckinout.php?vid=" . $visitID . "' target='_blank'>Check Out</a>";
     return $link;
 }
 
+// make a new badge link
 function makeNewBadgeLink($visitID) {
     $link = "<a href='OVLreprintbadge.php?vid=" . $visitID . "' target='_blank'>Reprint Badge</a>";
     return $link;
 }
 
-
-
-//-------------------------------------
 // Echo a string to the user for debugging
 function debugToUser ($data) {
     global $OVLdebug;
