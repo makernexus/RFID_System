@@ -7,7 +7,7 @@
 // By Jim Schrempp
 //
 //
-// Date: 2024-10-18
+// Date: 2024-02-05
 //
 
 include 'OVLcommonfunctions.php';
@@ -15,6 +15,11 @@ include 'OVLcommonfunctions.php';
 $today = new DateTime();  
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 $nowSQL = $today->format("Y-m-d H:i:s");
+
+// write php errors to the log file
+ini_set('log_errors', 1);
+ini_set('error_log', 'OVLlog.txt');
+
 
 $OVLdebug = false; // set to true to see debug messages 
 debugToUser( "OVLdebug is active. " . $nowSQL .  "<br>");
@@ -55,6 +60,7 @@ if (!is_numeric($visitID)) {
 
 switch ($visitID) {
     case 0:
+
         // do nothing
         echo "Error: visit number 0";
         logfile("Error: visit number 0");
@@ -76,9 +82,12 @@ switch ($visitID) {
 mysqli_close($con);
 
 // end the php
-exit;
+die;
 
+// -------------------------------------
+// Functions
 
+// Set the badgeNeedsPrinting flag in the database to 1
 function updateBadgePrintInDatabase($con, $nowSQL, $recNum) {
 
     // update the existing visit to check the visitor out
@@ -105,7 +114,7 @@ function updateBadgePrintInDatabase($con, $nowSQL, $recNum) {
     return $affectedRows;
 }
 
-
+// Log to a file
 function logfile($logEntry) {
     // rolling log file set up
     $logFile = 'OVLlog.txt';
@@ -117,6 +126,11 @@ function logfile($logEntry) {
         // Rename the log file to the backup file
         rename($logFile, $backupFile);
     }
+
+    // add a carriage return to the log entry
+    $logEntry = $logEntry . "\n\r";
+    // add a date/time stamp to the log entry
+    $logEntry = date('Y-m-d H:i:s') . " " . $logEntry;
 
     // Write to the log file
     file_put_contents($logFile, $logEntry, FILE_APPEND);
