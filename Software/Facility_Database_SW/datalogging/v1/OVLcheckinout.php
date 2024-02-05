@@ -121,7 +121,10 @@ if ($previousVisitNum == -1) {
                 $visitReason .= $value . "| ";
             }
         }
-        $visitReason = cleanInput($visitReason);
+        // remove trailing pipe and space
+        $visitReason = rtrim($visitReason, "| ");
+
+        $visitReason = cleanInput($visitReason); // prevent attacks
     }
 }
 
@@ -149,6 +152,10 @@ switch ($previousVisitNum) {
             // only add if first and last name are populated
             if (trim($nameFirstArray[$i]) != "" and trim($nameLastArray[$i]) != "") {
                 $numAdded++;
+                if ($numAdded > 1) {
+                    $email = "";
+                    $phone = "";
+                }
                 insertNewVisitInDatabase($con, $nowSQL, $nameFirstArray[$i], $nameLastArray[$i], $email, $phone,
                     $visitReason, 0, $howDidYouHear);
             }
