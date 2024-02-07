@@ -17,13 +17,22 @@ document.addEventListener('DOMContentLoaded', function(){
         nameFirstArray = document.getElementsByName('nameFirst[]');
         nameLastArray = document.getElementsByName('nameLast[]');
         if(nameFirstArray[0].value.trim() === "" || nameLastArray[0].value.trim() === "") {
-            alertUser("First and last name are required.", "red");
+            alertUser("Error: First and last name are required.", "red");
             return;
         };
 
+        // Check if additonal names are set (if first name is set, last name must be set)
+        for (i = 1; i < nameFirstArray.length; i++) {
+            if (nameFirstArray[i].value.trim() !== "" && nameLastArray[i].value.trim() === "") {
+                alertUser("Error: One of the additional people has a first name, but not a last name.", "red");
+                return;
+            }
+        }   
+
+
         // Check if "hasSignedWaiver" is set
         if (!this.elements['hasSignedWaiver'].value) {
-            alertUser("You must answer the Signed Waiver question.", "red");
+            alertUser("Error: You must answer the Signed Waiver question.", "red");
             return;
         }
     
