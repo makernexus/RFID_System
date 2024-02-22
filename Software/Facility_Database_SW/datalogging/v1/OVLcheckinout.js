@@ -4,12 +4,16 @@
 // By Jim Schrempp
 //
 
-
+// This routine adds listeners to the form so that clicking
+// a button will come here
 document.addEventListener('DOMContentLoaded', function(){
     // after the page is loaded
 
     // Add a listener to the form to intercept the submit event
     document.getElementById('checkinform').addEventListener('submit', function(event) {
+        // This listener intercepts the form submit event and does some validation 
+        // before sending the form data to the server.
+
         // Prevent the default form submit
         event.preventDefault();
 
@@ -40,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var formData = new FormData(this);
     
         // Send the form data to the server
-        fetch('/v1/OVLcheckinout.php', {
+        fetch('OVLcheckinout.php', {   
             method: 'POST',
             body: formData
         })
@@ -64,6 +68,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Add a listener to the "Add a Person" button
     document.querySelector("#addAPerson").addEventListener("click", function() {
+
+        // This listener is called when the "Add a Person" button is clicked.
+        // It adds a new set of input fields for a new person to the form.
        
         // Get the form
         var divTarget = document.querySelector("#extraPeople");
@@ -75,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var divNew = document.createElement("div");
         divNew.className = "extraPersonInput";
 
-        // nameFirst
+        // nameFirst ----------
         // Create the nameFirst input field div
         var nameFirstDiv = document.createElement("div");
         nameFirstDiv.className = "extraPersonField";
@@ -97,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function(){
         nameFirstDiv.appendChild(label1);
         nameFirstDiv.appendChild(input1);
 
-        // nameLast
+        // nameLast ----------
         // Create the nameLast input field div
         var nameLastDiv = document.createElement("div");
         nameLastDiv.className = "extraPersonField";
@@ -120,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function(){
         nameLastDiv.appendChild(label2);
         nameLastDiv.appendChild(input2);
 
+        // -------
         // Add the input fields to the new div
         divNew.appendChild(nameFirstDiv);
         divNew.appendChild(nameLastDiv);

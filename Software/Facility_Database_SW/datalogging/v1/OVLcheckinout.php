@@ -7,12 +7,15 @@
 // By Jim Schrempp
 //
 // This code is called from a web form or a QR code. It checks in or checks out a visitor.
-// The code is called with a visitID from a QR code or from a web form. If the visitID is -1, then the
-// code is being called from a web form. If the visitID is 0, then the code is being called from a bare URL
-// and the code will serve up the HTML form. If the visitID is a number, then the code is being called
-// from a QR code and the code will check in or check out the visitor.
+// The code is called with a visitID from a QR code or from a web form. 
 //
-// Date: 2024-02-04
+// If the visitID is -1, then the code is being called from a web form. 
+// If the visitID is 0, then the code is being called from a bare URL 
+//        and the code will serve up the HTML form. 
+// If the visitID is a number, then the code is being called from a QR 
+//        code and the code will check in or check out the visitor.
+//
+// Date: 2024-02-21
 //
 
 include 'OVLcommonfunctions.php';
@@ -22,22 +25,17 @@ $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 $nowSQL = $today->format("Y-m-d H:i:s");  // used in SQL statements
 
 $OVLdebug = false; // set to true to see debug messages 
-debugToUser( "OVLdebug is active. " . $nowSQL .  "<br>");
+debugToUser( "OVLdebug is active. " . $nowSQL .  "<br>");  
 
-logfile(">>>----- OVLcheckinout.php called");
+logfile(">>>----- OVLcheckinout.php called");  
 
 // write php errors to the log file
 ini_set('log_errors', 1);
 ini_set('error_log', 'OVLlog.txt');
 
 
-allowWebAccess();  // if IP not allowed, then die
+allowWebAccess();  // if IP not allowed, then this function will die
 
-// get the HTML skeleton
-$html = file_get_contents("OVLcheckinout.html");
-if (!$html){
-  die("unable to open file");
-}
 
 // Get the database connection info from the ini file
 $ini_array = parse_ini_file("OVLconfig.ini", true);
@@ -164,6 +162,7 @@ switch ($previousVisitNum) {
 
     case 0:
         // request from a bare URL, serve up the HTML form
+
         $html = file_get_contents("OVLcheckinout.html");
         if (!$html){
             //logfile("unable to open file");
@@ -177,7 +176,8 @@ switch ($previousVisitNum) {
         // we have a previousVisitNum so this is either a checkout, 
         // or a new checkin from a repeat visitor with QR code
 
-        // is the visitID in the database since the start of today without a checkout?
+        // is the visitID in the database since the start of today without a checkout? 
+        // getCurrentCheckin will see if the visitID is in either the recNum or previousRecNum fields
         $currentCheckInData = getCurrentCheckin($con, $previousVisitNum);
         $currentCheckInRecNum = $currentCheckInData["currentCheckInRecNum"];
         
@@ -265,9 +265,9 @@ function checkoutVisitInDatabase($con, $nowSQL, $visitID) {
     $interval = $dateCheckinLocal->diff($dateCheckoutLocal);
     $elapsedTime = $interval->format('%h');
 
-    // update the existing visit to check the visitor out
+    // update the existing visit to check the visitor out 
     $sql = "UPDATE ovl_visits SET "
-        . " dateUpdated = '" . $nowSQL . "',"
+        . " dateUpdated = NOW(),"
         . " dateUpdatedLocal = '" . $nowSQL . "',"
         . " dateCheckoutLocal = '" . $nowSQL . "',"
         . " elapsedHours = " . $elapsedTime . ","
@@ -292,17 +292,13 @@ function checkoutVisitInDatabase($con, $nowSQL, $visitID) {
 // Returns several fields.
 // Based on currentCheckInRecNum:
 //    -1: no record found in database. 
-//     0: record found in checked OUT state
+//     0: record found in checked OUT state (or hasn't checked in today)
 //   num: record found in checked IN state
 function getCurrentCheckin ($con, $visitID){
 
-    $today = new DateTime(); 
-    $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
-    $todaySQL = $today->format("Y-m-d"); // date only, no time
-
     $currentCheckInRecNum = -1;  // default to no record found
 
-    // get the most recent occurrence for this visitor
+    // get the MOST RECENT log entry for this visitor
     $sql = "SELECT max(recNum) as maxRecNum FROM ovl_visits " 
         . " WHERE (recNum = " . $visitID . " OR previousRecNum = " . $visitID . ")";
 
@@ -315,6 +311,7 @@ function getCurrentCheckin ($con, $visitID){
         die;
     } else {
         if (mysqli_num_rows($result) == 0) {
+            // could not find that visitID
             debugToUser(  "Parameter error 1: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
             $maxRecNum = -1;
         } else {
@@ -322,6 +319,7 @@ function getCurrentCheckin ($con, $visitID){
             $maxRecNum = $row["maxRecNum"];
 
             if ($maxRecNum == "") {
+                // Should not get here, but just in case make it -1
                 debugToUser(  "Parameter error 2: Old QR code? No previous record found for visitID: " . $visitID . " <br>");
                 $maxRecNum = -1;
             }
@@ -330,6 +328,8 @@ function getCurrentCheckin ($con, $visitID){
     }       
     
     // if we have a previous visit, get its data
+    // if maxRecNum is 0, then we have no previous visit
+    // if maxRecNum is -1, then we have a problem
     if ($maxRecNum > 0) {
 
         // we have a previous visit, get its data
@@ -344,8 +344,9 @@ function getCurrentCheckin ($con, $visitID){
             logfile("Error: " . $sql . "<br>" . mysqli_error($con));
             die;
         } 
-        # if results are empty, then we have a problem since we just got this recNum from the database
+        
         if (mysqli_num_rows($result) == 0) {
+            # results are empty; we have a problem since we just got this recNum from the database in the previous query
             logfile("Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.");
             echo "Internal Error: No record found for recNum: " . $maxRecNum . ". No action taken.";
             die;
@@ -353,15 +354,19 @@ function getCurrentCheckin ($con, $visitID){
 
         $row = mysqli_fetch_assoc($result);
 
-        $checkinDate = date_create($row["dateCheckinLocal"]);
-        $checkinDate->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+        $checkinDate = date_create($row["dateCheckinLocal"]); 
+        $checkinDate->setTimeZone(new DateTimeZone("America/Los_Angeles")); 
+        // XXX do we need to set time zone since the time in the DB is PST?
+
+        $today = new DateTime(); 
+        $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 
         // was this record from before today?
         if ($checkinDate->format('Y-m-d') < $today->format('Y-m-d')) {
 
-            // dateCheckinLocal is from yesterday or before
+            // dateCheckinLocal is not from today
             debugToUser(  "No record found from today" . "<br>");
-            $currentCheckInRecNum = 0; // should add a new record
+            $currentCheckInRecNum = 0; // caller should add a new record
 
         } else {
 
@@ -369,10 +374,10 @@ function getCurrentCheckin ($con, $visitID){
             if ($row["dateCheckoutLocal"] == "0000-00-00 00:00:00") {
                 // there is an open checkin for today
                 $row = mysqli_fetch_assoc($result);
-                $currentCheckInRecNum = $maxRecNum;  // should update this record 
+                $currentCheckInRecNum = $maxRecNum;  // caller should update this record 
             } else {
                 debugToUser( "No open checkin from today" . "<br>");
-                $currentCheckInRecNum = 0; // should add a new record
+                $currentCheckInRecNum = 0; // caller should add a new record
             }
 
         }
