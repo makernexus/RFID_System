@@ -1,7 +1,0 @@
-Link to test Google Sheet:
-
-https://docs.google.com/spreadsheets/d/14SyVybExZ9JWzo8vl1pb5OmVbAASdGPHxLD1CHvmos4/edit?usp=drive_link
-
-Test curl script to write a row to the spreadsheet:
-
-curl -d "data={\"vDate\":\"19Jan2024\",\"vFName\":\"Bob\",\"vLName\":\"Glicksman\",\"vTour\":\"X\",\"vGuest\":\"X\",\"vHearAbout\":\"myTest\"}" -H "Content-Type: application/x-www-form-urlencoded" -X POST https://script.google.com/macros/s/AKfycbx2kcaXCniPQNot8VWgV2rsVnTyb5fxnFZ4TvSLrYW8XPEIjlQ3-4SjMcmn7Gkoj99j5g/exec

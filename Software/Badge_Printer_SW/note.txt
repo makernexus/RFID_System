@@ -1,2 +1,0 @@
-Place for badge reader code
-Note that code for the database server (php, go, etc) can go here for now, but will be moved before we go live.

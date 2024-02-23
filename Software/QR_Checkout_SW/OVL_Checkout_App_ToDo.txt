@@ -1,6 +1,0 @@
-ToDo:
-
-1.  Find and install a QR reader app that supports both front and rear camera and use this in this app.
-
-2.  Set timeout to 1 second or whatever seems to work best.
-
