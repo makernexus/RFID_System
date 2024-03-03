@@ -5,7 +5,7 @@
 
 function checkout(clientID,name) {
     var xhttp = new XMLHttpRequest();
-    var theURL = "http://rfid.makernexuswiki.com/rfidmanualcheckout.php?clientID=" + clientID 
+    var theURL = "https://rfid.makernexuswiki.com/rfidmanualcheckout.php?clientID=" + clientID 
         + "&firstName=" + encodeURI(name);
     xhttp.open("GET", theURL, true);
     xhttp.send();
