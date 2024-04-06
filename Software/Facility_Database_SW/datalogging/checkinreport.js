@@ -32,7 +32,7 @@ window.onload = function() {
     Plotly.newPlot(gdiv1,graphdata1,graphlayout1,{responsive: true});
 
     var rangeStart = '2022-01-01';
-    var rangeEnd = '2023-12-31';
+    var rangeEnd = '2024-12-31';
     graphdata2 = makeGraphData('graph2dataX', 'graph2dataY' );
     var graphlayout2 = {
         autosize: false,
