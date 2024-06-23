@@ -8,6 +8,7 @@ BEGIN $$
 
 DROP PROCEDURE IF EXISTS sp_checkedInDisplay $$
 
+DELIMITER $$
 CREATE DEFINER=`makernexuswiki`@`localhost` PROCEDURE `sp_checkedInDisplay`(IN `dateToQuery` VARCHAR(8))
 BEGIN 
 
@@ -43,7 +44,7 @@ SELECT DISTINCT p.logEvent, p.clientID, p.firstName
 FROM tmp_checkedin_clients a 
 LEFT JOIN 
 	(
-     	SELECT * 
+     	SELECT DISTINCT logEvent, clientID, firstName 
         FROM rawdata 
         WHERE CONVERT( dateEventLocal, DATE) = CONVERT(dateToQuery, DATE) 
        	  AND  logEvent in 
@@ -62,8 +63,9 @@ LEFT JOIN stationConfig b
 ON a.logEvent = b.logEvent
 LEFT JOIN clientInfo c
 ON a.clientID = c.clientID
-ORDER BY firstName, photoDisplay
+ORDER BY firstName, a.clientID, photoDisplay
 ;
 
 END$$
+DELIMITER ;
 
