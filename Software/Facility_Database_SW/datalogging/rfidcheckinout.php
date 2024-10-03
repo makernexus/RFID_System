@@ -82,7 +82,7 @@ $eventName = cleanInput($_POST["event"]);
 $postedData =  $_POST["data"];
 $myJSON = json_decode($postedData,true);
 echo "<p>" . printJSONError(json_last_error());
-//var_dump($myJSON);  
+//var_dump($myJSON); 
 
 // data from the device's JSON
 $dateEventLocal = cleanInput($myJSON["dateEventLocal"] );
