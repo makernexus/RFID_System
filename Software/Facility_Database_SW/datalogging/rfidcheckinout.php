@@ -2,16 +2,16 @@
 
 // SUBMIT CHECKIN/OUT DATA TO RFID LOGGING DATABASE
 // 
-// Call with POST and data of:
-// {
-//  "event": "RFIDLogging",
-//  "data": "{"dateEventLocal":"2019-09-22 16:29:13","deviceFunction":"Check In","clientID":21524942,
-//            "firstName":"Tester","lastName":"Testy","logEvent":"checkin allowed","logData":"Sunnyvale",
-//            ”MODAction”:”No”}",
-//  "published_at": "2019-09-22T23:29:18.543Z",
-//  "coreid": "e00fce683ce9c5a9e5a4f43d"
-// }
-// 
+// Call with CURL:
+/*
+ curl -H 'Content-Type: application/x-www-form-urlencoded' 
+ -d 'event=RFIDLogging&data={"dateEventLocal":"2024-10-02 16:29:13",
+ "deviceFunction":"Check In","clientID":99999911,"firstName":"Test",
+ "lastName":"Testing","logEvent":"checkin allowed","logData":"Sunnyvale",
+ "MODAction":"No"}
+ &published_at=2024-10-04T23:29:18.543Z&coreid=1111113ce9c5a9e5a4f43d' 
+ -X POST  <<URL>>/rfidcheckinout.php
+*/ 
 // If ClientID is currently Checked Out or missing, then add a checkin record
 // If ClientID is currently Checked In, then add a checkout record
 //
@@ -61,6 +61,13 @@ if (mysqli_connect_errno()) {
 $today = new DateTime(); 
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 $sqlDateToday = date_format($today, "Y-m-d");
+
+// get tomorrow's date for SQL
+$tomorrow = new DateTime();
+$tomorrow->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+$tomorrow->add(new DateInterval('P1D'));
+$sqlDateTomorrow = date_format($tomorrow, "Y-m-d");
+
 
 // -----------------------------------------
 // STEP - Get parameters that were sent in
@@ -126,7 +133,7 @@ if (mysqli_query($con, $insertEventLogSQL)) {
 // by getting most recent status for this clientID 
 $isClientCheckedIn = false; 
 $lastCheckedInTime = "";
-$currentStatusSQL = createCheckInOutStatusSQL($clientID, $sqlDateToday);
+$currentStatusSQL = createCheckInOutStatusSQL($clientID, $sqlDateToday, $sqlDateTomorrow);
 
 $resultCheckin = mysqli_query($con, $currentStatusSQL);
 echo mysqli_error($con);
@@ -147,7 +154,7 @@ if (mysqli_num_rows($resultCheckin) == 1) {
 $isClientMOD = false;
 if ($isClientCheckedIn) {
     // is this person currently MOD?
-    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday); 
+    $selectMODSQL = createIsMODSQL ($clientID, $sqlDateToday, $sqlDateTomorrow); 
 
     $result = mysqli_query($con, $selectMODSQL);
     echo mysqli_error($con);
@@ -393,29 +400,31 @@ function createRawDataInsertSQL ($dateEventLocal, $coreID, $clientID, $firstName
 }
 
 // Checkinout status SQL
-function createCheckInOutStatusSQL ($clientID, $sqlDateToday) {
+function createCheckInOutStatusSQL ($clientID, $sqlDateToday, $sqlDateTomorrow) {
     $currentStatusSQL = 
     "SELECT * FROM rawdata 
      WHERE clientID = <<clientID>> 
        AND logEvent in ('Checked In','Checked Out')
-       AND CONVERT( dateEventLocal, DATE) = CONVERT('<<todaydate>>', DATE) 
+       AND dateEventLocal BETWEEN CONVERT('<<todaydate>>', DATE) and CONVERT('<<tomorrowdate>>', DATE)
     ORDER BY recNum DESC 
     LIMIT 1";
     $currentStatusSQL = str_replace("<<clientID>>", $clientID, $currentStatusSQL);
     $currentStatusSQL = str_replace("<<todaydate>>", $sqlDateToday, $currentStatusSQL);
+    $currentStatusSQL = str_replace("<<tomorrowdate>>", $sqlDateTomorrow, $currentStatusSQL);
     return $currentStatusSQL;
 } 
 
 // IsClientMOD status SQL
-function createIsMODSQL ($clientID,$sqlDateToday) {
+function createIsMODSQL ($clientID,$sqlDateToday, $sqlDateTomorrow) {
     $selectMODSQL = "SELECT dateEventLocal, clientID, firstName
     FROM rawdata
     WHERE logEvent = 'MOD'
-    AND eventName = 'RFIDLogCheckInOut'
-    AND CONVERT( dateEventLocal, DATE) = CONVERT('<<todaydate>>', DATE) 
-    ORDER BY recNum DESC
+        AND eventName = 'RFIDLogCheckInOut'
+        AND dateEventLocal BETWEEN CONVERT('<<todaydate>>', DATE) and CONVERT('<<tomorrowdate>>', DATE)
+   ORDER BY recNum DESC
     LIMIT 1";
     $selectMODSQL = str_replace("<<todaydate>>", $sqlDateToday, $selectMODSQL);
+    $selectMODSQL = str_replace("<<tomorrowdate>>", $sqlDateTomorrow, $selectMODSQL);
     return $selectMODSQL;
 }
 
