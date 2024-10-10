@@ -9,6 +9,11 @@
 include 'commonfunctions.php';
 $maxRows = 10000;
 
+$today = new DateTime();  
+$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+$today->sub(new DateInterval('P60D'));  // end date for select will be midnight tonight
+$SixtyDaysAgoSQL = $today->format("Y-m-d");
+
 // get the HTML skeleton
 $myfile = fopen("rfiddeniedanyreason.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfiddeniedanyreason.txt"));
@@ -22,10 +27,11 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 
-$selectSQL =  // Records for studio checkins
+$selectSQL =  // Records for all denials
 "    SELECT DISTINCT logEvent, b.firstName, b.lastName, a.dateEventLocal, a.logData
     FROM `rawdata` a join clientInfo b on a.clientID = b.clientID
     WHERE logEvent  like '%denied%'
+    AND dateEventLocal > '" . $SixtyDaysAgoSQL . "'" . " 
     ORDER BY dateEventLocal DESC
     LIMIT 100";
 

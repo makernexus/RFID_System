@@ -11,7 +11,7 @@
 
 <body>
     <div>
-        <h1>Debug report: attempts to use RFID that were denied</h1>
+        <h1>Debug report: attempts to use RFID that were denied in the last 60 days</h1>
         <ul>
         </ul>
     </div>
