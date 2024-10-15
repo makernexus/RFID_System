@@ -60,7 +60,7 @@ $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 
 $currentStatusSQL = 
 "SELECT * FROM rawdata 
-WHERE clientID = <<clientID>> 
+WHERE clientID = '<<clientID>>' 
   AND logEvent in ('Checked In','Checked Out')
   AND dateEventLocal > CONVERT('" . date_format($today, "Y-m-d") . "', DATE) 
 ORDER BY dateEventLocal DESC 

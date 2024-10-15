@@ -403,7 +403,7 @@ function createRawDataInsertSQL ($dateEventLocal, $coreID, $clientID, $firstName
 function createCheckInOutStatusSQL ($clientID, $sqlDateToday, $sqlDateTomorrow) {
     $currentStatusSQL = 
     "SELECT * FROM rawdata 
-     WHERE clientID = <<clientID>> 
+     WHERE clientID = '<<clientID>>' 
        AND logEvent in ('Checked In','Checked Out')
        AND dateEventLocal BETWEEN CONVERT('<<todaydate>>', DATE) and CONVERT('<<tomorrowdate>>', DATE)
     ORDER BY recNum DESC 
@@ -432,7 +432,7 @@ function createIsMODSQL ($clientID,$sqlDateToday, $sqlDateTomorrow) {
 function createMODEligibleSQL ($clientID) {
     $selectMODEligibleSQL = 
         "SELECT * FROM clientInfo
-         WHERE clientID = <<clientID>>";
+         WHERE clientID = '<<clientID>>'";
     $selectMODEligibleSQL = str_replace("<<clientID>>", $clientID, $selectMODEligibleSQL);
     return $selectMODEligibleSQL;
 }
