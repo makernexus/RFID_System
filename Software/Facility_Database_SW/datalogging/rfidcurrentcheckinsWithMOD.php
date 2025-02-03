@@ -16,18 +16,10 @@ $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
 $localCacheFileName = "rfidcurrentcheckinsWithMOD.cache";
 $cacheTime = 15;  // seconds
 
-// Check if we have a cache file and if it is still valid
-if (file_exists($localCacheFileName)) {
-    $fileTime = filemtime($localCacheFileName);
-    $now = time();
-    if (($now - $fileTime) < $cacheTime) {
-        // cache file is still valid
-        $myfile = fopen($localCacheFileName, "r") or die("Unable to open cache file!");
-        $html = fread($myfile,filesize($localCacheFileName));
-        fclose($myfile);
-        echo $html;
-        return;
-    }
+$html = checkCachedFile($localCacheFileName, $cacheTime);
+if ($html != "") {
+    echo $html;
+    return;
 }
 
 // cache file is not valid, so we need to build the page
@@ -138,11 +130,7 @@ echo $html;
 
 mysqli_close($con);
 
-// write the cache file
-$myfile = fopen($localCacheFileName, "w") or die("Unable to write to cache file!");
-fwrite($myfile, $html);
-fclose($myfile);
-
+updateCachedFile($localCacheFileName, $html);
 
 return;
 

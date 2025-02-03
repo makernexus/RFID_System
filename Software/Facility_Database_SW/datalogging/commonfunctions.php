@@ -73,6 +73,29 @@ function rightWEllipsis($data, $length) {
 	}
 }
 
+// If the cache file exists and is still valid, return the contents of the file
+// else retrun an empty string
+function checkCachedFile($localCacheFileName, $cacheTime) {
+    // Check if we have a cache file and if it is still valid
+    if (file_exists($localCacheFileName)) {
+        $fileTime = filemtime($localCacheFileName);
+        $now = time();
+        if (($now - $fileTime) < $cacheTime) {
+            // cache file is still valid
+            $myfile = fopen($localCacheFileName, "r") or die("Unable to open cache file!");
+            $html = fread($myfile,filesize($localCacheFileName));
+            fclose($myfile);
+            return $html;
+        }
+    }
+    return "";
+}
 
+function updateCachedFile($localCacheFileName, $html) {
+    // write the cache file
+    $myfile = fopen($localCacheFileName, "w") or die("Unable to write to cache file!");
+    fwrite($myfile, $html);
+    fclose($myfile);
+}
 
 ?>
