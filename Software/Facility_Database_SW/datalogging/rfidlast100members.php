@@ -1,9 +1,10 @@
 <?php
 
-// Show photos of most recent 100 members
+// Show photos of most recent 300 members
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
+// 20250202 added cached file
 
 include 'commonfunctions.php';
 
@@ -11,6 +12,17 @@ allowWebAccess();  // if IP not allowed, then die
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+
+// Check if we have a cached file and if it is less than 15 minutes old
+$cacheFilename = "rfidlast100members.cache";
+$cacheTime = 900;  // 15 minutes
+
+$html = checkCachedFile($cacheFilename, $cacheTime);
+if ($html != "") {
+    echo $html;
+    return;
+}
+
 
 // get the HTML skeleton
 $myfile = fopen("rfidlast100membershtml.txt", "r") or die("Unable to open file!");
@@ -57,6 +69,8 @@ $html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
 echo $html;
 
 mysqli_close($con);
+
+updateCachedFile($cacheFilename, $html);
 
 return;
 
