@@ -1,16 +1,28 @@
 <?php
 
-// Show photos of most recent 100 members
+// Show photos of most recent 300 members
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
+// 20250202 added cached file
 
 include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
 
-$today = new DateTime(); 
-$today->setTimeZone(new DateTimeZone("America/Los_Angeles")); 
+$today = new DateTime();
+$today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+
+// Check if we have a cached file and if it is less than 15 minutes old
+$cacheFilename = "rfidlast100members.cache";
+$cacheTime = 900;  // 15 minutes
+
+$html = checkCachedFile($cacheFilename, $cacheTime);
+if ($html != "") {
+    echo $html;
+    return;
+}
+
 
 // get the HTML skeleton
 $myfile = fopen("rfidlast100membershtml.txt", "r") or die("Unable to open file!");
@@ -32,23 +44,23 @@ if (mysqli_connect_errno()) {
     exit();
 }
 
-$selectSQL = 
+$selectSQL =
     "SELECT firstName, lastName, clientID, dateLastSeen, displayClasses, MOD_Eligible
      FROM clientInfo
      ORDER BY dateLastSeen DESC
-     LIMIT 200";
-    
+     LIMIT 300";
+
 $result = mysqli_query($con, $selectSQL);
 echo mysqli_error($con);
 
 // Construct the page
 
 if (mysqli_num_rows($result) > 0) {
-	
+
     while($row = mysqli_fetch_assoc($result)) {
 
         $thisDiv = makeDiv($row["firstName"], $row["lastName"], $row["clientID"], $row["dateLastSeen"], $photoServer, $row["displayClasses"], $row["MOD_Eligible"]  ) . "\r\n";
-            
+
         $photodivs = $photodivs . $thisDiv;
     }
 }
@@ -57,6 +69,8 @@ $html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
 echo $html;
 
 mysqli_close($con);
+
+updateCachedFile($cacheFilename, $html);
 
 return;
 
@@ -71,10 +85,10 @@ function makeDiv($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, 
     return "<div class='photodiv " . $classes . " " . $MODclass . "' >" . makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $displayClasses, $MODeligible) . "</div>";
 }
 function makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $MODeligible){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) . 
-  "</td></tr><tr><td class='clientNameTD'>" . $lastName . ", " . $firstName . 
+  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
+  "</td></tr><tr><td class='clientNameTD'>" . $lastName . ", " . $firstName .
   "</td></tr><tr><td class='clientEquipTD'><p class='equiplist'>" . $dateLastSeen . "</p></td></tr></table>";
-}	
+}
 function makeImageURL($data, $photoServer) {
 	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }

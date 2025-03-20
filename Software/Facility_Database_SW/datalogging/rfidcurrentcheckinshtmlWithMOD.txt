@@ -81,7 +81,7 @@
                 <h3>Visitors</h3>
             </div>
             <div>
-                <iframe style='width:100%; min-height:500px' src="v1/OVLcurrentvisitors.php"></iframe>
+                <iframe style='width:100%; min-height:500px' src="v2/OVLcurrentvisitors.php"></iframe>
             </div>
         </div>
 

@@ -28,7 +28,7 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 
 $selectSQL =  // Records for all denials
-"    SELECT DISTINCT logEvent, b.firstName, b.lastName, a.dateEventLocal, a.logData
+"    SELECT DISTINCT logEvent, a.clientID, b.firstName, b.lastName, a.dateEventLocal, a.logData
     FROM `rawdata` a join clientInfo b on a.clientID = b.clientID
     WHERE logEvent  like '%denied%'
     AND dateEventLocal > '" . $SixtyDaysAgoSQL . "'" . " 
@@ -72,6 +72,7 @@ function buildDivFromRecordset($recordSet){
      
             $thisTableRow = makeTR( array (
                         $row["dateEventLocal"],
+                        $row["clientID"],
                         $row["lastName"],
                         $row["firstName"],
                         $row["logEvent"],
@@ -82,7 +83,7 @@ function buildDivFromRecordset($recordSet){
             $tableRows = $tableRows . $thisTableRow;
         }
     
-        $tableTemplate = str_replace("<<TABLEHEADER>>", makeTR(array("Date","Last Name","First Name")), $tableTemplate);
+        $tableTemplate = str_replace("<<TABLEHEADER>>", makeTR(array("Date","Client Id","Last Name","First Name")), $tableTemplate);
         $tableTemplate = str_replace("<<TABLEROWS>>", $tableRows, $tableTemplate);
     } else {
         $tableTemplate = "No Rows Found";

@@ -4,6 +4,7 @@
 //
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
+// 20250202 result is now cached for 15 seconds
 
 include 'commonfunctions.php';
 
@@ -11,6 +12,17 @@ allowWebAccess();  // if IP not allowed, then die
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
+
+$localCacheFileName = "rfidcurrentcheckinsWithMOD.cache";
+$cacheTime = 15;  // seconds
+
+$html = checkCachedFile($localCacheFileName, $cacheTime);
+if ($html != "") {
+    echo $html;
+    return;
+}
+
+// cache file is not valid, so we need to build the page
 
 // get the HTML skeleton
 $myfile = fopen("rfidcurrentcheckinshtmlWithMOD.txt", "r") or die("Unable to open file!");
@@ -117,6 +129,8 @@ $html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
 echo $html;
 
 mysqli_close($con);
+
+updateCachedFile($localCacheFileName, $html);
 
 return;
 
