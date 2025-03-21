@@ -6,43 +6,432 @@
     <title>Members Checked In Now</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="style.css" rel="stylesheet">
+    <!--<link href="style.css" rel="stylesheet">-->
     <script src="commonfunctions.js"></script>
     
     <meta http-equiv="refresh" content="15">
  
     <style type="text/css">
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                font-size: 14pt;
+                overflow: hidden;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                min-height: 100%;
+                font-family: "Helvetica Neue", sans-serif;
+                overflow: hidden;
+            }
+
+            table, tr, td {
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-collapse: collapse;
+            }
+
+            p {
+                margin: 0;
+                padding: 0;
+            }
+
+            .MN-Header, .MN-Content, .MN-Footer {
+                position: relative;
+                width: 100%;
+            }
+
+            .MN-Header {
+                position: relative;
+                width: 100%;
+                height: 65px;
+                background-color: #52837d;
+            }
+            .MN-Header .MN-Logo {
+                position: relative;
+                display: inline-block;
+                height: 50px;
+                margin: 0 10px;
+                padding: 7px;
+                float: left;
+            }
+            .MN-Header .MN-Logo img {
+                height: 50px;
+                width: auto;
+            }
+            .MN-Header .MN-Header-Text {
+                position: relative;
+                display: inline-block;
+                float: left;
+                font-size: 1.5em;
+                padding: 15px;
+                color: #fff;
+            }
+            .MN-Header .MN-Header-Legend {
+                position: relative;
+                display: inline-block;
+                float: right;
+                font-size: 1em;
+                padding: 10px;
+                color: #fff;
+            }
+            .MN-Header .MN-Header-Legend .MN-Header span,
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Member,
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Staff {
+                display: inline-block;
+                padding: 10px;
+                margin: 0 5px;
+                border-radius: 5px;
+            }
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Member,
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Staff {
+                width: 100px;
+                text-align: center;
+            }
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Member {
+                background-color: #4d4d4d;
+            }
+            .MN-Header .MN-Header-Legend .MN-Header-Legend-Staff {
+                background-color: #502673;
+            }
+
+            .MN-Content {
+                position: absolute;
+                top: 65px;
+                right: 0;
+                left: 0;
+                bottom: 60px;
+                margin: 0;
+                padding: 0;
+            }
+
+            .MN-Footer {
+                position: absolute;
+                bottom: 0;
+                height: 40px;
+                padding: 10px 0;
+                background-color: #4d4d4d;
+                color: #fff;
+                clear: both;
+            }
+            .MN-Footer .lastrefreshtime {
+                margin: 0;
+                padding: 10px 25px;
+                text-align: right;
+            }
+
             .MODDiv {
-                border: 1px solid green;
-                margin: 2px 2px 2px 2px;
-                padding: 5px 5px 5px 5px;
-                border-width: 5px;
-                float:left; 
+                position: relative;
+                width: 18%;
+                aspect-ratio: 4/5;
+                margin: 0;
+                padding: 0;
+                float: left;
+            }
+            .MODDiv .MODDivInner {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                bottom: 10px;
+                left: 10px;
+                width: auto;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                border: 5px solid #194d47;
+                border-radius: 10px;
+                background-color: #194d47;
+            }
+            .MODDiv .MODTitleDiv,
+            .MODDiv .MODNameDiv {
+                position: relative;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center; /* Align horizontal */
+                align-items: center; /* Align vertical */
+                text-align: center;
+                color: #fff;
+            }
+            .MODDiv .MODTitleDiv .MODTitle,
+            .MODDiv .MODNameDiv .MODName {
+                margin: 0;
+                padding: 0;
+            }
+
+            .MODDiv .MODTitleDiv {
+                height: 16%;
+                font-size: 1.5em;
+            }
+
+            .MODDiv .MODNameDiv {
+                height: 18%;
+                font-size: 2em;
+                font-weight: bold;
+            }
+
+            .MODDiv .MODImageDiv {
+                margin: auto;
+                width: 80%;
+            }
+            .MODDiv .MODImageDiv .MODImage {
+                aspect-ratio: 1/1;
+                width: 100%;
+                object-fit: cover;
+            }
+
+            .MembersDiv {
+                position: relative;
+                width: 82%;
+                height: 100%;
+                overflow-y: scroll;
+                margin: 0;
+                padding: 0;
+                float: right;
+            }
+            .MembersDiv .photodiv {
+                position: relative;
+                width: 12.5%;
+                aspect-ratio: 5/7;
+                margin: 0;
+                padding: 0;
+                float: left;
+            }
+            .MembersDiv .photodiv .photodiv-inner {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                bottom: 10px;
+                left: 10px;
+                width: auto;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                border: 5px solid #4d4d4d;
+                border-radius: 10px;
+                background-color: #4d4d4d;
+                color: #fff;
+             }
+             .MembersDiv .photodiv.staff .photodiv-inner {
+                border: 5px solid #502673;
+                background-color: #502673;
+             }
+             .MembersDiv .photodiv .photodiv-inner table,
+             .MembersDiv .photodiv .photodiv-inner table td {
+                position: relative;
+                width: auto;
+                height: auto;
+             }
+             .MembersDiv .photodiv .photodiv-inner table .clientImageTD .IDPhoto {
+                aspect-ratio: 1/1;
+                width: 100%;
+                border-radius: 5px;
+                object-fit: cover;
+             }
+             .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 5px;
+                font-size: 1em;
+                font-weight: bold;
+                text-align: center;
+             }
+             .MembersDiv .photodiv .photodiv-inner table .clientEquipTD {
+                font-size: .8em;
+                text-align: center;
+             }
+
+            .VisitorDiv {
+                position: relative;
+                width: 18%;
+                aspect-ratio: 4/5;
+                margin: 0;
+                padding: 0;
+                float: left;
+            }
+            .VisitorDiv .VisitorDivInner {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                bottom: 10px;
+                left: 10px;
+                width: auto;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                border: 5px solid #4d4d4d;
+                border-radius: 10px;
+                background-color: #4d4d4d;
+            }
+            .VisitorDiv .VisitorTitleDiv {
+                position: absolute;
+                top: 0;
+                margin: 0;
+                padding: 0;
+                text-align: left;
+                font-size: 1em;
+                color: #fff;
+            }
+            .VisitorDiv .VisitorTitleDiv .VisitorTitle {
+                margin: 10px;
+                padding: 0;
+            }
+            .VisitorDiv .VisitorContentDiv {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .VisitorDiv .VisitorContent {
+                position: absolute;
+                top: 15%;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 85%;
+                overflow-y: scroll;
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-radius: 5px;
+                outline: none;
+                background-color: #ccc;
+            }
+
+        @media screen and (min-width: 1920px) {
+            html {
+                font-size: 18pt;
+            }
+            .MN-Header {
+                height: 75px;
+            }
+            .MN-Content {
+                top: 75px;
+            }
+            .MODDiv {
+                width: 15%;
+            }
+            .MembersDiv {
+                width: 85%;
+            }
+            .VisitorDiv {
+                width: 15%;
+                aspect-ratio: 3/5;
+            }
+            .VisitorDiv .VisitorDivInner {
+                border: 10px solid #4d4d4d;
+            }
+            .VisitorDiv .VisitorContent {
+                top: 10%;
+                height: 90%;
+                font-size: 1.5em;
+            }
+            .MembersDiv .photodiv {
+                width: 10%;
+                aspect-ratio: 11/14;
+            }
+            .MembersDiv .photodiv .photodiv-inner {
+                border: 10px solid #4d4d4d;
+            }
+            .MembersDiv .photodiv.staff .photodiv-inner {
+                border: 10px solid #502673;
+            }
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 0;
+            }
+        }
+
+
+        @media screen and (max-width: 1440px) {
+            
+        }
+
+        @media screen and (max-width: 1330px) {
+        }
+
+        @media screen and (max-width: 1280px) {
+            .MODDiv {
+                width: 25%;
+            }
+            .MembersDiv {
+                width: 75%;
+            }
+            .MembersDiv .photodiv {
                 width: 20%;
             }
-            .MODImage {
-                width: 100%;
+            .VisitorDiv {
+                width: 25%;
+                aspect-ratio: 1/1;
             }
-            .MODImageDiv {
-                margin: auto;
-                width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .VisitorDiv {
+                aspect-ratio: 2/3;
             }
-            .MODTitle {
-                text-align: center;
-                font-size: 30pt;
-                background-color: #528370;  
-                color: white;
+        }
+
+        @media screen and (max-width: 900px) {
+            .MembersDiv .photodiv {
+                width: 25%;
             }
-            .MODName {
-                text-align: center;
-                font-size: 50pt;
+            .VisitorDiv {
+                aspect-ratio: 1/2;
             }
-        
+            .VisitorDiv .VisitorContent {
+                top: 10%;
+                height: 90%;
+            }
+        }
+
         /* Smartphones (portrait and landscape) ----------- */
-        @media screen and (max-device-width: 600px) {
-            div.MODDiv {
-                width:100%;
-                border-width: 10px;
+        @media screen and (max-width: 600px) {
+            html {
+                overflow-y: scroll;
+            }
+            .MN-Header {
+                height: 130px;
+            }
+            .MN-Content {
+                position: relative;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+            }
+            .MODDiv {
+                width: 100%;
+            }
+            .MODDiv .MODImageDiv {
+                width: 75%;
+                margin: 0 auto;
+            }
+            .MembersDiv {
+                width: 100%;
+                float: left;
+                clear: both;
+            }
+            .VisitorDiv {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 2/3;
+                float: left;
+                clear: both;
+            }
+
+            .MembersDiv .photodiv {
+                width: 50%;
+            }
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 7px;
+            }
+
+            .MN-Footer {
+                position: relative;
+                clear: both;
             }
         }
     </style>
@@ -51,42 +440,48 @@
 </head>
 
 <body>
-    <div class='MODDiv'>
-        <div>
-            <p class='MODTitle'>Maker On Duty</p>
+    <div class="MN-Header">
+        <div class="MN-Logo">
+            <img alt='Maker Nexus Logo' src='maker_nexus_logo.png'>
         </div>
-        <div class='MODImageDiv'>
-            <img class='MODImage' alt='no photo' src='<<MODPHOTO>>' onerror="this.src='WeNeedAPhoto.png'">
-        </div>
-        <div>
-            <p class='MODName'><<MODFIRSTNAME>></p> 
+        <div class="MN-Header-Text">Maker Nexus</div>
+        <div class="MN-Header-Legend">
+            <span>Badged</span>
+            <span class="MN-Header-Legend-Member">Member</span>
+            <span class="MN-Header-Legend-Staff">Staff</span>
         </div>
     </div>
-
-    <div style='float:left; width:75%; min-height:500px; padding-left:10px; border: 1px solid green;'>
-        <div>
-            <h3>These Members Are Checked In</h3>
-            <div class="legenddiv staff" style="float:left">Staff Members have magenta border</div>
-            <div style="float:left; padding-left:20px;">
-                <p class="lastrefreshtime"><<REFRESHTIME>></p>  
+    <div class="MN-Content">
+        <div class="MODDiv">
+            <div class="MODDivInner">
+                <div class="MODTitleDiv">
+                    <p class="MODTitle">Maker On Duty</p>
+                </div>
+                <div class='MODImageDiv'>
+                    <img class='MODImage' alt='no photo' src='<<MODPHOTO>>' onerror="this.src='WeNeedAPhoto.png'">
+                </div>
+                <div class='MODNameDiv'>
+                    <p class='MODName'><<MODFIRSTNAME>></p>
+                </div>
             </div>
-            
         </div>
-        <div style="clear:both">
+        <div class="MembersDiv">
             <<PHOTODIVS>>
         </div>
-        
-        <div style='width:100%; height:100%; padding-top:30px; clear:both'>
-            <div>
-                <h3>Visitors</h3>
-            </div>
-            <div>
-                <iframe style='width:100%; min-height:500px' src="v2/OVLcurrentvisitors.php"></iframe>
+        <div class="VisitorDiv">
+            <div class="VisitorDivInner">
+                <div class="VisitorTitleDiv">
+                    <h3 class="VisitorTitle">Visitors</h3>
+                </div>
+                <div class="VisitorContentDiv">
+                    <iframe class="VisitorContent" src="v2/OVLcurrentvisitors.php"></iframe>
+                </div>
             </div>
         </div>
-
     </div>
-
+    <div class="MN-Footer">
+        <p class="lastrefreshtime"><<REFRESHTIME>></p>
+    </div>
 
 
 </body>
