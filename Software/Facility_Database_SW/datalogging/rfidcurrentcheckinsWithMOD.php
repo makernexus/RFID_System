@@ -140,7 +140,7 @@ function makeImageURL($data, $photoServer) {
 	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 function makeDiv($classes, $name, $clientID, $equip, $photoServer) {
-    return "<div class='photodiv " . $classes . "' style='height:280px;' >" . makeTable($name, $clientID, $equip, $photoServer) . "</div>";
+    return "<div class='photodiv " . $classes . "'><div class='photodiv-inner'>" . makeTable($name, $clientID, $equip, $photoServer) . "</div></div>";
 }
 function makeTable($name, $clientID, $equip, $photoServer){
   return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
