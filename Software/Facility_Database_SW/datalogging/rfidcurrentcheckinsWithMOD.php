@@ -137,21 +137,21 @@ return;
 // ------------------------------------------------------------
 
 function makeImageURL($data, $photoServer) {
-	return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
+    return "<img class='IDPhoto' alt='no photo' src='" . $photoServer . $data . ".jpg' onerror=\"this.src='WeNeedAPhoto.png'\" >";
 }
 function makeDiv($classes, $name, $clientID, $equip, $photoServer) {
     return "<div class='photodiv " . $classes . "'><div class='photodiv-inner'>" . makeTable($name, $clientID, $equip, $photoServer) . "</div></div>";
 }
 function makeTable($name, $clientID, $equip, $photoServer){
-  return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
-  "</td></tr><tr><td class='clientNameTD'>" . makeNameCheckoutAction($clientID, $name) .
-  "</td></tr><tr><td class='clientEquipTD'>" . makeEquipList($equip) . "</td></tr></table>";
+    return "<table class='clientTable'><tr><td class='clientImageTD'>" . makeImageURL($clientID, $photoServer) .
+    "</td></tr><tr><td class='clientNameTD'>" . makeNameCheckoutAction($clientID, $name) .
+    "</td></tr><tr><td class='clientEquipTD'>" . makeEquipList($equip) . "</td></tr></table>";
 }
 function makeNameCheckoutAction($clientID, $name) {
-  return "<p class='photoname' onclick=\"checkout('" . $clientID . "','" . $name . "')\">" . $name . "</p>";
+    return "<p class='photoname' onclick=\"checkout('" . $clientID . "','" . $name . "')\">" . $name . "</p>";
 }
 function makeEquipList($equip){
-  return "<p class='equiplist'>" . $equip . "</p>";
+    return "<p class='equiplist'>" . $equip . "</p>";
 }
 
 function makeMODDiv($name, $photoURL) {

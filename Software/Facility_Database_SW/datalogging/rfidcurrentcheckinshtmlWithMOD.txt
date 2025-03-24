@@ -6,7 +6,10 @@
     <title>Members Checked In Now</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!--<link href="style.css" rel="stylesheet">-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     <script src="commonfunctions.js"></script>
     
     <meta http-equiv="refresh" content="15">
@@ -24,7 +27,7 @@
                 margin: 0;
                 padding: 0;
                 min-height: 100%;
-                font-family: "Helvetica Neue", sans-serif;
+                font-family: "Montserrat", "Helvetica Neue", sans-serif;
                 overflow: hidden;
             }
 
@@ -66,9 +69,10 @@
             .MN-Header .MN-Header-Text {
                 position: relative;
                 display: inline-block;
-                float: left;
-                font-size: 1.5em;
                 padding: 15px;
+                float: left;
+                font-family: "Antonio";
+                font-size: 1.5em;
                 color: #fff;
             }
             .MN-Header .MN-Header-Legend {
@@ -165,6 +169,7 @@
 
             .MODDiv .MODTitleDiv {
                 height: 16%;
+                font-family: "Antonio";
                 font-size: 1.5em;
             }
 
@@ -233,7 +238,6 @@
                 object-fit: cover;
              }
              .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
-                padding-top: 5px;
                 font-size: 1em;
                 font-weight: bold;
                 text-align: center;
@@ -302,94 +306,10 @@
                 background-color: #ccc;
             }
 
-        @media screen and (min-width: 1920px) {
-            html {
-                font-size: 18pt;
-            }
-            .MN-Header {
-                height: 75px;
-            }
-            .MN-Content {
-                top: 75px;
-            }
-            .MODDiv {
-                width: 15%;
-            }
-            .MembersDiv {
-                width: 85%;
-            }
-            .VisitorDiv {
-                width: 15%;
-                aspect-ratio: 3/5;
-            }
-            .VisitorDiv .VisitorDivInner {
-                border: 10px solid #4d4d4d;
-            }
-            .VisitorDiv .VisitorContent {
-                top: 10%;
-                height: 90%;
-                font-size: 1.5em;
-            }
-            .MembersDiv .photodiv {
-                width: 10%;
-                aspect-ratio: 11/14;
-            }
-            .MembersDiv .photodiv .photodiv-inner {
-                border: 10px solid #4d4d4d;
-            }
-            .MembersDiv .photodiv.staff .photodiv-inner {
-                border: 10px solid #502673;
-            }
-            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
-                padding-top: 0;
-            }
-        }
-
-
-        @media screen and (max-width: 1440px) {
-            
-        }
-
-        @media screen and (max-width: 1330px) {
-        }
-
-        @media screen and (max-width: 1280px) {
-            .MODDiv {
-                width: 25%;
-            }
-            .MembersDiv {
-                width: 75%;
-            }
-            .MembersDiv .photodiv {
-                width: 20%;
-            }
-            .VisitorDiv {
-                width: 25%;
-                aspect-ratio: 1/1;
-            }
-        }
-
-        @media screen and (max-width: 1080px) {
-            .VisitorDiv {
-                aspect-ratio: 2/3;
-            }
-        }
-
-        @media screen and (max-width: 900px) {
-            .MembersDiv .photodiv {
-                width: 25%;
-            }
-            .VisitorDiv {
-                aspect-ratio: 1/2;
-            }
-            .VisitorDiv .VisitorContent {
-                top: 10%;
-                height: 90%;
-            }
-        }
+        /* RESPONSIVE MEDIA QUERIES */
 
         /* Smartphones (portrait and landscape) ----------- */
-        @media screen and (max-width: 600px) {
+        @media only screen and (max-width: 600px) {
             html {
                 overflow-y: scroll;
             }
@@ -432,6 +352,121 @@
             .MN-Footer {
                 position: relative;
                 clear: both;
+            }
+        }
+
+        /* Tablets (Portrait) ----------- */
+        @media only screen and (min-width: 601px) and (max-width: 1000px) {
+            .MODDiv {
+                width: 33%;
+            }
+            .MembersDiv {
+                width: 66%;
+            }
+            .MembersDiv .photodiv {
+                width: 25%;
+            }
+            .VisitorDiv {
+                width: 33%;
+                aspect-ratio: 1/2;
+            }
+            .VisitorDiv .VisitorContent {
+                top: 10%;
+                height: 90%;
+            }
+        }
+
+        /* Tablets (Landscape) ----------- */
+        @media only screen and (min-width: 1001px) and (max-width: 1249px) {
+
+            .MODDiv {
+                width: 25%;
+            }
+            .MembersDiv {
+                width: 75%;
+            }
+            .MembersDiv .photodiv {
+                width: 20%;
+            }
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 5px;
+            }
+            .VisitorDiv {
+                width: 25%;
+            }
+        }
+
+        /* Laptop/Big Tablets ----------- */
+        @media only screen and (min-width: 1250px) and (orientation: landscape) {
+            .MODDiv {
+                width: 20%;
+            }
+            .MembersDiv {
+                width: 80%;
+            }
+            .MembersDiv .photodiv {
+                width: 12.5%;
+            }
+            .VisitorDiv {
+                width: 20%;
+                aspect-ratio: 5/7;
+            }
+        }
+
+        /* Big Laptop / Small Monitor ----------- */
+        @media only screen and (min-width: 1450px) {
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 3px;
+            }
+        }
+
+        /* Medium Monitor ----------- */
+        @media only screen and (min-width: 1600px) {
+            .VisitorDiv {
+                aspect-ratio: 3/5;
+            }
+        }
+
+        /* Large Monitor ----------- */
+        @media only screen and (min-width: 1920px) {
+            .MN-Header {
+                height: 75px;
+            }
+            .MN-Content {
+                top: 75px;
+            }
+            .MODDiv {
+                width: 15%;
+            }
+            .MembersDiv {
+                width: 85%;
+            }
+            .MembersDiv .photodiv {
+                width: 10%;
+                aspect-ratio: 11/14;
+            }
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                padding-top: 0;
+                line-height: 1em;
+            }
+            .VisitorDiv {
+                width: 15%;
+                aspect-ratio: 3/5;
+            }
+            .VisitorDiv .VisitorContent {
+                top: 10%;
+                height: 90%;
+                font-size: 1.5em;
+            }
+        }
+
+        /* 2K TV ----------- */
+        @media only screen and (min-width: 2500px) {
+            html {
+                font-size: 16pt;
+            }
+            .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+                line-height: 1.25em;
             }
         }
     </style>
