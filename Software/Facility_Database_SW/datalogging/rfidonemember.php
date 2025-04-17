@@ -28,7 +28,7 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
 
-$selectSQL = "SELECT dateEventLocal, firstName, logEvent FROM `rawdata` WHERE clientID = '<<CLIENTID>>' AND logEvent IN ('checkin denied','checked in')  ORDER BY dateEventLocal DESC LIMIT 500;";
+$selectSQL = "SELECT dateEventLocal, firstName, logEvent FROM `rawdata` WHERE clientID = '<<CLIENTID>>' AND logEvent IN ('checkin denied','checked in','checked out')  ORDER BY dateEventLocal DESC LIMIT 500;";
 $selectSQL = str_replace("<<CLIENTID>>",$clientID,$selectSQL);
 
 // Check connection
