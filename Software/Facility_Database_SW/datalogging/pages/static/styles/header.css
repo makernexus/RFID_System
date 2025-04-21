@@ -1,0 +1,118 @@
+.mn-header {
+    position: relative;
+    width: 100%;
+    height: 64px;
+    background-color: #52837d;
+    border-bottom: 1px solid #4d4d4d;
+    margin-bottom: 1px;
+}
+.mn-header .mn-logo {
+    position: relative;
+    display: inline-block;
+    height: 50px;
+    margin: 0 10px;
+    padding: 7px;
+    float: left;
+}
+.mn-header .mn-logo img {
+    height: 50px;
+    width: auto;
+}
+.mn-header .mn-header-text {
+    position: relative;
+    display: inline-block;
+    padding: 15px;
+    float: left;
+    font-family: "Antonio";
+    font-size: 1.5em;
+    color: #fff;
+}
+.mn-header .mn-header-legend {
+    position: relative;
+    display: inline-block;
+    float: right;
+    font-size: 1em;
+    padding: 10px;
+    color: #fff;
+}
+.mn-header .mn-header-legend .mn-header-legend-item {
+    display: inline-block;
+    padding: 10px;
+    margin: 0 5px;
+    border: 1px solid #4d4d4d;
+    border-radius: 5px;
+    text-align: center;
+    color: #000;
+    font-weight: bold;
+}
+
+.mn-header .mn-header-legend .mn-header-legend-item.member {
+    background-color: #cccccc;
+}
+.mn-header .mn-header-legend .mn-header-legend-item.staff {
+    background-color: #aa8fbc;
+}
+.mn-header .mn-header-legend .mn-header-legend-item.booking {
+    background-color: #cccccc;
+}
+.mn-header .mn-header-legend .mn-header-legend-item.class {
+    background-color: #82b0ac;
+}
+.mn-header .mn-header-legend .mn-header-legend-item.admin {
+    background-color: #aa8fbc;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen and (max-width: 600px) {
+    .mn-header {
+        height: 129px;
+    }
+}
+
+/* Tablets (Portrait) ----------- */
+@media only screen and (min-width: 601px) and (max-width: 1000px) {
+
+}
+
+/* Tablets (Landscape) ----------- */
+@media only screen and (min-width: 1001px) and (max-width: 1249px) {
+
+}
+
+/* Laptop/Big Tablets ----------- */
+@media only screen and (min-width: 1250px) and (orientation: landscape) {
+
+}
+
+/* Big Laptop / Small Monitor ----------- */
+@media only screen and (min-width: 1450px) {
+
+}
+
+/* Medium Monitor ----------- */
+@media only screen and (min-width: 1600px) {
+
+}
+
+/* Large Monitor ----------- */
+@media only screen and (min-width: 1920px) {
+    .mn-header {
+        height: 74px;
+    }
+    .mn-header .mn-logo {
+        margin: 5px 10px;
+    }
+    .mn-header .mn-header-text {
+        padding: 18px 15px;
+    }
+    .mn-header .mn-header-legend {
+        padding: 15px 10px;
+    }
+}
+
+/* 2K TV ----------- */
+@media only screen and (min-width: 2500px) {
+
+}
