@@ -1,0 +1,396 @@
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-size: 14pt;
+    overflow: hidden;
+}
+
+body {
+    display: block;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: "Montserrat", "Helvetica Neue", sans-serif;
+    overflow: hidden;
+}
+
+table, tr, td {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-collapse: collapse;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.mn-header, .MN-Content, .MN-Footer {
+    position: relative;
+    width: 100%;
+}
+
+.MN-Content {
+    position: absolute;
+    top: 65px;
+    right: 0;
+    left: 0;
+    bottom: 60px;
+    margin: 0;
+    padding: 0;
+}
+
+.MN-Footer {
+    position: absolute;
+    bottom: 0;
+    height: 40px;
+    padding: 10px 0;
+    background-color: #4d4d4d;
+    color: #fff;
+    clear: both;
+}
+.MN-Footer .lastrefreshtime {
+    margin: 0;
+    padding: 10px 25px;
+    text-align: right;
+}
+
+.MODDiv {
+    position: relative;
+    width: 18%;
+    aspect-ratio: 4/5;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+.MODDiv .MODDivInner {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 5px solid #194d47;
+    border-radius: 10px;
+    background-color: #194d47;
+}
+.MODDiv .MODTitleDiv,
+.MODDiv .MODNameDiv {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Align horizontal */
+    align-items: center; /* Align vertical */
+    text-align: center;
+    color: #fff;
+}
+.MODDiv .MODTitleDiv .MODTitle,
+.MODDiv .MODNameDiv .MODName {
+    margin: 0;
+    padding: 0;
+}
+
+.MODDiv .MODTitleDiv {
+    height: 16%;
+    font-family: "Antonio";
+    font-size: 1.5em;
+}
+
+.MODDiv .MODNameDiv {
+    height: 18%;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.MODDiv .MODImageDiv {
+    margin: auto;
+    width: 80%;
+}
+.MODDiv .MODImageDiv .MODImage {
+    aspect-ratio: 1/1;
+    width: 100%;
+    object-fit: cover;
+}
+
+.MembersDiv {
+    position: relative;
+    width: 82%;
+    height: 100%;
+    overflow-y: scroll;
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+.MN-Content.Shop-Area-Dashboard .MembersDiv {
+    width: 100% !important;
+}
+.MembersDiv .photodiv {
+    position: relative;
+    width: 12.5%;
+    aspect-ratio: 5/7;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+.MembersDiv .photodiv .photodiv-inner {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 5px solid #4d4d4d;
+    border-radius: 10px;
+    background-color: #4d4d4d;
+    color: #fff;
+}
+.MembersDiv .photodiv.staff .photodiv-inner {
+    border: 5px solid #502673;
+    background-color: #502673;
+}
+.MembersDiv .photodiv .photodiv-inner table,
+.MembersDiv .photodiv .photodiv-inner table td {
+    position: relative;
+    width: auto;
+    height: auto;
+}
+.MembersDiv .photodiv .photodiv-inner table .clientImageTD .IDPhoto {
+    aspect-ratio: 1/1;
+    width: 100%;
+    border-radius: 5px;
+    object-fit: cover;
+}
+.MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+}
+.MembersDiv .photodiv .photodiv-inner table .clientEquipTD {
+    font-size: .8em;
+    text-align: center;
+}
+
+.VisitorDiv {
+    position: relative;
+    width: 18%;
+    aspect-ratio: 4/5;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+.VisitorDiv .VisitorDivInner {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 5px solid #4d4d4d;
+    border-radius: 10px;
+    background-color: #4d4d4d;
+}
+.VisitorDiv .VisitorTitleDiv {
+    position: absolute;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 1em;
+    color: #fff;
+}
+.VisitorDiv .VisitorTitleDiv .VisitorTitle {
+    margin: 10px;
+    padding: 0;
+}
+.VisitorDiv .VisitorContentDiv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.VisitorDiv .VisitorContent {
+    position: absolute;
+    top: 15%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 85%;
+    overflow-y: scroll;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    background-color: #ccc;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen and (max-width: 600px) {
+    html {
+        overflow-y: scroll;
+    }
+    .MN-Content {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+    .MODDiv {
+        width: 100%;
+    }
+    .MODDiv .MODImageDiv {
+        width: 75%;
+        margin: 0 auto;
+    }
+    .MembersDiv {
+        width: 100%;
+        float: left;
+        clear: both;
+    }
+    .VisitorDiv {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 2/3;
+        float: left;
+        clear: both;
+    }
+
+    .MembersDiv .photodiv {
+        width: 50%;
+    }
+    .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+        padding-top: 7px;
+    }
+
+    .MN-Footer {
+        position: relative;
+        clear: both;
+    }
+}
+
+/* Tablets (Portrait) ----------- */
+@media only screen and (min-width: 601px) and (max-width: 1000px) {
+    .MODDiv {
+        width: 33%;
+    }
+    .MembersDiv {
+        width: 66%;
+    }
+    .MembersDiv .photodiv {
+        width: 25%;
+    }
+    .VisitorDiv {
+        width: 33%;
+        aspect-ratio: 1/2;
+    }
+    .VisitorDiv .VisitorContent {
+        top: 10%;
+        height: 90%;
+    }
+}
+
+/* Tablets (Landscape) ----------- */
+@media only screen and (min-width: 1001px) and (max-width: 1249px) {
+    .MODDiv {
+        width: 25%;
+    }
+    .MembersDiv {
+        width: 75%;
+    }
+    .MembersDiv .photodiv {
+        width: 20%;
+    }
+    .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+        padding-top: 5px;
+    }
+    .VisitorDiv {
+        width: 25%;
+    }
+}
+
+/* Laptop/Big Tablets ----------- */
+@media only screen and (min-width: 1250px) and (orientation: landscape) {
+    .MODDiv {
+        width: 20%;
+    }
+    .MembersDiv {
+        width: 80%;
+    }
+    .MembersDiv .photodiv {
+        width: 12.5%;
+    }
+    .VisitorDiv {
+        width: 20%;
+        aspect-ratio: 5/7;
+    }
+}
+
+/* Big Laptop / Small Monitor ----------- */
+@media only screen and (min-width: 1450px) {
+    .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+        padding-top: 3px;
+    }
+}
+
+/* Medium Monitor ----------- */
+@media only screen and (min-width: 1600px) {
+    .VisitorDiv {
+        aspect-ratio: 3/5;
+    }
+}
+
+/* Large Monitor ----------- */
+@media only screen and (min-width: 1920px) {
+    .MN-Content {
+        top: 75px;
+    }
+    .MODDiv {
+        width: 15%;
+    }
+    .MembersDiv {
+        width: 85%;
+    }
+    .MembersDiv .photodiv {
+        width: 10%;
+        aspect-ratio: 11/14;
+    }
+    .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+        padding-top: 0;
+        line-height: 1em;
+    }
+    .VisitorDiv {
+        width: 15%;
+        aspect-ratio: 3/5;
+    }
+    .VisitorDiv .VisitorContent {
+        top: 10%;
+        height: 90%;
+        font-size: 1.5em;
+    }
+}
+
+/* 2K TV ----------- */
+@media only screen and (min-width: 2500px) {
+    html {
+        font-size: 16pt;
+    }
+    .MembersDiv .photodiv .photodiv-inner table .clientNameTD {
+        line-height: 1.25em;
+    }
+}
