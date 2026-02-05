@@ -8,6 +8,7 @@
 // 20260204 added authentication
 
 include 'auth_check.php';  // Require authentication
+requireRole(['admin', 'MoD']);  // Require admin, MoD, or accounting role
 include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
