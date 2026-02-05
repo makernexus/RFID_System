@@ -1,0 +1,48 @@
+QUICK START GUIDE - RFID Authentication System
+==============================================
+
+SETUP (Do Once):
+1. Visit: http://your-domain/datalogging/setup_auth.php
+2. Login at: http://your-domain/datalogging/login.php
+   Username: admin
+   Password: admin123
+3. Go to User Management and CHANGE THE PASSWORD!
+4. Delete setup_auth.php after setup
+
+USER ROLES:
+- admin       = Full access, can manage users
+- accounting  = Access to accounting reports
+- reception   = Access to reception reports
+- MoD         = Normal user access
+
+PROTECT A PAGE:
+Add this as the first line after <?php:
+    include 'auth_check.php';
+
+PROTECT WITH ROLE:
+    include 'auth_check.php';
+    requireRole('admin');  // or 'accounting' or 'reception' or 'MoD'
+    requireRole(['admin', 'accounting']);  // multiple roles
+
+CURRENTLY PROTECTED:
+✓ rfidlast100members.php - All authenticated users
+
+MANAGE USERS:
+Visit: user_management.php (admin only)
+
+FILES CREATED:
+- db_auth.php           (database functions)
+- auth_check.php        (session check)
+- login.php             (login page)
+- logout.php            (logout)
+- user_management.php   (admin panel)
+- setup_auth.php        (one-time setup - DELETE AFTER USE!)
+- AUTH_README.md        (full documentation)
+
+TEST THE SYSTEM:
+1. Try visiting rfidlast100members.php without login → should redirect
+2. Login and access the page → should work
+3. Create a test user via User Management
+4. Test that new user can login
+
+SESSION TIMEOUT: 30 minutes of inactivity
