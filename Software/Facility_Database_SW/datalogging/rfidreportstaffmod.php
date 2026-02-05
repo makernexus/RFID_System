@@ -5,6 +5,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin', 'MoD']);  // Require admin or MoD role
 include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
@@ -17,6 +19,12 @@ $htmlFileName = "rfidreportstaffmodhtml.txt";
 $myfile = fopen($htmlFileName, "r") or die("Unable to open file!");
 $html = fread($myfile,filesize($htmlFileName));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the config info
 $ini_array = parse_ini_file("rfidconfig.ini", true);

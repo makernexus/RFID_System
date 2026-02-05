@@ -9,6 +9,8 @@
 // Dec 2023: 
 //   added three more studis: 3D, hotshop, coldshop
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin', 'MoD']);  // Require admin or MoD role
 include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;
@@ -35,6 +37,12 @@ $studios = array("Electronics", "Textile allowed", "Woodshop allowed", "3D allow
 $myfile = fopen("rfidstudiousage.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfidstudiousage.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);

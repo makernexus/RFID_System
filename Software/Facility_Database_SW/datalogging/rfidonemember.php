@@ -6,6 +6,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin', 'MoD']);  // Require admin or MoD role
 include 'commonfunctions.php';
 
 // get the ClientID
@@ -17,8 +19,14 @@ if ($clientID == 0) {
 
 // get the HTML skeleton
 $myfile = fopen("rfidonemember.txt", "r") or die("Unable to open file!");
-$html = fread($myfile,filesize("rfidcheckinlog.txt"));
+$html = fread($myfile,filesize("rfidonemember.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);
@@ -68,11 +76,22 @@ if (mysqli_num_rows($result) > 0) {
     $html = str_replace("<<TABLEROWS>>", $tableRows,$html);
     $html = str_replace("<<CLIENTID>>", $clientID, $html);
 
-	echo $html;
-
 } else {
-    echo "0 results";
+    // No results - still need to show the page structure
+    $html = str_replace("<<TABLEHEADER>>",
+    	makeTR(
+    		array(
+    			"Date Event Local",
+    			"First Name",
+                "Log Event"
+    			)
+    		),
+    	$html);
+    $html = str_replace("<<TABLEROWS>>", "<tr><td colspan='3'>No results found for Client ID: " . htmlspecialchars($clientID) . "</td></tr>",$html);
+    $html = str_replace("<<CLIENTID>>", $clientID, $html);
 }
+
+echo $html;
 
 mysqli_close($con);
 

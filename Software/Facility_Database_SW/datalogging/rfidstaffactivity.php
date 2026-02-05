@@ -7,6 +7,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin', 'accounting']);  // Require admin or accounting role
 include 'commonfunctions.php';
 $maxRows = 1000;
 
@@ -60,6 +62,12 @@ if ($endDate == 0){
 $myfile = fopen("rfidstaffactivity.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfidstaffactivity.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);

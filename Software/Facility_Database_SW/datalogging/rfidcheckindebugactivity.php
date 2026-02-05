@@ -1,4 +1,3 @@
-
 <?php
 
 // report from RFID LOGGING DATABASE
@@ -8,6 +7,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin']);  // Require admin role
 include 'commonfunctions.php';
 
 // get the HTML skeleton
@@ -16,6 +17,12 @@ $html = file_get_contents("rfidcheckindebugactivity.txt");
 if (!$html){
   die("unable to open file");
 }
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);

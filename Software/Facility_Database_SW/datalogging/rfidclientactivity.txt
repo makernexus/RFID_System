@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>Activity By Client</h1>
 	
 	<table class="rawlogtable">

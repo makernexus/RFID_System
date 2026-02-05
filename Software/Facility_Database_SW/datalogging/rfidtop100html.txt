@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>Last 100 rows of Raw RFID logging data</h1>
 
 	<table>

@@ -1,0 +1,91 @@
+<?php
+// RFID Home - Main menu page
+// Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2026 Maker Nexus
+
+include 'auth_check.php';  // Require authentication
+
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>RFID Reports</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <?php echo $authHeader; ?>
+    
+    <?php if (isAdmin()): ?>
+        <div style="background-color: #fff3cd; padding: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <strong>Admin Access:</strong> <a href="admin_dashboard.php" style="color: #856404; font-weight: bold;">Go to Admin Dashboard</a>
+        </div>
+    <?php endif; ?>
+    
+    <h2>RFID database reports</h2>
+
+	<h3>Updating Displays</h3>
+    <ul>
+	    <li><a href="rfidcurrentcheckinsWithMOD.php">Current CheckIns</a>
+            ... or <a href="rfidcurrentcheckins.php">without MOD</a>
+        <li><a href="rfidcurrentstudio.php?studio=wood">Active In Woodshop</a>
+    </ul>
+
+    <h3>Online Visitor Log</h3>
+    <ul>
+	    <li><a href="https://rfid.makernexuswiki.com/v2/OVLrecentvisitors.php">Last 5 days of visitors</a>
+    </ul>
+
+    <h3>Summary Reports</h3>
+    <p style="color: #666; font-style: italic; margin: 5px 0;">Requires: Admin or MoD</p>
+    <ul>        
+        <li><a href="rfidcheckinlog.php">Last 200 CheckIns</a>
+        <li><a href="checkinreport.php">Members per Month/Day Summary</a>
+        <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
+    </ul>
+
+    <h3>Detail Reports</h3>
+    <ul>
+        <li><a href="checkinreportdetail.php">Members per Month, detail</a> <span style="color: #666; font-style: italic;">(Admin or MoD)</span>
+	    <li><a href="rfidonemember.php?clientID=59617641">Report on One Client (modify URL)</a> <span style="color: #666; font-style: italic;">(Admin or MoD)</span>
+	    <li><a href="rfidlast100members.php">Last 100 active members</a> <span style="color: #666; font-style: italic;">(All authenticated users)</span>
+        <li><a href="rfidshopusagebyhour.php?startDate=20230101&endDate=20241231">Usage Heat Map</a> <span style="color: #666; font-style: italic;">(Admin or MoD)</span></li>
+    </ul>
+
+    <h3>Staff Activity</h3>
+    <p style="color: #666; font-style: italic; margin: 5px 0;">Requires: Admin or Accounting</p>
+    <ul>
+        <li><a href="rfidstaffactivity.php">Staff check in/out, 14 day lookback</a>
+        <li><a href="rfidstaffactivity.php?startDate=20230901&endDate=20241231">Staff check in/out with date range</a>
+    </ul>
+
+    <h3>Configuration Reports</h3>
+    <p style="color: #666; font-style: italic; margin: 5px 0;">Requires: Admin or MoD</p>
+    <ul>
+	    <li><a href="rfidreportstaffmod.php">List all people with Staff or MOD</a>
+    </ul>
+
+	<h3>System Debug Reports</h3>
+    <p style="color: #666; font-style: italic; margin: 5px 0;">Requires: Admin only</p>
+    <ul>
+	    <li><a href="rfidclientactivity.php">Activity by Client</a>
+	    <li><a href="rfiddevicelog.php">Log by Device</a>
+	    <li><a href="rfidtop100.php">Last 100 Raw Data</a>
+        <li><a href="rfidcheckindebugactivity.php">Overall logging counts</a>
+        <li><a href="rfidstudiousagedenied.php?startDate=20220515&endDate=20241231">Studio Usage Denied</a></li>
+        <li><a href="https://rfid.makernexuswiki.com/rfiddeniedanyreason.php">Denied for Any Reason</a></li>
+   
+    </ul>
+
+
+
+</body>
+
+</html>

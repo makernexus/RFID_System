@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <<AUTH_HEADER>>
     <div>
         <h1>Member visits by hour</h1>
         <ul>

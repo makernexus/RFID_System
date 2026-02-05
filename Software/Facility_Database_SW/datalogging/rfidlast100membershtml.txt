@@ -12,6 +12,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>The last 100 active members</h1>
 	<div style="clear:both">
   	    <<PHOTODIVS>>
