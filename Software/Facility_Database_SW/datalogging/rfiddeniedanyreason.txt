@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <<AUTH_HEADER>>
     <div>
         <h1>Debug report: attempts to use RFID that were denied in the last 60 days</h1>
         <ul>

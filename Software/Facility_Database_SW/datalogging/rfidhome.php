@@ -179,11 +179,6 @@ $authHeader = ob_get_clean();
             <h1>RFID Database Reports</h1>
         </div>
         
-        <?php if (isAdmin()): ?>
-            <div class="admin-notice">
-                <strong>Admin Access:</strong> <a href="admin_dashboard.php">Go to Admin Dashboard</a>
-            </div>
-        <?php endif; ?>
         
         <div class="reports-grid">
             <div class="report-card">
@@ -248,7 +243,7 @@ $authHeader = ob_get_clean();
                     <li><a href="rfidtop100.php">Last 100 Raw Data</a></li>
                     <li><a href="rfidcheckindebugactivity.php">Overall logging counts</a></li>
                     <li><a href="rfidstudiousagedenied.php?startDate=20220515&endDate=20241231">Studio Usage Denied</a></li>
-                    <li><a href="https://rfid.makernexuswiki.com/rfiddeniedanyreason.php">Denied for Any Reason</a></li>
+                    <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
                 </ul>
             </div>
         </div>

@@ -151,13 +151,7 @@ $authHeader = ob_get_clean();
         
         <!-- Protected Pages List -->
         <div class="dashboard-section">
-            <h2>Currently Protected Pages</h2>
-            <ul style="margin-top: 15px; color: #666;">
-                <li><strong>rfidhome.php</strong> - Main reports menu (requires login)</li>
-                <li><strong>rfidlast100members.php</strong> - Last 100 active members (requires login)</li>
-                <li><strong>user_management.php</strong> - Admin only</li>
-                <li><strong>admin_dashboard.php</strong> - Admin only (this page)</li>
-            </ul>
+            <h2>Pages Protection</h2>
             <p style="margin-top: 15px; font-style: italic; color: #666;">
                 To protect additional pages, add <code>include 'auth_check.php';</code> at the top of the PHP file.
             </p>
