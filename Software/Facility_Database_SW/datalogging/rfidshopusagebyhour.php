@@ -12,16 +12,44 @@ include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;
 
-// get the URL parameters
-$startDate = $_GET["startDate"];
-if ($startDate == 0) {
-    echo "startDate= parameter not found.";
-    return;
-}
-$endDate = $_GET["endDate"];
-if ($endDate == 0) {
-    echo "endDate= parameter not found.";
-    return;
+// Get date range selection
+$rangeType = isset($_GET['range']) ? trim($_GET['range']) : 'last_30';
+
+// Calculate start and end dates based on selection
+$startDate = '';
+$endDate = date('Ymd');
+
+switch ($rangeType) {
+    case 'last_30':
+        $startDate = date('Ymd', strtotime('-30 days'));
+        break;
+    case 'last_90':
+        $startDate = date('Ymd', strtotime('-90 days'));
+        break;
+    case 'last_6months':
+        $startDate = date('Ymd', strtotime('-6 months'));
+        break;
+    case 'last_year':
+        $startDate = date('Ymd', strtotime('-1 year'));
+        break;
+    case '2023':
+        $startDate = '20230101';
+        $endDate = '20231231';
+        break;
+    case '2024':
+        $startDate = '20240101';
+        $endDate = '20241231';
+        break;
+    case '2025':
+        $startDate = '20250101';
+        $endDate = '20251231';
+        break;
+    case '2026':
+        $startDate = '20260101';
+        $endDate = '20261231';
+        break;
+    default:
+        $startDate = date('Ymd', strtotime('-30 days'));
 }
 
 // get the HTML skeleton
@@ -33,7 +61,33 @@ fclose($myfile);
 ob_start();
 include 'auth_header.php';
 $authHeader = ob_get_clean();
+
+// Format dates for display
+$startDateDisplay = date('M d, Y', strtotime(substr($startDate, 0, 4) . '-' . substr($startDate, 4, 2) . '-' . substr($startDate, 6, 2)));
+$endDateDisplay = date('M d, Y', strtotime(substr($endDate, 0, 4) . '-' . substr($endDate, 4, 2) . '-' . substr($endDate, 6, 2)));
+
+// Generate dropdown options with correct selected state
+$rangeOptions = '';
+$options = [
+    'last_30' => 'Last 30 Days',
+    'last_90' => 'Last 90 Days',
+    'last_6months' => 'Last 6 Months',
+    'last_year' => 'Last Year',
+    '2023' => '2023',
+    '2024' => '2024',
+    '2025' => '2025',
+    '2026' => '2026'
+];
+
+foreach ($options as $value => $label) {
+    $selected = ($rangeType == $value) ? 'selected' : '';
+    $rangeOptions .= "<option value=\"" . htmlspecialchars($value) . "\" $selected>" . htmlspecialchars($label) . "</option>\n";
+}
+
 $html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
+$html = str_replace("<<RANGEOPTIONS>>", $rangeOptions, $html);
+$html = str_replace("<<STARTDATE_DISPLAY>>", $startDateDisplay, $html);
+$html = str_replace("<<ENDDATE_DISPLAY>>", $endDateDisplay, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);
@@ -220,7 +274,20 @@ if (mysqli_num_rows($resultC) > 0) {
     }
 
 } else {
-    $html = "0 results";
+    // No results - still show the page structure with empty tables
+    $html = str_replace("<<TABLEHEADER1>>", makeTR(array("Hour","Mon","Tue", "Wed","Thu","Fri","Sat","Sun")), $html);
+    $html = str_replace("<<TABLEROWS1>>", "<tr><td colspan='8' style='text-align:center; padding:20px; color:#999;'>No data available for selected date range</td></tr>", $html);
+    $html = str_replace("<<TABLEHEADER0>>", makeTR(array("Hour","Mon","Tue", "Wed","Thu","Fri","Sat","Sun")), $html);
+    $html = str_replace("<<TABLEROWS0>>", "<tr><td colspan='8' style='text-align:center; padding:20px; color:#999;'>No data available for selected date range</td></tr>", $html);
+    $html = str_replace("<<AVERAGETABLEHEADER>>", makeTR(array("M","T", "W","TH","F","S","S")), $html);
+    $html = str_replace("<<AVERAGETABLEROWS>>", "<tr><td colspan='7' style='text-align:center; padding:20px; color:#999;'>No data</td></tr>", $html);
+    $html = str_replace("<<VISITHOURSTABLEHEADER>>", "", $html);
+    $html = str_replace("<<VISITHOURSTABLEROWS>>", "", $html);
+    $html = str_replace("<<TABLEHEADER2>>", "", $html);
+    $html = str_replace("<<TABLEROWS2>>", "", $html);
+    $html = str_replace("<<TOTALROWS>>", "0", $html);
+    $html = str_replace("<<NOCHECKOUT>>", "0", $html);
+    $html = str_replace("<<ASSUMEDUSE>>", $assumedHoursForNoCheckout, $html);
 }
 
 echo $html;

@@ -119,7 +119,7 @@ if ($searchQuery !== '') {
     if (mysqli_connect_errno()) {
         $searchResults = '<div class="search-results"><p>Database connection error</p></div>';
     } else {
-        $searchSQL = "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible 
+        $searchSQL = "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible, dateLastSeen 
                       FROM clientInfo 
                       WHERE (firstName LIKE ? OR lastName LIKE ?) 
                       ORDER BY lastName ASC";
@@ -137,10 +137,10 @@ if ($searchQuery !== '') {
             }
             
             $searchResults = '<div class="search-results"><h3>Search Results (' . mysqli_num_rows($searchResult) . ' found)</h3>';
-            $searchResults .= '<table><thead><tr><th>Client ID</th><th>Name</th><th>Classes</th><th>MOD</th>' . $editColumnHeader . '</tr></thead><tbody>';
+            $searchResults .= '<table><thead><tr><th>Client ID</th><th>Name</th><th>Classes</th><th>MOD</th><th>Date Last Seen</th>' . $editColumnHeader . '</tr></thead><tbody>';
             
             while($row = mysqli_fetch_assoc($searchResult)) {
-                $searchResults .= makeRow($row["firstName"], $row["lastName"], $row["clientID"], $row["displayClasses"], $row["MOD_Eligible"]) . "\r\n";
+                $searchResults .= makeRow($row["firstName"], $row["lastName"], $row["clientID"], $row["displayClasses"], $row["MOD_Eligible"], $row["dateLastSeen"]) . "\r\n";
             }
             
             $searchResults .= '</tbody></table></div>';
@@ -174,7 +174,7 @@ if (mysqli_connect_errno()) {
 }
 
 $selectSQL = 
-    "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible
+    "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible, dateLastSeen
      FROM clientInfo
      WHERE displayClasses IS NOT NULL AND displayClasses <> ''
      ORDER BY lastName ASC";
@@ -190,14 +190,14 @@ if (isAdmin()) {
 }
 
 $resultTable = "<table>";
-$resultTable .= "<thead><tr><th>Client ID</th><th>Name</th><th>Classes</th><th>MOD</th>" . $editColumnHeader . "</tr></thead>";
+$resultTable .= "<thead><tr><th>Client ID</th><th>Name</th><th>Classes</th><th>MOD</th><th>Date Last Seen</th>" . $editColumnHeader . "</tr></thead>";
 $resultTable .= "<tbody>";
 
 if (mysqli_num_rows($result) > 0) {
 	
     while($row = mysqli_fetch_assoc($result)) {
 
-        $thisRow = makeRow($row["firstName"], $row["lastName"], $row["clientID"], $row["displayClasses"], $row["MOD_Eligible"]  ) . "\r\n";
+        $thisRow = makeRow($row["firstName"], $row["lastName"], $row["clientID"], $row["displayClasses"], $row["MOD_Eligible"], $row["dateLastSeen"]  ) . "\r\n";
             
         $resultTable = $resultTable . $thisRow;
     }
@@ -214,7 +214,7 @@ return;
 // ------------------------------------------------------------
 
 
-function makeRow($firstName, $lastName, $clientID, $classes, $MODeligible) {
+function makeRow($firstName, $lastName, $clientID, $classes, $MODeligible, $dateLastSeen) {
     $MOD = "";
     if ($MODeligible == 1) {
         $MOD = "MOD";
@@ -222,6 +222,9 @@ function makeRow($firstName, $lastName, $clientID, $classes, $MODeligible) {
     
     // Display the full displayClasses value
     $displayClassesValue = htmlspecialchars($classes);
+    
+    // Format date last seen
+    $formattedDate = !empty($dateLastSeen) ? htmlspecialchars($dateLastSeen) : '';
     
     // Only show edit button if user is admin
     $editButton = "";
@@ -232,7 +235,7 @@ function makeRow($firstName, $lastName, $clientID, $classes, $MODeligible) {
         $editButton = "<td><button class='edit-btn' onclick=\"openEditModal('$clientID', '$escapedFirstName', '$escapedLastName', '$escapedClasses', $MODeligible)\">Edit</button></td>";
     }
 
-    return "<tr><td>" . htmlspecialchars($clientID) . "</td><td>" . $lastName . ", " . $firstName . "</td><td>" . $displayClassesValue . "</td><td>" . $MOD . "</td>" . $editButton . "</tr>" ;
+    return "<tr><td>" . htmlspecialchars($clientID) . "</td><td>" . $lastName . ", " . $firstName . "</td><td>" . $displayClassesValue . "</td><td>" . $MOD . "</td><td>" . $formattedDate . "</td>" . $editButton . "</tr>" ;
 }
 
 function makeTable($firstName, $lastName, $clientID, $dateLastSeen, $photoServer, $MODeligible){

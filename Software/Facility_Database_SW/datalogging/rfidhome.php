@@ -227,10 +227,11 @@ $authHeader = ob_get_clean();
             </div>
             
             <div class="report-card">
-                <h3>Configuration Reports</h3>
+                <h3>Configuration</h3>
                 <div class="permission-tag">Admin</div>
                 <ul>
-                    <li><a href="rfidreportstaffmod.php">List all people with Staff or MOD</a></li>
+                    <li><a href="rfidreportstaffmod.php">Review and set Staff or MOD</a></li>
+                    <li><a href="rfidclientsearch.php">Change client photo</a></li>
                 </ul>
             </div>
             
