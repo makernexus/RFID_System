@@ -26,6 +26,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'update') {
         exit();
     }
     
+    require_once 'admin_log_functions.php';
+    
     $clientID = $_POST['clientID'];
     $modEligible = intval($_POST['modEligible']);
     $displayClasses = $_POST['displayClasses'];
@@ -50,6 +52,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'update') {
         exit();
     }
     
+    // Get current values before update for logging
+    $beforeData = getClientDataForLogging($con, $clientID);
+    
     $updateSQL = "UPDATE clientInfo SET MOD_Eligible = ?, displayClasses = ? WHERE clientID = ?";
     $stmt = @mysqli_prepare($con, $updateSQL);
     
@@ -63,6 +68,21 @@ if (isset($_POST['action']) && $_POST['action'] === 'update') {
     @mysqli_stmt_bind_param($stmt, "iss", $modEligible, $displayClasses, $clientID);
     
     if (@mysqli_stmt_execute($stmt)) {
+        // Log the changes
+        if ($beforeData) {
+            // Log MOD_Eligible change if different
+            if ($beforeData['MOD_Eligible'] != $modEligible) {
+                logAdminAction($con, 'update_mod', $clientID, 'MOD_Eligible', 
+                    $beforeData['MOD_Eligible'], $modEligible, 'Updated via Staff/MOD report');
+            }
+            
+            // Log displayClasses change if different
+            if ($beforeData['displayClasses'] != $displayClasses) {
+                logAdminAction($con, 'update_classes', $clientID, 'displayClasses', 
+                    $beforeData['displayClasses'], $displayClasses, 'Updated via Staff/MOD report');
+            }
+        }
+        
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
     } else {

@@ -239,6 +239,7 @@ $authHeader = ob_get_clean();
                 <h3>System Debug Reports</h3>
                 <div class="permission-tag">Admin only</div>
                 <ul>
+                    <li><a href="rfidadminlog.php">Admin Activity Log</a></li>
                     <li><a href="rfidclientactivity.php">Activity by Client</a></li>
                     <li><a href="rfiddevicelog.php">Log by Device</a></li>
                     <li><a href="rfidtop100.php">Last 100 Raw Data</a></li>
