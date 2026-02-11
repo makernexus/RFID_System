@@ -6,7 +6,7 @@
 // By Jim Schrempp
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin']);  // Require admin role
+requireRole(['admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 
 // get the HTML skeleton

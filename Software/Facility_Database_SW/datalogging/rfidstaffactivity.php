@@ -8,7 +8,7 @@
 // By Jim Schrempp
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin', 'accounting']);  // Require admin or accounting role
+requireRole(['manager', 'admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 $maxRows = 1000;
 

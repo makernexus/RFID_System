@@ -8,6 +8,8 @@
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
             <a href="admin_dashboard.php" style="background-color: #4CAF50; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px;<?php if($current_page === 'admin_dashboard.php') echo ' opacity: 0.6; cursor: not-allowed; pointer-events: none;'; ?>">Admin Dashboard</a>
             <a href="rfidhome.php" style="background-color: #667eea; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px;<?php if($current_page === 'rfidhome.php') echo ' opacity: 0.6; cursor: not-allowed; pointer-events: none;'; ?>">RFID Reports</a>
+        <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'manager'): ?>
+            <a href="rfidhome.php" style="background-color: #667eea; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px;<?php if($current_page === 'rfidhome.php') echo ' opacity: 0.6; cursor: not-allowed; pointer-events: none;'; ?>">RFID Reports</a>
         <?php else: ?>
             <a href="rfidhome.php" style="background-color: #008CBA; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-right: 10px;<?php if($current_page === 'rfidhome.php') echo ' opacity: 0.6; cursor: not-allowed; pointer-events: none;'; ?>">Home</a>
         <?php endif; ?>

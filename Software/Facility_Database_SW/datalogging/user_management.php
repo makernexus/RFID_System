@@ -1,12 +1,12 @@
 <?php
-// User Management Page (Admin only)
+// User Management Page (Manager/Admin only)
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2026 Maker Nexus
 
 include 'auth_check.php';
 include 'db_auth.php';
 require_once 'admin_log_functions.php';
 
-// Only admins can access this page
+// Only managers and admins can access this page
 if (!isAdmin()) {
     die("Access denied. Only administrators can access this page.");
 }
@@ -288,8 +288,8 @@ $users = getAllUsers();
             background-color: #f44336;
             color: white;
         }
-        .badge.accounting {
-            background-color: #2196F3;
+        .badge.manager {
+            background-color: #ff9800;
             color: white;
         }
         .badge.reception {
@@ -394,7 +394,7 @@ $users = getAllUsers();
                     <select name="role">
                         <option value="MoD">MoD (Normal User)</option>
                         <option value="reception">Reception</option>
-                        <option value="accounting">Accounting</option>
+                        <option value="manager">Manager</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
@@ -473,7 +473,7 @@ $users = getAllUsers();
                     <select name="role" id="edit_role">
                         <option value="MoD">MoD (Normal User)</option>
                         <option value="reception">Reception</option>
-                        <option value="accounting">Accounting</option>
+                        <option value="manager">Manager</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>

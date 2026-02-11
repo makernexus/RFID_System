@@ -198,43 +198,45 @@ $authHeader = ob_get_clean();
             
             <div class="report-card">
                 <h3>Summary Reports</h3>
-                <div class="permission-tag">Admin or MoD</div>
+                <div class="permission-tag">Manager/Admin or MoD</div>
                 <ul>        
                     <li><a href="rfidcheckinlog.php">Last 200 CheckIns</a></li>
                 </ul>
             </div>
 
             <div class="report-card">
-                <h3>Admin Summaries</h3>
-                <div class="permission-tag">Admin</div>
+                <h3>Management Summaries</h3>
+                <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="checkinreport.php">Members per Month/Day Summary</a></li>
+                    <li><a href="rfidshopusagebyhour.php?startDate=20230101&endDate=20241231">Usage Heat Map</a></li>
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
                 </ul>
             </div>
 
             <div class="report-card">
-                <h3>Detail Reports</h3>
-                <div class="permission-tag">Admin or Accounting</div>
+                <h3>Management Detail Reports</h3>
+                <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="checkinreportdetail.php">Members per Month, detail</a></li>
-                    <li><a href="rfidonemember.php?clientID=59617641">Report on One Client</a></li>
+                    <li><a href="rfidonemember.php">Report on One Client</a></li>
                     <li><a href="rfidlast100members.php">Last 100 active members</a></li>
-                    <li><a href="rfidshopusagebyhour.php?startDate=20230101&endDate=20241231">Usage Heat Map</a></li>
+                    <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
+                    <li><a href="rfidstudiousagedenied.php?startDate=20220515&endDate=20241231">Studio Usage Denied</a></li>
                 </ul>
             </div>
             
             <div class="report-card">
                 <h3>Staff Activity</h3>
-                <div class="permission-tag">Admin or Accounting</div>
+                <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="rfidstaffactivity.php">Staff check in/out with date range</a></li>
                 </ul>
             </div>
             
             <div class="report-card">
-                <h3>Configuration</h3>
-                <div class="permission-tag">Admin</div>
+                <h3>System Configuration</h3>
+                <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="rfidreportstaffmod.php">Review and set Staff or MOD</a></li>
                     <li><a href="rfidclientsearch.php">Change client photo</a></li>
@@ -242,16 +244,22 @@ $authHeader = ob_get_clean();
             </div>
             
             <div class="report-card">
-                <h3>System Debug Reports</h3>
+                <h3>System Admin Actions</h3>
                 <div class="permission-tag">Admin only</div>
                 <ul>
                     <li><a href="rfidadminlog.php">Admin Activity Log</a></li>
-                    <li><a href="rfidclientactivity.php">Activity by Client</a></li>
+                    <li><a href="user_management.php">RFID Reporting Users</a></li>
+                </ul>
+            </div>
+
+            <div class="report-card">
+                <h3>System Debug Reports</h3>
+                <div class="permission-tag">Admin only</div>
+                <ul>
+                    <li><a href="rfidclientactivity.php">Activity by Device</a></li>
                     <li><a href="rfiddevicelog.php">Log by Device</a></li>
                     <li><a href="rfidtop100.php">Last 100 Raw Data</a></li>
                     <li><a href="rfidcheckindebugactivity.php">Overall logging counts</a></li>
-                    <li><a href="rfidstudiousagedenied.php?startDate=20220515&endDate=20241231">Studio Usage Denied</a></li>
-                    <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
                 </ul>
             </div>
         </div>

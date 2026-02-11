@@ -19,10 +19,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'update') {
     // Need to check authentication for AJAX request too
     session_start();
     
-    // Check if user is logged in and is admin
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    // Check if user is logged in and is manager or admin
+    if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'manager' && $_SESSION['role'] !== 'admin')) {
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Only admins can edit']);
+        echo json_encode(['success' => false, 'message' => 'Only managers/admins can edit']);
         exit();
     }
     
@@ -97,7 +97,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'update') {
 
 // Normal page load - require authentication
 include 'auth_check.php';  // Require authentication
-requireRole(['admin', 'MoD']);  // Require admin or MoD role
+requireRole(['manager', 'admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die

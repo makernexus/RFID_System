@@ -32,11 +32,6 @@ $_SESSION['last_activity'] = time();
 function requireRole($requiredRole) {
     $userRole = $_SESSION['role'] ?? '';
     
-    // Admin can access everything
-    if ($userRole === 'admin') {
-        return true;
-    }
-    
     // Check if user has the required role
     if (is_array($requiredRole)) {
         if (!in_array($userRole, $requiredRole)) {
@@ -51,7 +46,8 @@ function requireRole($requiredRole) {
     return true;
 }
 
-// Function to check if user is admin
+// Function to check if user is manager or admin
+// Function to check if user is admin (not manager)
 function isAdmin() {
     return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }

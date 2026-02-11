@@ -4,7 +4,7 @@
 
 include 'auth_check.php';  // Require authentication
 
-// Only admins can access this page
+// Only managers and admins can access this page
 if (!isAdmin()) {
     die("Access denied. Only administrators can access this page.");
 }
@@ -114,7 +114,7 @@ $authHeader = ob_get_clean();
                 <li><a href="user_management.php">👥 Manage Users</a></li>
             </ul>
             <p style="color: #666; margin-top: 15px;">
-                Create, edit, and delete user accounts. Assign roles (Admin, Accounting, MoD) and manage user permissions.
+                Create, edit, and delete user accounts. Assign roles (Manager, Admin, MoD, Reception) and manage user permissions.
             </p>
         </div>
         

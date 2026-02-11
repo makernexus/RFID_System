@@ -103,7 +103,7 @@ function getAllUsers() {
     return $users;
 }
 
-// Create a new user (admin only)
+// Create a new user (manager/admin only)
 function createUser($username, $password, $fullName, $role) {
     $con = getAuthDbConnection();
     
@@ -178,7 +178,7 @@ function getUserById($userId) {
     return $user;
 }
 
-// Delete user (admin only)
+// Delete user (manager/admin only)
 function deleteUser($userId) {
     $con = getAuthDbConnection();
     

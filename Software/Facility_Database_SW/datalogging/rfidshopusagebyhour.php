@@ -7,7 +7,7 @@
 // By Jim Schrempp
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin', 'MoD']);  // Require admin or MoD role
+requireRole(['manager', 'admin']);  // Require manager, admin, or MoD role
 include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;

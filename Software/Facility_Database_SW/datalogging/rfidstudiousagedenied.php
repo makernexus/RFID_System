@@ -7,21 +7,21 @@
 // By Jim Schrempp, Bob Glicksman
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin']);  // Require admin role
+requireRole(['manager', 'admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;
 
-// get the URL parameters
-$startDate = $_GET["startDate"];
-if ($startDate == 0) {
-    echo "startDate= parameter not found.";
-    return;
+// Calculate date range for last 60 days
+$endDate = date('Ymd');
+$startDate = date('Ymd', strtotime('-60 days'));
+
+// Override with URL parameters if provided
+if (isset($_GET["startDate"]) && $_GET["startDate"] != 0) {
+    $startDate = $_GET["startDate"];
 }
-$endDate = $_GET["endDate"];
-if ($endDate == 0) {
-    echo "endDate= parameter not found.";
-    return;
+if (isset($_GET["endDate"]) && $_GET["endDate"] != 0) {
+    $endDate = $_GET["endDate"];
 }
 
 // These are the eventData we will query for
