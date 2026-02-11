@@ -13,7 +13,7 @@
 //      Removed unneeded code
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin', 'MoD']);  // Require admin or MoD role
+requireRole(['admin']);  // Require admin or MoD role
 
 include 'commonfunctions.php';
 

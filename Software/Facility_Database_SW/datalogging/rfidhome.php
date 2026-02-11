@@ -201,17 +201,24 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Admin or MoD</div>
                 <ul>        
                     <li><a href="rfidcheckinlog.php">Last 200 CheckIns</a></li>
+                </ul>
+            </div>
+
+            <div class="report-card">
+                <h3>Admin Summaries</h3>
+                <div class="permission-tag">Admin</div>
+                <ul>
                     <li><a href="checkinreport.php">Members per Month/Day Summary</a></li>
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
                 </ul>
             </div>
-            
+
             <div class="report-card">
                 <h3>Detail Reports</h3>
                 <div class="permission-tag">Admin or Accounting</div>
                 <ul>
                     <li><a href="checkinreportdetail.php">Members per Month, detail</a></li>
-                    <li><a href="rfidonemember.php?clientID=59617641">Report on One Client (modify URL)</a></li>
+                    <li><a href="rfidonemember.php?clientID=59617641">Report on One Client</a></li>
                     <li><a href="rfidlast100members.php">Last 100 active members</a></li>
                     <li><a href="rfidshopusagebyhour.php?startDate=20230101&endDate=20241231">Usage Heat Map</a></li>
                 </ul>
@@ -221,8 +228,7 @@ $authHeader = ob_get_clean();
                 <h3>Staff Activity</h3>
                 <div class="permission-tag">Admin or Accounting</div>
                 <ul>
-                    <li><a href="rfidstaffactivity.php">Staff check in/out, 14 day lookback</a></li>
-                    <li><a href="rfidstaffactivity.php?startDate=20230901&endDate=20241231">Staff check in/out with date range</a></li>
+                    <li><a href="rfidstaffactivity.php">Staff check in/out with date range</a></li>
                 </ul>
             </div>
             

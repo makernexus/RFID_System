@@ -161,6 +161,23 @@ function changePassword($userId, $newPassword) {
     return $result;
 }
 
+// Get user by ID
+function getUserById($userId) {
+    $con = getAuthDbConnection();
+    
+    $userId = intval($userId);
+    $sql = "SELECT * FROM auth_users WHERE id = $userId";
+    $result = mysqli_query($con, $sql);
+    
+    $user = null;
+    if ($result && mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
+    }
+    
+    mysqli_close($con);
+    return $user;
+}
+
 // Delete user (admin only)
 function deleteUser($userId) {
     $con = getAuthDbConnection();

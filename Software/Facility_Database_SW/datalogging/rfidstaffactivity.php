@@ -13,7 +13,7 @@ include 'commonfunctions.php';
 $maxRows = 1000;
 
 // Get date range selection
-$rangeType = isset($_GET['range']) ? $_GET['range'] : 'last_week';
+$rangeType = isset($_GET['range']) ? $_GET['range'] : 'last_3weeks';
 $customStart = isset($_GET['customStart']) ? $_GET['customStart'] : '';
 $customEnd = isset($_GET['customEnd']) ? $_GET['customEnd'] : '';
 
@@ -24,6 +24,9 @@ $endDate = date('Y-m-d');
 switch ($rangeType) {
     case 'last_week':
         $startDate = date('Y-m-d', strtotime('-7 days'));
+        break;
+    case 'last_3weeks':
+        $startDate = date('Y-m-d', strtotime('-21 days'));
         break;
     case 'last_30':
         $startDate = date('Y-m-d', strtotime('-30 days'));
@@ -87,8 +90,6 @@ while($row = mysqli_fetch_assoc($result)) {
 
 mysqli_stmt_close($stmt);
 mysqli_close($con);
-
-?>
 
 ?>
 <!DOCTYPE html>
@@ -427,6 +428,7 @@ mysqli_close($con);
                 <div class="form-group">
                     <select name="range" id="rangeSelect" class="form-select" onchange="toggleCustomDates()">
                         <option value="last_week" <?php echo $rangeType === 'last_week' ? 'selected' : ''; ?>>Last Week</option>
+                        <option value="last_3weeks" <?php echo $rangeType === 'last_3weeks' ? 'selected' : ''; ?>>Last 3 Weeks</option>
                         <option value="last_30" <?php echo $rangeType === 'last_30' ? 'selected' : ''; ?>>Last 30 Days</option>
                         <option value="last_90" <?php echo $rangeType === 'last_90' ? 'selected' : ''; ?>>Last 90 Days</option>
                         <option value="last_year" <?php echo $rangeType === 'last_year' ? 'selected' : ''; ?>>Last Year</option>

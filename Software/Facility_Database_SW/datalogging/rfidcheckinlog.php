@@ -18,7 +18,7 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
   
-$selectSQL = "SELECT * FROM rawdata where logEvent = 'Checked In' ORDER BY recNum DESC LIMIT 200;";
+$selectSQL = "SELECT * FROM rawdata WHERE logEvent = 'Checked In' AND dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 5 DAY) ORDER BY recNum DESC;";
 
 // Check connection
 if (mysqli_connect_errno()) {
@@ -260,7 +260,7 @@ mysqli_close($con);
     <div class="container">
         <div class="page-header">
             <h1>Recent Check-Ins</h1>
-            <p>Last 200 successful check-ins to the makerspace. Click Client ID to view detailed member report.</p>
+            <p>Last 5 days of check-ins to the makerspace. Click Client ID to view detailed member report.</p>
         </div>
         
         <?php if (count($results) > 0): ?>

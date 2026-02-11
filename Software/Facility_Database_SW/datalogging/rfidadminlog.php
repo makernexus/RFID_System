@@ -239,11 +239,108 @@ mysqli_close($con);
       color: #388e3c;
     }
     
+    .action-create_user {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+    }
+    
+    .action-update_user {
+      background-color: #fff9c4;
+      color: #f57f17;
+    }
+    
+    .action-change_password {
+      background-color: #ffccbc;
+      color: #d84315;
+    }
+    
+    .action-delete_user {
+      background-color: #ffcdd2;
+      color: #c62828;
+    }
+    
     .value-cell {
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      max-width: 300px;
+      font-size: 13px;
+    }
+    
+    .value-display {
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    .value-display:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .value-json {
+      background-color: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 4px 0;
+    }
+    
+    .value-changed {
+      background-color: #fff9c4;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+    
+    .diff-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+    
+    .diff-column {
+      flex: 1;
+      background-color: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .diff-label {
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    }
+    
+    .diff-removed {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .diff-added {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .diff-item {
+      padding: 2px 4px;
+      margin: 2px 0;
+      border-radius: 2px;
+    }
+    
+    .changes-summary {
+      background-color: #e3f2fd;
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #1565c0;
+    }
+    
+    .changes-summary strong {
+      color: #0d47a1;
     }
     
     .client-link {
@@ -339,7 +436,15 @@ mysqli_close($con);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($logs as $log): ?>
+                        <?php 
+                        foreach ($logs as $log): 
+                            // Try to parse JSON values
+                            $beforeData = json_decode($log['beforeValue'], true);
+                            $afterData = json_decode($log['afterValue'], true);
+                            
+                            $isJsonBefore = json_last_error() === JSON_ERROR_NONE && is_array($beforeData);
+                            $isJsonAfter = json_last_error() === JSON_ERROR_NONE && is_array($afterData);
+                        ?>
                             <tr>
                                 <td><?php echo htmlspecialchars(date('Y-m-d H:i:s', strtotime($log['logDate']))); ?></td>
                                 <td><?php echo htmlspecialchars($log['adminUsername']); ?></td>
@@ -349,17 +454,53 @@ mysqli_close($con);
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="rfidonemember.php?clientID=<?php echo urlencode($log['clientID']); ?>" 
-                                       class="client-link">
+                                    <?php if ($log['clientID'] && is_numeric($log['clientID'])): ?>
+                                        <a href="rfidonemember.php?clientID=<?php echo urlencode($log['clientID']); ?>" 
+                                           class="client-link">
+                                            <?php echo htmlspecialchars($log['clientID']); ?>
+                                        </a>
+                                    <?php elseif ($log['clientID']): ?>
                                         <?php echo htmlspecialchars($log['clientID']); ?>
-                                    </a>
+                                    <?php else: ?>
+                                        <em>-</em>
+                                    <?php endif; ?>
                                 </td>
                                 <td><?php echo htmlspecialchars($log['fieldChanged']); ?></td>
-                                <td class="value-cell" title="<?php echo htmlspecialchars($log['beforeValue']); ?>">
-                                    <?php echo $log['beforeValue'] ? htmlspecialchars($log['beforeValue']) : '<em>-</em>'; ?>
+                                <td class="value-cell">
+                                    <?php if ($isJsonBefore): ?>
+                                        <em>(multiple fields)</em>
+                                    <?php else: ?>
+                                        <?php echo $log['beforeValue'] ? htmlspecialchars($log['beforeValue']) : '<em>-</em>'; ?>
+                                    <?php endif; ?>
                                 </td>
-                                <td class="value-cell" title="<?php echo htmlspecialchars($log['afterValue']); ?>">
-                                    <?php echo $log['afterValue'] ? htmlspecialchars($log['afterValue']) : '<em>-</em>'; ?>
+                                <td class="value-cell">
+                                    <?php 
+                                    // Show changes summary if both are JSON
+                                    if ($isJsonBefore && $isJsonAfter): 
+                                        $changes = [];
+                                        foreach ($afterData as $key => $afterValue) {
+                                            // Use loose comparison to handle type differences (1 vs "1")
+                                            if (!isset($beforeData[$key]) || $beforeData[$key] != $afterValue) {
+                                                $beforeVal = isset($beforeData[$key]) ? $beforeData[$key] : '(new)';
+                                                $changes[] = "$key: " . htmlspecialchars($beforeVal) . " → " . htmlspecialchars($afterValue);
+                                            }
+                                        }
+                                        if (!empty($changes)):
+                                    ?>
+                                        <div class="changes-summary">
+                                            <?php echo implode('<br>', $changes); ?>
+                                        </div>
+                                    <?php 
+                                        else:
+                                    ?>
+                                        <em>(no changes detected)</em>
+                                    <?php
+                                        endif;
+                                    elseif ($isJsonAfter): ?>
+                                        <em>(multiple fields)</em>
+                                    <?php else: ?>
+                                        <?php echo $log['afterValue'] ? htmlspecialchars($log['afterValue']) : '<em>-</em>'; ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td><?php echo $log['notes'] ? htmlspecialchars($log['notes']) : ''; ?></td>
                             </tr>

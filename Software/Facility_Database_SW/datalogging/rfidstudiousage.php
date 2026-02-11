@@ -10,7 +10,7 @@
 //   added three more studis: 3D, hotshop, coldshop
 
 include 'auth_check.php';  // Require authentication
-requireRole(['admin', 'MoD']);  // Require admin or MoD role
+requireRole(['admin']);  // Require admin or MoD role
 include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;

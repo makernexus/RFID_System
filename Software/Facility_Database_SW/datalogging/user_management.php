@@ -4,6 +4,7 @@
 
 include 'auth_check.php';
 include 'db_auth.php';
+require_once 'admin_log_functions.php';
 
 // Only admins can access this page
 if (!isAdmin()) {
@@ -33,6 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!empty($username) && !empty($password) && !empty($fullName)) {
             if (createUser($username, $password, $fullName, $role)) {
+                // Log the user creation
+                $con = getAuthDbConnection();
+                logAdminAction($con, 'create_user', $username, 'user', 
+                    null, json_encode(['username' => $username, 'full_name' => $fullName, 'role' => $role]), 
+                    'User created via user management');
+                mysqli_close($con);
+                
                 $_SESSION['message'] = "User created successfully!";
                 $_SESSION['messageType'] = 'success';
                 header("Location: user_management.php");
@@ -52,12 +60,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role = $_POST['role'] ?? 'MoD';
         $isActive = isset($_POST['is_active']) ? 1 : 0;
         
+        // Get current user data before update for logging
+        $con = getAuthDbConnection();
+        $oldData = getUserById($userId);
+        
         if (updateUser($userId, $username, $fullName, $role, $isActive)) {
+            // Log the changes
+            $newData = ['username' => $username, 'full_name' => $fullName, 'role' => $role, 'is_active' => $isActive];
+            logAdminAction($con, 'update_user', $username, 'user', 
+                json_encode(['username' => $oldData['username'], 'full_name' => $oldData['full_name'], 'role' => $oldData['role'], 'is_active' => $oldData['is_active']]), 
+                json_encode($newData), 
+                'User updated via user management');
+            
+            mysqli_close($con);
             $_SESSION['message'] = "User updated successfully!";
             $_SESSION['messageType'] = 'success';
             header("Location: user_management.php");
             exit();
         } else {
+            mysqli_close($con);
             $message = "Error updating user.";
             $messageType = 'error';
         }
@@ -66,13 +87,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newPassword = $_POST['new_password'] ?? '';
         
         if (!empty($newPassword) && $userId > 0) {
+            $con = getAuthDbConnection();
+            $userData = getUserById($userId);
+            
             $result = changePassword($userId, $newPassword);
             if ($result) {
+                // Log password change (don't log actual passwords)
+                logAdminAction($con, 'change_password', $userData['username'], 'password', 
+                    null, null, 
+                    'Password changed for user: ' . $userData['username']);
+                
+                mysqli_close($con);
                 $_SESSION['message'] = "Password changed successfully!";
                 $_SESSION['messageType'] = 'success';
                 header("Location: user_management.php");
                 exit();
             } else {
+                mysqli_close($con);
                 $message = "Error changing password. Please check server logs for details.";
                 $messageType = 'error';
             }
@@ -85,12 +116,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Prevent deleting yourself
         if ($userId != $_SESSION['user_id']) {
+            $con = getAuthDbConnection();
+            $userData = getUserById($userId);
+            
             if (deleteUser($userId)) {
+                // Log user deletion
+                logAdminAction($con, 'delete_user', $userData['username'], 'user', 
+                    json_encode(['username' => $userData['username'], 'full_name' => $userData['full_name'], 'role' => $userData['role']]), 
+                    null, 
+                    'User deleted via user management');
+                
+                mysqli_close($con);
                 $_SESSION['message'] = "User deleted successfully!";
                 $_SESSION['messageType'] = 'success';
                 header("Location: user_management.php");
                 exit();
             } else {
+                mysqli_close($con);
                 $message = "Error deleting user.";
                 $messageType = 'error';
             }
