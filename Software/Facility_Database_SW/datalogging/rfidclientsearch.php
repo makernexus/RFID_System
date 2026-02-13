@@ -799,8 +799,12 @@ if ($searchQuery !== '') {
                 <div id="modalMessage"></div>
                 <div class="modal-info">
                     <strong>Requirements:</strong>
+                    <p>Our intent is to have a photo that will allow staff and members
+                        to easily recognize the client. Please make it a close 
+                        cropped head and shoulders. Cartoons or other non-realistic 
+                        images are not acceptable.</p>
                     <ul>
-                        <li>File must be in .jpg format (lowercase extension)</li>
+                        <li>File must be in .jpg format</li>
                         <li>You'll be able to crop and adjust the photo before uploading</li>
                         <li>Optional auto touchup feature available</li>
                         <li>Final image will be automatically optimized</li>
@@ -1058,6 +1062,9 @@ if ($searchQuery !== '') {
         
         function applyAdjustments() {
             if (!originalImageData) return;
+            if (isApplyingAdjustments) return;  // Prevent overlapping adjustments
+            
+            isApplyingAdjustments = true;
             
             // If all adjustments are at default, just load the original image without processing
             if (adjustments.brightness === 0 && adjustments.contrast === 0 && 
@@ -1265,7 +1272,6 @@ if ($searchQuery !== '') {
             document.getElementById('cropModal').style.display = 'none';
             if (cropper) {
                 cropper.destroy();
-            pristineImageData = null;
                 cropper = null;
             }
             // Reset file input
@@ -1273,6 +1279,8 @@ if ($searchQuery !== '') {
             currentFile = null;
             touchupApplied = false;
             originalImageData = null;
+            pristineImageData = null;
+            isApplyingAdjustments = false;  // Reset mutex flag
             resetAdjustments();
         }
         
