@@ -7,7 +7,7 @@
 
 include 'commonfunctions.php';
 
-allowWebAccess();  // if IP not allowed, then die
+include 'kiosk_auth_check.php';
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));

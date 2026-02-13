@@ -122,9 +122,13 @@ $authHeader = ob_get_clean();
         <div class="dashboard-section">
             <h2>System Administration</h2>
             <ul class="dashboard-links">
+                <li><a href="kiosk_setup.php">🖥️ Manage Kiosk Tokens</a></li>
                 <li><a href="setup_auth.php" class="warning">⚙️ Re-run Auth Setup</a></li>
             </ul>
             <p style="color: #666; margin-top: 15px;">
+                <strong>Kiosk Tokens:</strong> Create and manage authentication tokens for display screens that need persistent access without manual login.
+            </p>
+            <p style="color: #666; margin-top: 10px;">
                 <strong>Warning:</strong> Only run the auth setup if you need to reinitialize the authentication system.
             </p>
         </div>
