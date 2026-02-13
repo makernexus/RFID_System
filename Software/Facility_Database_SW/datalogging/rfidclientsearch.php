@@ -17,6 +17,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'uploadPhoto') {
     header('Content-Type: application/json');
     
     $clientID = $_POST['clientID'];
+    $clientName = $_POST['clientName'] ?? '';
     
     if (!isset($_FILES['photoFile']) || $_FILES['photoFile']['error'] !== UPLOAD_ERR_OK) {
         echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error']);
@@ -84,6 +85,27 @@ if (isset($_POST['action']) && $_POST['action'] === 'uploadPhoto') {
     }
     
     if ($saved) {
+        // Create NewPhotos directory if it doesn't exist
+        $newPhotosDir = "NewPhotos";
+        if (!is_dir($newPhotosDir)) {
+            mkdir($newPhotosDir, 0755, true);
+        }
+        
+        // Copy to NewPhotos folder with clientID name
+        $newPhotoPath1 = $newPhotosDir . "/" . $clientID . ".jpg";
+        copy($destinationPath, $newPhotoPath1);
+        
+        // Copy to NewPhotos folder with client name if provided
+        if (!empty($clientName)) {
+            // Sanitize client name for filename
+            $sanitizedName = preg_replace('/[^a-zA-Z0-9 ]/', '', $clientName);
+            $sanitizedName = trim($sanitizedName);
+            if (!empty($sanitizedName)) {
+                $newPhotoPath2 = $newPhotosDir . "/" . $sanitizedName . ".jpg";
+                copy($destinationPath, $newPhotoPath2);
+            }
+        }
+        
         // Log the photo upload
         $ini_array = parse_ini_file("rfidconfig.ini", true);
         $dbUser = $ini_array["SQL_DB"]["writeUser"];
@@ -93,7 +115,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'uploadPhoto') {
         $logCon = mysqli_connect("localhost", $dbUser, $dbPassword, $dbName);
         if ($logCon) {
             logAdminAction($logCon, 'photo_upload', $clientID, 'photo', 
-                null, null, 'Photo uploaded via client search');
+                null, null, 'Photo uploaded via client search; Copies saved to NewPhotos folder');
             mysqli_close($logCon);
         }
         
@@ -813,6 +835,7 @@ if ($searchQuery !== '') {
                 <p id="modalClientName" style="font-weight: 600; color: #333; margin-bottom: 15px;"></p>
                 <form id="photoUploadForm" enctype="multipart/form-data">
                     <input type="hidden" id="modalClientID" name="clientID">
+                    <input type="hidden" id="modalClientNameValue" name="clientName">
                     <input type="hidden" name="action" value="uploadPhoto">
                     <div class="file-input-container">
                         <label for="photoFile" class="file-input-label">Select Photo:</label>
@@ -1444,6 +1467,7 @@ if ($searchQuery !== '') {
         
         function openPhotoModal(clientID, clientName) {
             document.getElementById('modalClientID').value = clientID;
+            document.getElementById('modalClientNameValue').value = clientName;
             document.getElementById('modalClientName').textContent = 'Client: ' + clientName;
             document.getElementById('modalMessage').innerHTML = '';
             document.getElementById('photoUploadForm').reset();
