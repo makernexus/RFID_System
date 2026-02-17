@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>RFID Device Logs</h1>
 	
 	<table class="rawlogtable">

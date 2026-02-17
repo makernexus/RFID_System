@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <<AUTH_HEADER>>
 	<h1>Report on Staff Activity</h1>
     <H2>Check In/Out for date range: <<STARTDATE>> to <<ENDDATE>> </H2>
     <p>Note: Alter the URL to set dates

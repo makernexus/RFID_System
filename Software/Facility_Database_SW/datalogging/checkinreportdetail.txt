@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>List of Member Checkins</h1>
 	<table class="rawlogtable">
 	<<TABLEHEADER_MemberCheckIns>>

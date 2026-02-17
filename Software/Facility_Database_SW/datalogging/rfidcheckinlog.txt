@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>Last 200 Checkins</h1>
     <p>You can use the clientID in EZF to find the user's details.
 	
