@@ -5,12 +5,20 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
 
+include 'auth_check.php';  // Require authentication
+requireRole(['admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 
 // get the HTML skeleton
 $myfile = fopen("rfidclientactivity.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfidclientactivity.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);
@@ -20,7 +28,7 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
   
-$selectSQL = "SELECT * FROM (SELECT * FROM rawdata ORDER BY recNum DESC LIMIT 1000) X ORDER BY clientID, recNum;";
+$selectSQL = "SELECT * FROM (SELECT * FROM rawdata WHERE dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ORDER BY recNum DESC) X ORDER BY clientID, recNum;";
 
 
 //"SELECT * FROM `rawdata` ORDER BY coreID, `recNum` LIMIT 1000;";

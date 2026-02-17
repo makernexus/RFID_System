@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <<AUTH_HEADER>>
     <div>
         <h1>Debug report: attempts to check in to a studio that were denied</h1>
         <ul>

@@ -19,6 +19,7 @@
 </head>
 
 <body>
+    <<AUTH_HEADER>>
     <script>
         // start and end of the x-axis
         setGraphRange('<<RANGE START>>','<<RANGE END>>' );

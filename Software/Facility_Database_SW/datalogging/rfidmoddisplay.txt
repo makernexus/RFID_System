@@ -9,9 +9,103 @@
     <link href="style.css" rel="stylesheet">
     <script src="commonfunctions.js"></script>
     
-    <meta http-equiv="refresh" content="15">
+    <script>
+        // Robust auto-refresh that survives connectivity issues
+        let refreshInterval = 15000; // 15 seconds
+        let refreshTimer = null;
+        let retryCount = 0;
+        let maxRetries = 10;
+        let isOnline = true;
+        
+        function updateStatus(message, isError = false) {
+            const statusEl = document.getElementById('connection-status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = 'connection-status ' + (isError ? 'error' : 'ok');
+            }
+        }
+        
+        function doRefresh() {
+            // Check if we're online
+            if (!navigator.onLine) {
+                updateStatus('⚠ Offline - waiting for connection...', true);
+                retryCount++;
+                scheduleNextRefresh();
+                return;
+            }
+            
+            // Try to fetch a small resource to verify connectivity
+            fetch(window.location.href, { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Connection OK, do full page reload
+                    window.location.reload(true);
+                } else {
+                    throw new Error('Server returned ' + response.status);
+                }
+            })
+            .catch(error => {
+                console.log('Refresh failed:', error);
+                retryCount++;
+                updateStatus('⚠ Connection issue - retry ' + retryCount + '/' + maxRetries, true);
+                scheduleNextRefresh();
+            });
+        }
+        
+        function scheduleNextRefresh() {
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+            }
+            
+            // Exponential backoff for retries, but cap at 60 seconds
+            let delay = refreshInterval;
+            if (retryCount > 0) {
+                delay = Math.min(refreshInterval * Math.pow(1.5, retryCount), 60000);
+            }
+            
+            refreshTimer = setTimeout(doRefresh, delay);
+        }
+        
+        // Monitor online/offline events
+        window.addEventListener('online', function() {
+            isOnline = true;
+            retryCount = 0;
+            updateStatus('✓ Connected', false);
+            scheduleNextRefresh();
+        });
+        
+        window.addEventListener('offline', function() {
+            isOnline = false;
+            updateStatus('⚠ Connection lost', true);
+        });
+        
+        // Start refresh cycle when page loads
+        window.addEventListener('load', function() {
+            scheduleNextRefresh();
+        });
+    </script>
 
     <style>
+        .connection-status {
+            position: fixed;
+            bottom: 5px;
+            right: 5px;
+            padding: 5px 10px;
+            font-size: 10pt;
+            border-radius: 3px;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .connection-status.error {
+            background-color: #f44336;
+            color: white;
+            display: block;
+        }
+        
         .MODDiv {
             width: 600px;
             border: 1px solid green;
@@ -40,6 +134,7 @@
 </head>
 
 <body>
+  <div id="connection-status" class="connection-status"></div>
   <div class='MODDiv'>
     <div>
         <p class='MODTitle'>Maker On Duty</p>

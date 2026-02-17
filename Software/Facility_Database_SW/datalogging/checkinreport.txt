@@ -15,6 +15,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 
 	<H2>Summary of Member Checkins</H2>
 	<p>Excludes staff members

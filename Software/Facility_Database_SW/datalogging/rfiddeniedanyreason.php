@@ -6,6 +6,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2023 Maker Nexus
 // By Jim Schrempp, Bob Glicksman
 
+include 'auth_check.php';  // Require authentication
+requireRole(['manager', 'admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 $maxRows = 10000;
 
@@ -18,6 +20,12 @@ $SixtyDaysAgoSQL = $today->format("Y-m-d");
 $myfile = fopen("rfiddeniedanyreason.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfiddeniedanyreason.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);

@@ -5,7 +5,10 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp
 // 20250202 added cached file
+// 20260204 added authentication
 
+include 'auth_check.php';  // Require authentication
+requireRole(['manager', 'admin']);  // Require manager, admin, or MoD role
 include 'commonfunctions.php';
 
 allowWebAccess();  // if IP not allowed, then die
@@ -19,6 +22,11 @@ $cacheTime = 900;  // 15 minutes
 
 $html = checkCachedFile($cacheFilename, $cacheTime);
 if ($html != "") {
+    // Generate auth header and inject it into cached content
+    ob_start();
+    include 'auth_header.php';
+    $authHeader = ob_get_clean();
+    $html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
     echo $html;
     return;
 }
@@ -65,6 +73,12 @@ if (mysqli_num_rows($result) > 0) {
     }
 }
 
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 $html = str_replace("<<PHOTODIVS>>",$photodivs, $html);
 echo $html;
 

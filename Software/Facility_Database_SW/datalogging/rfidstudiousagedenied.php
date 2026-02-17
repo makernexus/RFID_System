@@ -6,20 +6,22 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2022 Maker Nexus
 // By Jim Schrempp, Bob Glicksman
 
+include 'auth_check.php';  // Require authentication
+requireRole(['manager', 'admin']);  // Require manager or admin role
 include 'commonfunctions.php';
 $maxRows = 10000;
 $assumedHoursForNoCheckout = 5;
 
-// get the URL parameters
-$startDate = $_GET["startDate"];
-if ($startDate == 0) {
-    echo "startDate= parameter not found.";
-    return;
+// Calculate date range for last 60 days
+$endDate = date('Ymd');
+$startDate = date('Ymd', strtotime('-60 days'));
+
+// Override with URL parameters if provided
+if (isset($_GET["startDate"]) && $_GET["startDate"] != 0) {
+    $startDate = $_GET["startDate"];
 }
-$endDate = $_GET["endDate"];
-if ($endDate == 0) {
-    echo "endDate= parameter not found.";
-    return;
+if (isset($_GET["endDate"]) && $_GET["endDate"] != 0) {
+    $endDate = $_GET["endDate"];
 }
 
 // These are the eventData we will query for
@@ -29,6 +31,12 @@ $studios = array("Textile denied", "Wood denied");
 $myfile = fopen("rfidstudiousagedenied.txt", "r") or die("Unable to open file!");
 $html = fread($myfile,filesize("rfidstudiousagedenied.txt"));
 fclose($myfile);
+
+// Generate auth header
+ob_start();
+include 'auth_header.php';
+$authHeader = ob_get_clean();
+$html = str_replace("<<AUTH_HEADER>>", $authHeader, $html);
 
 // Get the data
 $ini_array = parse_ini_file("rfidconfig.ini", true);

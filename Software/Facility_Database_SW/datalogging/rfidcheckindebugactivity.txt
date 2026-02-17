@@ -12,6 +12,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<H2>Summary of log records</H2>
 	
 	<div style="float:left;">

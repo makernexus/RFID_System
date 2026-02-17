@@ -10,6 +10,7 @@
 </head>
 
 <body>
+	<<AUTH_HEADER>>
 	<h1>Report on ClientID</h1>
     <H2>Check In for member: <<CLIENTID>> </H2>
     <p>Note: Alter the URL to set clientID
