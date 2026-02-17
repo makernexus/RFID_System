@@ -8,7 +8,8 @@
 
 include 'commonfunctions.php';
 
-include 'kiosk_auth_check.php';  // NEW: Token-based authentication
+allowWebAccess();  // if IP not allowed, then die
+//include 'kiosk_auth_check.php';  // NEW: Token-based authentication
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));

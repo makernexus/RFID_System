@@ -12,6 +12,7 @@
 <body>
 	<<AUTH_HEADER>>
 	<h1>Activity by DeviceID</h1>
+    <h2>7 days</h2>
 	
 	<table class="rawlogtable">
 	<<TABLEHEADER>>

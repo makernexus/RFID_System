@@ -70,7 +70,7 @@ if ($searchLastName !== '' && $clientID === '') {
     }
     
     // Get activity data
-    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')  ORDER BY dateEventLocal DESC LIMIT 500;";
+    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')  ORDER BY dateEventLocal DESC LIMIT 100;";
     
     $result = mysqli_query($con, $selectSQL);
     $results = [];
@@ -535,7 +535,7 @@ if ($searchLastName !== '' && $clientID === '') {
                     <div class="client-details">
                         <h2><?php echo htmlspecialchars($firstName . ($lastName ? ' ' . $lastName : '')); ?></h2>
                         <p><strong>Client ID:</strong> <?php echo htmlspecialchars($clientID); ?></p>
-                        <p><strong>Records Found:</strong> <?php echo count($results); ?> (showing last 500 events)</p>
+                        <p><strong>Records Found:</strong> <?php echo count($results); ?> (showing last 100 events)</p>
                     </div>
                 </div>
                 

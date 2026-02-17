@@ -30,7 +30,7 @@ if (mysqli_connect_errno()) {
 $selectSQLMembersPerMonth = "
 SELECT YEAR(dateEventLocal) as yr, month(dateEventLocal) as mnth, clientID, firstName, logEvent 
 FROM `rawdata` 
-WHERE dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+WHERE dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
   and logEvent = 'Checked In'
 group by YEAR(dateEventLocal),month(dateEventLocal), clientID
 order by YEAR(dateEventLocal),month(dateEventLocal), firstName;
@@ -209,7 +209,7 @@ mysqli_close($con);
     <div class="container">
         <div class="page-header">
             <h1>Member Check-Ins Detail</h1>
-            <p>Monthly breakdown of member check-ins for the last 12 months</p>
+            <p>Monthly breakdown of member check-ins for the last 30 days</p>
         </div>
         
         <?php if (count($results) > 0): ?>

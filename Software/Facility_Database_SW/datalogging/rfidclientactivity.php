@@ -28,7 +28,7 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 
 $con = mysqli_connect("localhost",$dbUser,$dbPassword,$dbName);
   
-$selectSQL = "SELECT * FROM (SELECT * FROM rawdata WHERE dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 60 DAY) ORDER BY recNum DESC) X ORDER BY clientID, recNum;";
+$selectSQL = "SELECT * FROM (SELECT * FROM rawdata WHERE dateEventLocal >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ORDER BY recNum DESC) X ORDER BY clientID, recNum;";
 
 
 //"SELECT * FROM `rawdata` ORDER BY coreID, `recNum` LIMIT 1000;";

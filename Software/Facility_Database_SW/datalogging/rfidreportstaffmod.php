@@ -196,7 +196,7 @@ if (mysqli_connect_errno()) {
 $selectSQL = 
     "SELECT firstName, lastName, clientID, displayClasses, MOD_Eligible, dateLastSeen
      FROM clientInfo
-     WHERE displayClasses IS NOT NULL AND displayClasses <> ''
+     WHERE (displayClasses IS NOT NULL AND displayClasses LIKE BINARY '%staff%') OR MOD_Eligible = 1
      ORDER BY lastName ASC";
     
 $result = mysqli_query($con, $selectSQL);

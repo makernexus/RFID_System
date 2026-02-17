@@ -209,7 +209,7 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="checkinreport.php">Members per Month/Day Summary</a></li>
-                    <li><a href="rfidshopusagebyhour.php?startDate=20230101&endDate=20241231">Usage Heat Map</a></li>
+                    <li><a href="rfidshopusagebyhour.php?startDate=&endDate=">Usage Heat Map</a></li>
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
                 </ul>
             </div>
@@ -222,7 +222,7 @@ $authHeader = ob_get_clean();
                     <li><a href="rfidonemember.php">Report on One Client</a></li>
                     <li><a href="rfidlast100members.php">Last 100 active members</a></li>
                     <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
-                    <li><a href="rfidstudiousagedenied.php?startDate=20220515&endDate=20241231">Studio Usage Denied</a></li>
+                    <li><a href="rfidstudiousagedenied.php?startDate=&endDate=">Studio Usage Denied</a></li>
                 </ul>
             </div>
             
@@ -239,7 +239,7 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="rfidreportstaffmod.php">Review and set Staff or MOD</a></li>
-                    <li><a href="rfidclientsearch.php">Change client photo</a></li>
+                    <li><a href="rfidclientsearch.php">Change Checked In Display Photo</a></li>
                 </ul>
             </div>
             
@@ -248,7 +248,7 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Admin only</div>
                 <ul>
                     <li><a href="rfidadminlog.php">Admin Activity Log</a></li>
-                    <li><a href="user_management.php">RFID Reporting Users</a></li>
+                    <li><a href="user_management.php">Manage Report Website Users</a></li>
                 </ul>
             </div>
 

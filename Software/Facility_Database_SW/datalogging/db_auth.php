@@ -27,7 +27,7 @@ function initializeUsersTable() {
         username VARCHAR(50) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         full_name VARCHAR(100) NOT NULL,
-        role ENUM('admin', 'accounting', 'reception', 'MoD') NOT NULL DEFAULT 'MoD',
+        role ENUM('admin', 'manager', 'reception', 'MoD') NOT NULL DEFAULT 'MoD',
         is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_login TIMESTAMP NULL DEFAULT NULL,
