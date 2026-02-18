@@ -798,6 +798,9 @@ if ($searchQuery !== '') {
                         No results found for "<?php echo htmlspecialchars($searchQuery); ?>"
                     </p>
                     <p style="margin-top: 10px; color: #999;">
+                        Note that only members who have checked in at least once can be found.
+                    </p>
+                    <p style="margin-top: 10px; color: #999;">
                         Try a different search term
                     </p>
                 </div>
