@@ -29,8 +29,15 @@ function validateKioskToken() {
     // Check for token in GET parameter (for initial setup)
     if (isset($_GET['kiosk_token'])) {
         $token = $_GET['kiosk_token'];
-        // Set cookie for future requests
-        setcookie('kiosk_token', $token, time() + (365 * 24 * 60 * 60), '/', '', false, true);
+        // Set cookie for future requests with SameSite=Lax for compatibility
+        setcookie('kiosk_token', $token, [
+            'expires' => time() + (365 * 24 * 60 * 60),
+            'path' => '/',
+            'domain' => '',
+            'secure' => false,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
     }
     
     if (!$token) {

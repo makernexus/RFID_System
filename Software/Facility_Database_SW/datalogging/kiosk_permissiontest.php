@@ -6,10 +6,12 @@
 // By Jim Schrempp
 // 20250202 result is now cached for 15 seconds
 
+// Include kiosk auth FIRST - must come before any output to set cookies
+include 'kiosk_auth_check.php';  // Token-based authentication
+
 include 'commonfunctions.php';
 
 //allowWebAccess();  // if IP not allowed, then die
-include 'kiosk_auth_check.php';  // NEW: Token-based authentication
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));

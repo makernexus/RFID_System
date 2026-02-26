@@ -6,10 +6,11 @@
 // By Jim Schrempp
 // 20250202 result is now cached for 15 seconds
 
-include 'commonfunctions.php';
 
-allowWebAccess();  // if IP not allowed, then die
 //include 'kiosk_auth_check.php';  // NEW: Token-based authentication
+allowWebAccess();  // if IP not allowed, then die
+
+include 'commonfunctions.php';
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
