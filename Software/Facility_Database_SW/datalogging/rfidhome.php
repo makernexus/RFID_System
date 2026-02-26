@@ -201,6 +201,7 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Manager/Admin or MoD</div>
                 <ul>        
                     <li><a href="rfidcheckinlog.php">Last 200 CheckIns</a></li>
+                    <li><a href="rfidonemember.php">Report on One Member</a></li>
                 </ul>
             </div>
 
@@ -219,7 +220,6 @@ $authHeader = ob_get_clean();
                 <div class="permission-tag">Manager/Admin</div>
                 <ul>
                     <li><a href="checkinreportdetail.php">Members per Month, detail</a></li>
-                    <li><a href="rfidonemember.php">Report on One Client</a></li>
                     <li><a href="rfidlast100members.php">Last 100 active members</a></li>
                     <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
                     <li><a href="rfidstudiousagedenied.php?startDate=&endDate=">Studio Usage Denied</a></li>

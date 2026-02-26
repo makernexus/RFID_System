@@ -152,7 +152,7 @@ if ($searchQuery !== '') {
         
         if (mysqli_num_rows($searchResult) > 0) {
             $editColumnHeader = "";
-            if (isAdmin()) {
+            if (isAdmin() || $_SESSION['role'] === 'manager') {
                 $editColumnHeader = "<th></th>";
             }
             
@@ -205,7 +205,7 @@ echo mysqli_error($con);
 // Construct the page
 
 $editColumnHeader = "";
-if (isAdmin()) {
+if (isAdmin() || $_SESSION['role'] === 'manager') {
     $editColumnHeader = "<th></th>"; // Empty header for edit button column
 }
 
@@ -246,9 +246,9 @@ function makeRow($firstName, $lastName, $clientID, $classes, $MODeligible, $date
     // Format date last seen
     $formattedDate = !empty($dateLastSeen) ? htmlspecialchars($dateLastSeen) : '';
     
-    // Only show edit button if user is admin
+    // Only show edit button if user is admin or manager
     $editButton = "";
-    if (isAdmin()) {
+    if (isAdmin() || $_SESSION['role'] === 'manager') {
         $escapedFirstName = htmlspecialchars($firstName, ENT_QUOTES);
         $escapedLastName = htmlspecialchars($lastName, ENT_QUOTES);
         $escapedClasses = htmlspecialchars($classes, ENT_QUOTES);

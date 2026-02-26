@@ -760,7 +760,7 @@ if ($searchQuery !== '') {
                     <?php foreach ($results as $client): ?>
                         <div class="client-card">
                             <div class="client-photo">
-                                <img src="photo/<?php echo htmlspecialchars($client['clientID']); ?>.jpg" 
+                                <img src="photo/<?php echo htmlspecialchars($client['clientID']); ?>.jpg?v=<?php echo time(); ?>" 
                                      alt="Photo of <?php echo htmlspecialchars($client['firstName'] . ' ' . $client['lastName']); ?>"
                                      onerror="this.src='WeNeedAPhoto.png'">
                             </div>
@@ -796,6 +796,9 @@ if ($searchQuery !== '') {
                 <div class="no-results">
                     <p style="font-size: 18px; margin: 0;">
                         No results found for "<?php echo htmlspecialchars($searchQuery); ?>"
+                    </p>
+                    <p style="margin-top: 10px; color: #999;">
+                        Note that only members who have checked in at least once can be found.
                     </p>
                     <p style="margin-top: 10px; color: #999;">
                         Try a different search term
@@ -1094,10 +1097,12 @@ if ($searchQuery !== '') {
                 adjustments.shadows === 0 && adjustments.sharpening === 0) {
                 const cropImage = document.getElementById('cropImage');
                 
-                // Save current crop data before changing image
+                // Save current crop data and canvas data (zoom) before changing image
                 let savedCropData = null;
+                let savedCanvasData = null;
                 if (cropper) {
                     savedCropData = cropper.getData();
+                    savedCanvasData = cropper.getCanvasData();
                     cropper.destroy();
                 }
                 
@@ -1122,6 +1127,9 @@ if ($searchQuery !== '') {
                         cropBoxResizable: true,
                         cropBoxMovable: true,
                         ready: function() {
+                            if (savedCanvasData && savedCanvasData.width > 0) {
+                                cropper.setCanvasData(savedCanvasData);
+                            }
                             if (savedCropData && savedCropData.width > 0) {
                                 cropper.setData(savedCropData);
                             }
@@ -1196,10 +1204,12 @@ if ($searchQuery !== '') {
                 const cropImage = document.getElementById('cropImage');
                 cropImage.src = adjustedDataUrl;
                 
-                // Save current crop data (relative to image, not container)
+                // Save current crop data and canvas data (zoom)
                 let savedCropData = null;
+                let savedCanvasData = null;
                 if (cropper) {
                     savedCropData = cropper.getData();
+                    savedCanvasData = cropper.getCanvasData();
                     cropper.destroy();
                 }
                 
@@ -1222,7 +1232,10 @@ if ($searchQuery !== '') {
                         cropBoxResizable: true,
                         cropBoxMovable: true,
                         ready: function() {
-                            // Restore crop position and size if it existed
+                            // Restore canvas data (zoom) first, then crop position and size
+                            if (savedCanvasData && savedCanvasData.width > 0) {
+                                cropper.setCanvasData(savedCanvasData);
+                            }
                             if (savedCropData && savedCropData.width > 0) {
                                 cropper.setData(savedCropData);
                             }
@@ -1376,10 +1389,12 @@ if ($searchQuery !== '') {
                 // Update the image source and reinitialize cropper
                 imageElement.src = enhancedDataUrl;
                 
-                // Save current crop data (relative to image, not container)
+                // Save current crop data and canvas data (zoom)
                 let savedCropData = null;
+                let savedCanvasData = null;
                 if (cropper) {
                     savedCropData = cropper.getData();
+                    savedCanvasData = cropper.getCanvasData();
                     cropper.destroy();
                 }
                 
@@ -1402,7 +1417,10 @@ if ($searchQuery !== '') {
                         cropBoxResizable: true,
                         cropBoxMovable: true,
                         ready: function() {
-                            // Restore crop position and size if it existed
+                            // Restore canvas data (zoom) first, then crop position and size
+                            if (savedCanvasData && savedCanvasData.width > 0) {
+                                cropper.setCanvasData(savedCanvasData);
+                            }
                             if (savedCropData && savedCropData.width > 0) {
                                 cropper.setData(savedCropData);
                             }
