@@ -81,18 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messageType = "error";
                 }
                 break;
-                
-            case 'delete':
-                $tokenId = (int)$_POST['token_id'];
-                $deleteSql = "DELETE FROM kiosk_tokens WHERE id = $tokenId";
-                if (mysqli_query($con, $deleteSql)) {
-                    $message = "Kiosk token deleted";
-                    $messageType = "success";
-                } else {
-                    $message = "Error deleting token: " . mysqli_error($con);
-                    $messageType = "error";
-                }
-                break;
         }
     }
 }
@@ -393,12 +381,6 @@ $currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" 
                                             <button type="submit" class="btn btn-primary btn-small">Activate</button>
                                         </form>
                                     <?php endif; ?>
-                                    
-                                    <form method="POST" style="display: inline;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
-                                        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Permanently delete this token? This cannot be undone.')">Delete</button>
-                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

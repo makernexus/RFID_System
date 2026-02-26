@@ -249,6 +249,7 @@ $authHeader = ob_get_clean();
                 <ul>
                     <li><a href="rfidadminlog.php">Admin Activity Log</a></li>
                     <li><a href="user_management.php">Manage Report Website Users</a></li>
+                    <li><a href="kiosk_setup.php">Manage Kiosk Tokens</a></li>
                 </ul>
             </div>
 
