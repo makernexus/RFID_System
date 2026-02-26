@@ -70,6 +70,9 @@ allowWebAccess();  // OLD: IP-based check
 ```
 
 With:
+NOTE the kiosk auth check MUST come first in the file before
+any single character is sent to the browser. If not the token
+cookie will not be saved!
 ```php
 include 'kiosk_auth_check.php';  // NEW: Token-based authentication
 ```
@@ -140,6 +143,41 @@ These display pages are good candidates:
 - `rfidmoddisplay.php` - MOD information
 - `rfidcurrentstudio.php` - Studio status
 
+## Set up a Raspberry Pi to be a kiosk
+
+From the command line, see that you are denied
+```
+chromium --noerrdialogs --password-store=basic --disable-features=TranslateUI --user-data-dir=/home/admin/.config/chromium-kiosk http://rfid.makernexuswiki.com/kiosk_permissiontest.php &
+```
+
+Then set your token
+```
+https://rfid.makernexuswiki.com/kiosk_token_debug.php?kiosk_token=<<YOUR TOKEN HERE>>
+```
+
+See that you can get access
+```
+chromium --noerrdialogs --password-store=basic --disable-features=TranslateUI --user-data-dir=/home/admin/.config/chromium-kiosk http://rfid.makernexuswiki.com/kiosk_permissiontest.php &
+```
+
+Set up the RPi to boot as a kiosk
+Disable screen blanking
+```sudo raspi-config```
+Set up autostart (if on an older RPi, look for other options)
+```
+mkdir -p ~/.config/labwc
+nano ~/.config/labwc/autostart
+```
+add to the autostart
+chromium --kiosk --noerrdialogs --password-store=basic --disable-features=TranslateUI --user-data-dir=/home/pi/.config/chromium-kiosk http://rfid.makernexuswiki.com/kiosk_permissiontest.php &
+```
+Make file executable
+```
+chmod +x ~/.config/labwc/autostart
+```
+To get out of Kiosk mode:  Alt F4
+
+
 ## Troubleshooting
 
 ### Kiosk Shows "Authentication Required" Error
@@ -160,7 +198,8 @@ These display pages are good candidates:
 
 **Possible causes:**
 1. Browser in private/incognito mode
-2. Browser blocking cookies
+2. Browser blocking cookies (might happen if the kiosk auth
+   check is not the VERY FIRST thing, above all other includes)
 3. Kiosk browser doesn't support cookies
 
 **Solution:**
