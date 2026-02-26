@@ -5,9 +5,8 @@
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2019 Maker Nexus
 // By Jim Schrempp
 
-include 'commonfunctions.php';
-
 include 'kiosk_auth_check.php';
+include 'commonfunctions.php';
 
 $today = new DateTime();
 $today->setTimeZone(new DateTimeZone("America/Los_Angeles"));
