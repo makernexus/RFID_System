@@ -6,7 +6,7 @@
 // By Jim Schrempp
 // 20250202 result is now cached for 15 seconds
 
-//include 'kiosk_auth_check.php';  // NEW: Token-based authentication
+include 'kiosk_auth_check.php';  // NEW: Token-based authentication
 
 include 'commonfunctions.php';
 //allowWebAccess();  // if IP not allowed, then die
