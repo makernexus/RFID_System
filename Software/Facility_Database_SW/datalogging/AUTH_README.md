@@ -101,6 +101,33 @@ requireRole(['admin', 'accounting']);  // Admins or accounting
 ?>
 ```
 
+### Pages in Subdirectories:
+If your protected page is in a subdirectory (e.g., `pages/dashboards/checkin/`), you need to set the base path before including `auth_check.php`:
+
+```php
+<?php
+// Set base path relative to login.php location
+$AUTH_BASE_PATH = '../../../';  // For pages 3 levels deep
+include $AUTH_BASE_PATH . 'auth_check.php';
+
+// If using auth_header.php, it will automatically use the same $AUTH_BASE_PATH
+include $AUTH_BASE_PATH . 'auth_header.php';
+
+// ... rest of your code
+?>
+```
+
+The `$AUTH_BASE_PATH` variable tells `auth_check.php` and `auth_header.php` how to locate authentication files and generate correct links. Calculate the path based on how many directory levels deep your page is:
+- 1 level deep (e.g., `pages/`): `$AUTH_BASE_PATH = '../';`
+- 2 levels deep (e.g., `pages/dashboards/`): `$AUTH_BASE_PATH = '../../';`
+- 3 levels deep (e.g., `pages/dashboards/checkin/`): `$AUTH_BASE_PATH = '../../../';`
+
+Root-level pages don't need to set `$AUTH_BASE_PATH` (it defaults to empty string).
+
+**Note:** Both `auth_check.php` and `auth_header.php` now support the `$AUTH_BASE_PATH` variable, which ensures:
+- Login redirects work correctly from any directory level
+- Navigation links in the header point to the correct pages
+
 ## Current Implementation Status
 
 ### Protected Pages:
