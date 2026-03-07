@@ -192,7 +192,7 @@ $authHeader = ob_get_clean();
             <div class="report-card">
                 <h3>Online Visitor Log</h3>
                 <ul>
-                    <li><a href="https://rfid.makernexuswiki.com/v2/OVLrecentvisitors.php">Last 5 days of visitors</a></li>
+                    <li><a href="v2/OVLrecentvisitors.php">Last 5 days of visitors</a></li>
                 </ul>
             </div>
             

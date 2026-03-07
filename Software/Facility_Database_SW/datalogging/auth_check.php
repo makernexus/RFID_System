@@ -3,6 +3,13 @@
 // Include this file at the top of any protected page
 // Creative Commons: Attribution/Share Alike/Non Commercial (cc) 2026 Maker Nexus
 
+// Set $AUTH_BASE_PATH before including this file if the page is in a subdirectory
+// Example: $AUTH_BASE_PATH = '../../../'; for pages in pages/dashboards/checkin/
+// Default: '' (empty string) for root-level pages
+if (!isset($AUTH_BASE_PATH)) {
+    $AUTH_BASE_PATH = '';
+}
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -12,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
     // Store the requested page for redirect after login
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    header("Location: login.php");
+    header("Location: {$AUTH_BASE_PATH}login.php");
     exit();
 }
 
@@ -21,7 +28,7 @@ $timeout = 1800; // 30 minutes in seconds
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
     session_unset();
     session_destroy();
-    header("Location: login.php?timeout=1");
+    header("Location: {$AUTH_BASE_PATH}login.php?timeout=1");
     exit();
 }
 
