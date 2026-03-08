@@ -223,6 +223,7 @@ $authHeader = ob_get_clean();
                     <li><a href="rfidlast100members.php">Last 100 active members</a></li>
                     <li><a href="rfiddeniedanyreason.php">Denied for Any Reason</a></li>
                     <li><a href="rfidstudiousagedenied.php?startDate=&endDate=">Studio Usage Denied</a></li>
+                    <li><a href="v2/OVLexportvisitors.php">Export Visitors for Mailchimp</a></li>
                 </ul>
             </div>
             
