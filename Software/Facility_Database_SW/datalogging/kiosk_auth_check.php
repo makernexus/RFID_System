@@ -11,8 +11,14 @@ include 'db_auth.php';
 /**
  * Validate a kiosk token from the request
  * Checks both cookie and HTTP header for flexibility
+ * Uses session caching to reduce database load
  */
 function validateKioskToken() {
+    // Start session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     $token = null;
     
     // Check for token in cookie (primary method)
@@ -44,6 +50,18 @@ function validateKioskToken() {
         return false;
     }
     
+    // Check if we have a valid cached result for this token
+    $cacheTimeout = 600; // 10 minutes cache (adjustable)
+    if (isset($_SESSION['kiosk_token_validated']) && 
+        isset($_SESSION['kiosk_token_value']) &&
+        isset($_SESSION['kiosk_token_cache_time']) &&
+        $_SESSION['kiosk_token_value'] === $token &&
+        (time() - $_SESSION['kiosk_token_cache_time']) < $cacheTimeout) {
+        // Use cached result - no database hit needed
+        $GLOBALS['kiosk_info'] = $_SESSION['kiosk_info_cache'];
+        return true;
+    }
+    
     // Validate token against database
     $con = getAuthDbConnection();
     if (!$con) {
@@ -59,6 +77,11 @@ function validateKioskToken() {
     
     if (!$result || mysqli_num_rows($result) == 0) {
         mysqli_close($con);
+        // Clear cache on validation failure
+        unset($_SESSION['kiosk_token_validated']);
+        unset($_SESSION['kiosk_token_value']);
+        unset($_SESSION['kiosk_token_cache_time']);
+        unset($_SESSION['kiosk_info_cache']);
         return false;
     }
     
@@ -67,6 +90,11 @@ function validateKioskToken() {
     // Check if token is expired
     if ($kioskToken['expires_at'] && strtotime($kioskToken['expires_at']) < time()) {
         mysqli_close($con);
+        // Clear cache on expiration
+        unset($_SESSION['kiosk_token_validated']);
+        unset($_SESSION['kiosk_token_value']);
+        unset($_SESSION['kiosk_token_cache_time']);
+        unset($_SESSION['kiosk_info_cache']);
         return false;
     }
     
@@ -78,6 +106,12 @@ function validateKioskToken() {
     
     // Store kiosk info in global for logging
     $GLOBALS['kiosk_info'] = $kioskToken;
+    
+    // Cache the validation result to reduce database load
+    $_SESSION['kiosk_token_validated'] = true;
+    $_SESSION['kiosk_token_value'] = $token;
+    $_SESSION['kiosk_token_cache_time'] = time();
+    $_SESSION['kiosk_info_cache'] = $kioskToken;
     
     return true;
 }
