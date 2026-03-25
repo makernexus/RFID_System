@@ -18,11 +18,29 @@ $dbName = $ini_array["SQL_DB"]["dataBaseName"];
 // Get search parameters
 $searchLastName = isset($_GET["search"]) ? trim($_GET["search"]) : '';
 $clientID = isset($_GET["clientID"]) ? trim($_GET["clientID"]) : '';
+$dateRange = isset($_GET["dateRange"]) ? $_GET["dateRange"] : 'last_month';
 
 $searchResults = [];
 $results = [];
 $hasClientID = false;
 $selectedClient = null;
+
+// Calculate date range for SQL query
+$dateFilter = '';
+if ($clientID !== '') {
+    switch ($dateRange) {
+        case 'last_18_months':
+            $dateFilter = " AND dateEventLocal >= DATE_SUB(NOW(), INTERVAL 18 MONTH)";
+            break;
+        case 'last_12_months':
+            $dateFilter = " AND dateEventLocal >= DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+            break;
+        case 'last_month':
+        default:
+            $dateFilter = " AND dateEventLocal >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
+            break;
+    }
+}
 
 if ($searchLastName !== '' && $clientID === '') {
     // Search for clients by last name
@@ -70,7 +88,7 @@ if ($searchLastName !== '' && $clientID === '') {
     }
     
     // Get activity data
-    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')  ORDER BY dateEventLocal DESC LIMIT 100;";
+    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')" . $dateFilter . " ORDER BY dateEventLocal DESC LIMIT 200;";
     
     $result = mysqli_query($con, $selectSQL);
     $results = [];
@@ -82,6 +100,41 @@ if ($searchLastName !== '' && $clientID === '') {
     }
 
     mysqli_close($con);
+}
+
+// Handle CSV export
+if (isset($_GET['export']) && $_GET['export'] === 'csv' && $hasClientID && count($results) > 0) {
+    // Set headers for CSV download
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="member_activity_' . $clientID . '_' . date('Y-m-d') . '.csv"');
+    
+    // Create output stream
+    $output = fopen('php://output', 'w');
+    
+    // Add BOM for Excel UTF-8 compatibility
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    
+    // Output column headers
+    fputcsv($output, array('Date & Time', 'Event', 'Hours'));
+    
+    // Output data rows
+    foreach ($results as $row) {
+        $hours = '';
+        if (is_numeric($row['logData'])) {
+            $hours = number_format($row['logData'] / 60, 1);
+        } else {
+            $hours = $row['logData'];
+        }
+        
+        fputcsv($output, array(
+            $row['dateEventLocal'],
+            $row['logEvent'],
+            $hours
+        ));
+    }
+    
+    fclose($output);
+    exit();
 }
 
 ?>
@@ -521,24 +574,58 @@ if ($searchLastName !== '' && $clientID === '') {
                 </div>
             <?php endif; ?>
         <?php elseif ($hasClientID): ?>
-            <?php if (count($results) > 0): ?>
-                <?php
-                $firstName = $selectedClient ? $selectedClient['firstName'] : $results[0]['firstName'];
-                $lastName = $selectedClient ? $selectedClient['lastName'] : '';
-                ?>
-                
-                <div class="client-info-card">
-                    <img src="photo/<?php echo htmlspecialchars($clientID); ?>.jpg" 
-                         alt="Member Photo" 
-                         class="client-photo-large"
-                         onerror="this.src='WeNeedAPhoto.png'">
-                    <div class="client-details">
-                        <h2><?php echo htmlspecialchars($firstName . ($lastName ? ' ' . $lastName : '')); ?></h2>
-                        <p><strong>Client ID:</strong> <?php echo htmlspecialchars($clientID); ?></p>
-                        <p><strong>Records Found:</strong> <?php echo count($results); ?> (showing last 100 events)</p>
-                    </div>
+            <?php
+            // Get client name from selectedClient or from results if available
+            $firstName = $selectedClient ? $selectedClient['firstName'] : (count($results) > 0 ? $results[0]['firstName'] : 'Unknown');
+            $lastName = $selectedClient ? $selectedClient['lastName'] : '';
+            ?>
+            
+            <div class="client-info-card">
+                <img src="photo/<?php echo htmlspecialchars($clientID); ?>.jpg" 
+                     alt="Member Photo" 
+                     class="client-photo-large"
+                     onerror="this.src='WeNeedAPhoto.png'">
+                <div class="client-details">
+                    <h2><?php echo htmlspecialchars($firstName . ($lastName ? ' ' . $lastName : '')); ?></h2>
+                    <p><strong>Client ID:</strong> <?php echo htmlspecialchars($clientID); ?></p>
+                    <p><strong>Records Found:</strong> <?php echo count($results); ?> (last <?php 
+                        if ($dateRange == 'last_18_months') {
+                            echo '18 months';
+                        } elseif ($dateRange == 'last_12_months') {
+                            echo '12 months';
+                        } else {
+                            echo 'month';
+                        }
+                    ?>)</p>
                 </div>
-                
+            </div>
+            
+            <div class="search-container" style="margin-bottom: 20px;">
+                <label class="search-label">Date Range:</label>
+                <form class="search-form" method="GET" action="rfidonemember.php">
+                    <input type="hidden" name="clientID" value="<?php echo htmlspecialchars($clientID); ?>">
+                    <div class="form-group">
+                        <select name="dateRange" class="search-input" onchange="this.form.submit()">
+                            <option value="last_month" <?php echo ($dateRange == 'last_month') ? 'selected' : ''; ?>>Last Month</option>
+                            <option value="last_12_months" <?php echo ($dateRange == 'last_12_months') ? 'selected' : ''; ?>>Last 12 Months</option>
+                            <option value="last_18_months" <?php echo ($dateRange == 'last_18_months') ? 'selected' : ''; ?>>Last 18 Months</option>
+                        </select>
+                    </div>
+                    <noscript>
+                        <button type="submit" class="search-btn">Update</button>
+                    </noscript>
+                    <?php if (count($results) > 0): ?>
+                        <a href="rfidonemember.php?clientID=<?php echo urlencode($clientID); ?>&dateRange=<?php echo urlencode($dateRange); ?>&export=csv" 
+                           class="search-btn" 
+                           style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; text-decoration: none;">
+                            📥 Export CSV
+                        </a>
+                    <?php endif; ?>
+                    <a href="rfidonemember.php?search=<?php echo urlencode($searchLastName); ?>" class="search-btn" style="background: #e0e0e0; color: #333; text-decoration: none;">Back to Search</a>
+                </form>
+            </div>
+            
+            <?php if (count($results) > 0): ?>
                 <div class="table-container">
                     <table class="activity-table">
                         <thead>
@@ -584,10 +671,10 @@ if ($searchLastName !== '' && $clientID === '') {
             <?php else: ?>
                 <div class="no-results">
                     <p style="font-size: 18px; margin: 0;">
-                        No activity found for Client ID: <?php echo htmlspecialchars($clientID); ?>
+                        No activity found for the selected date range
                     </p>
                     <p style="margin-top: 10px; color: #999;">
-                        Try a different Client ID or check if the ID is correct
+                        Try selecting a different date range above
                     </p>
                 </div>
             <?php endif; ?>
