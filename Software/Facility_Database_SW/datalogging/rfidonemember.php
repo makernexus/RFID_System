@@ -88,7 +88,7 @@ if ($searchLastName !== '' && $clientID === '') {
     }
     
     // Get activity data
-    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')" . $dateFilter . " ORDER BY dateEventLocal DESC LIMIT 200;";
+    $selectSQL = "SELECT dateEventLocal, firstName, logEvent, logData FROM `rawdata` WHERE clientID = '" . $escapedClientID . "' AND logEvent IN ('checkin denied','checked in','checked out')" . $dateFilter . " ORDER BY dateEventLocal DESC;";
     
     $result = mysqli_query($con, $selectSQL);
     $results = [];
