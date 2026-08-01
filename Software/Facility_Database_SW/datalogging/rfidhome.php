@@ -190,9 +190,11 @@ $authHeader = ob_get_clean();
             </div>
             
             <div class="report-card">
-                <h3>Online Visitor Log</h3>
+                <h3>Miscellaneous</h3>
+                <div class="permission-tag">Manager/Admin or MoD</div>
                 <ul>
-                    <li><a href="v2/OVLrecentvisitors.php">Last 5 days of visitors</a></li>
+                    <li><a href="RFIDbadger.php">Burn an RFID card</a></li>
+                    <li><a href="v2/OVLrecentvisitors.php">OVL: Last 5 days of visitors</a></li>
                 </ul>
             </div>
             
