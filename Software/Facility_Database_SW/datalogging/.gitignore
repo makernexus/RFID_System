@@ -1,0 +1,5 @@
+# Google Drive Integration
+
+# Add these files to .gitignore to avoid committing sensitive data
+google_drive_credentials.json
+google_drive_token.json
