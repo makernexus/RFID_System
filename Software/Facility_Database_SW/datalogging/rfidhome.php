@@ -215,6 +215,7 @@ $authHeader = ob_get_clean();
                     <li><a href="rfidshopusagebyhour.php?startDate=&endDate=">Usage Heat Map</a></li>
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
                     <li><a href="v2/OVLcheckinreport.php">Visitors per Month/Day Summary</a></li>
+                    <li><a href="v2/OVLfrequentvisitors.php">Frequent Visitors</a></li>
                 </ul>
             </div>
 
