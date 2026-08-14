@@ -1,0 +1,266 @@
+-- phpMyAdmin SQL Dump
+-- version 
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost
+-- Generation Time: Aug 14, 2026 at 10:23 PM
+-- Server version: 5.7.44-percona-sure1b-log
+-- PHP Version: 8.4.21
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+--
+-- Database: `makernexuswiki_rfidlogs`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin_log`
+--
+
+CREATE TABLE `admin_log` (
+  `logID` int(11) NOT NULL,
+  `logDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `adminUserID` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `adminUsername` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `actionType` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `clientID` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fieldChanged` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `beforeValue` text COLLATE utf8mb4_unicode_ci,
+  `afterValue` text COLLATE utf8mb4_unicode_ci,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `ipAddress` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_users`
+--
+
+CREATE TABLE `auth_users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `role` enum('admin','manager','reception','MoD') NOT NULL DEFAULT 'MoD',
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_login` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clientInfo`
+--
+
+CREATE TABLE `clientInfo` (
+  `recNum` int(11) NOT NULL,
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `clientID` int(11) NOT NULL,
+  `lastName` varchar(255) NOT NULL,
+  `firstName` varchar(255) NOT NULL,
+  `dateLastSeen` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `isCheckedIn` int(11) NOT NULL DEFAULT '0',
+  `displayClasses` varchar(25) NOT NULL DEFAULT ' ' COMMENT 'Will be the class attribute of the checkin photo screen',
+  `MOD_Eligible` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'true if client can be MoD'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `kiosk_tokens`
+--
+
+CREATE TABLE `kiosk_tokens` (
+  `id` int(11) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_used` datetime DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_by` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ovl_visits`
+--
+
+CREATE TABLE `ovl_visits` (
+  `recNum` int(11) NOT NULL,
+  `dateCreated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `dateCreatedLocal` datetime NOT NULL,
+  `dateUpdated` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `dateUpdatedLocal` datetime NOT NULL,
+  `nameFirst` varchar(64) NOT NULL,
+  `nameLast` varchar(64) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `phone` varchar(24) NOT NULL,
+  `visitReason` varchar(256) NOT NULL,
+  `previousRecNum` int(11) NOT NULL DEFAULT '0',
+  `dateCheckinLocal` datetime NOT NULL,
+  `dateCheckoutLocal` datetime NOT NULL,
+  `elapsedHours` int(11) NOT NULL DEFAULT '999',
+  `hasSignedWaiver` int(11) NOT NULL DEFAULT '0',
+  `howDidYouHear` varchar(128) NOT NULL,
+  `labelNeedsPrinting` int(11) NOT NULL DEFAULT '1',
+  `notes` varchar(256) NOT NULL,
+  `okToEmail` int(11) NOT NULL DEFAULT '1'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Used by Online Visitor Log';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rawdata`
+--
+
+CREATE TABLE `rawdata` (
+  `recNum` int(11) NOT NULL,
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `datePublishedAt` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `dateEventLocal` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `coreID` varchar(255) NOT NULL,
+  `deviceFunction` varchar(255) NOT NULL,
+  `clientID` varchar(255) NOT NULL DEFAULT ' ',
+  `firstName` varchar(255) NOT NULL,
+  `eventName` varchar(255) NOT NULL,
+  `logEvent` varchar(255) NOT NULL DEFAULT 'Not Provided',
+  `logData` varchar(255) NOT NULL DEFAULT ' ',
+  `ipAddress` varchar(45) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stationConfig`
+--
+
+CREATE TABLE `stationConfig` (
+  `recNum` int(11) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '0' COMMENT 'if <> 0 this is the active record for the deviceType',
+  `deviceType` int(11) NOT NULL COMMENT 'number used by device when looking for its config',
+  `deviceName` varchar(20) NOT NULL COMMENT 'Will be logged as deviceFunction in raw data',
+  `LCDName` varchar(16) NOT NULL COMMENT 'short name to display on LCD',
+  `photoDisplay` varchar(16) NOT NULL COMMENT 'short word to put under photo on Checked In web page',
+  `OKKeywords` varchar(128) NOT NULL COMMENT 'comma delimited. any word found in package allows checkin',
+  `logEvent` varchar(32) NOT NULL COMMENT 'Used as Particle Event Name. Will show up in rawdata',
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `admin_log`
+--
+ALTER TABLE `admin_log`
+  ADD PRIMARY KEY (`logID`),
+  ADD KEY `idx_logDate` (`logDate`),
+  ADD KEY `idx_adminUserID` (`adminUserID`),
+  ADD KEY `idx_clientID` (`clientID`),
+  ADD KEY `idx_actionType` (`actionType`);
+
+--
+-- Indexes for table `auth_users`
+--
+ALTER TABLE `auth_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `username_2` (`username`),
+  ADD KEY `role` (`role`);
+
+--
+-- Indexes for table `clientInfo`
+--
+ALTER TABLE `clientInfo`
+  ADD PRIMARY KEY (`recNum`),
+  ADD UNIQUE KEY `clientID` (`clientID`),
+  ADD KEY `ix_dateLastSeen` (`dateLastSeen`);
+
+--
+-- Indexes for table `kiosk_tokens`
+--
+ALTER TABLE `kiosk_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `token` (`token`),
+  ADD KEY `token_2` (`token`),
+  ADD KEY `is_active` (`is_active`);
+
+--
+-- Indexes for table `ovl_visits`
+--
+ALTER TABLE `ovl_visits`
+  ADD PRIMARY KEY (`recNum`),
+  ADD KEY `ix_ovl_visits_nameLast` (`nameLast`),
+  ADD KEY `ix_ovl_visits_timeCheckinLocal` (`dateCheckinLocal`),
+  ADD KEY `ix_ovl_visits_labelNeedsPrinting` (`labelNeedsPrinting`);
+
+--
+-- Indexes for table `rawdata`
+--
+ALTER TABLE `rawdata`
+  ADD PRIMARY KEY (`recNum`),
+  ADD KEY `i_dateEventLocal` (`dateEventLocal`),
+  ADD KEY `ix_clientID` (`clientID`);
+
+--
+-- Indexes for table `stationConfig`
+--
+ALTER TABLE `stationConfig`
+  ADD PRIMARY KEY (`recNum`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `admin_log`
+--
+ALTER TABLE `admin_log`
+  MODIFY `logID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `auth_users`
+--
+ALTER TABLE `auth_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `clientInfo`
+--
+ALTER TABLE `clientInfo`
+  MODIFY `recNum` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `kiosk_tokens`
+--
+ALTER TABLE `kiosk_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `ovl_visits`
+--
+ALTER TABLE `ovl_visits`
+  MODIFY `recNum` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `rawdata`
+--
+ALTER TABLE `rawdata`
+  MODIFY `recNum` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `stationConfig`
+--
+ALTER TABLE `stationConfig`
+  MODIFY `recNum` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;

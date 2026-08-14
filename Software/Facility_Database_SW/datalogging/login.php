@@ -167,6 +167,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Password: admin123<br>
             <em>(Please change after first login)</em>
         </div>
+        
+        <div style="text-align: center; margin-top: 15px; font-size: 13px;">
+            <a href="termsofuse.html" target="_blank">Terms of Use</a>
+        </div>
     </div>
 </body>
 </html>
