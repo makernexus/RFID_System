@@ -182,10 +182,11 @@ $authHeader = ob_get_clean();
         
         <div class="reports-grid">
             <div class="report-card">
-                <h3>Updating Displays</h3>
+                <h3>Current Activity Data</h3>
                 <ul>
                     <li><a href="rfidcurrentcheckinsWithMOD.php">Current CheckIns</a> ... or <a href="rfidcurrentcheckins.php">without MOD</a></li>
                     <li><a href="rfidcurrentstudio.php?studio=wood">Active In Woodshop</a></li>
+                    <li><a href="rfidcurrentcheckedinlist.php">ALL PEOPLE CURRENTLY IN THE BUILDING</a></li>
                 </ul>
             </div>
             
@@ -216,6 +217,8 @@ $authHeader = ob_get_clean();
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
                     <li><a href="v2/OVLcheckinreport.php">Visitors per Month/Day Summary</a></li>
                     <li><a href="v2/OVLfrequentvisitors.php">Frequent Visitors</a></li>
+                    <li><a href="rfidActivityDropoff.php">Member Activity Dropoff</a></li>
+                    <li><a href="rfidMemberRescue.php">Member Rescue</a></li>
                 </ul>
             </div>
 
