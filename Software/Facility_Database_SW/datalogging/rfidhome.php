@@ -182,17 +182,20 @@ $authHeader = ob_get_clean();
         
         <div class="reports-grid">
             <div class="report-card">
-                <h3>Updating Displays</h3>
+                <h3>Current Activity Data</h3>
                 <ul>
                     <li><a href="rfidcurrentcheckinsWithMOD.php">Current CheckIns</a> ... or <a href="rfidcurrentcheckins.php">without MOD</a></li>
                     <li><a href="rfidcurrentstudio.php?studio=wood">Active In Woodshop</a></li>
+                    <li><a href="rfidcurrentcheckedinlist.php">ALL PEOPLE CURRENTLY IN THE BUILDING</a></li>
                 </ul>
             </div>
             
             <div class="report-card">
-                <h3>Online Visitor Log</h3>
+                <h3>Miscellaneous</h3>
+                <div class="permission-tag">Manager/Admin or MoD</div>
                 <ul>
-                    <li><a href="v2/OVLrecentvisitors.php">Last 5 days of visitors</a></li>
+                    <li><a href="RFIDbadger.php">Burn an RFID card</a></li>
+                    <li><a href="v2/OVLrecentvisitors.php">OVL: Last 5 days of visitors</a></li>
                 </ul>
             </div>
             
@@ -212,6 +215,10 @@ $authHeader = ob_get_clean();
                     <li><a href="checkinreport.php">Members per Month/Day Summary</a></li>
                     <li><a href="rfidshopusagebyhour.php?startDate=&endDate=">Usage Heat Map</a></li>
                     <li><a href="rfidstudiousage.php?startDate=&endDate=">Studio Usage</a></li>
+                    <li><a href="v2/OVLcheckinreport.php">Visitors per Month/Day Summary</a></li>
+                    <li><a href="v2/OVLfrequentvisitors.php">Frequent Visitors</a></li>
+                    <li><a href="rfidActivityDropoff.php">Member Activity Dropoff</a></li>
+                    <li><a href="rfidMemberRescue.php">Member Rescue</a></li>
                 </ul>
             </div>
 
